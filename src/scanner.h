@@ -5,6 +5,12 @@
 #ifndef IFJ_PROJECT_2022_SCANNER_H
 #define IFJ_PROJECT_2022_SCANNER_H
 
+#include "ctype.h"
+#include "stdio.h"
+#include "stdbool.h"
+#include "stdlib.h"
+#include "string.h"
+
 typedef enum {
     Start,
     S_EOF,
@@ -25,7 +31,9 @@ typedef enum {
     S_Decimal_0,
     S_Decimal_1,
     S_Divide,
-    S_Comment,
+    S_Comment_SL,
+    S_Comment_ML,
+    S_Comment_ML_End,
     S_Dollar,
     S_Var,
     S_Exclamation,
@@ -104,19 +112,18 @@ typedef struct {
         DECIMAL_NUMBER,
         EXPONENT_NUMBER,
         GREATER,
+        GREATER_EQUAL,
         LESS,
+        LESS_EQUAL,
         ASSIGN,
         EQUAL,
         NOT_EQUAL,
         COMMENT,
         PHP_DECLARE,
+        PHP_END,
         ERROR_T,
     } type;
-    union {
-        char* string;
-        int value;
-        int index;
-    };
+    char* info;
 } Token;
 
 #endif //IFJ_PROJECT_2022_SCANNER_H

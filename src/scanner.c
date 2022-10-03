@@ -3,9 +3,8 @@
 //
 
 #include "scanner.h"
-#include "ctype.h"
-#include "stdio.h"
-#include "stdbool.h"
+
+
 
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
@@ -27,8 +26,8 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '?') return S_Question_Mark;
             if(c == '$') return S_Dollar;
             if(c == '!') return S_Exclamation;
-            if(c == '=') return S_Minus;
-            if(c == '-') return S_Assign;
+            if(c == '-') return S_Minus;
+            if(c == '=') return S_Assign;
             if(c == '>') return S_Greater;
             if(c == '<') return S_Less;
             if(c == '"') return S_String_0;
@@ -77,11 +76,17 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == 'e' || c == 'E') return S_Exponent_0;
             return ERROR;
         case S_Divide:
-            if(c == '/') return S_Comment;
+            if(c == '/') return S_Comment_SL;
+            if(c == '*') return S_Comment_ML;
             return ERROR;
-        case S_Comment:
+        case S_Comment_SL:
             if(c == '\n') return Start;
-            if(c != '\n') return S_Comment;
+            if(c != '\n') return S_Comment_SL;
+        case S_Comment_ML:
+            if(c == '*') return S_Comment_ML_End;
+            if(c != '*') return S_Comment_ML;
+        case S_Comment_ML_End:
+            if(c == '/') return Start;
         case S_Dollar:
             if(isalnum(c)) return S_Var;
             return ERROR;
@@ -119,7 +124,7 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_Less_Equal:
             return ERROR;
         case S_String_0:
-            if((int)c > 31 && c != '$') return S_String_0;
+            if(c > 31 && c != '$') return S_String_0;
             if(c == '\\') return S_Escape_0;
             if(c == '"') return S_String_1;
         case S_String_1:
@@ -128,22 +133,22 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '\\' || c == '"' || c == 'n' || c == 't' || c == '$') return S_Escape_1;
             if(c == 'x') return S_Hex_0;
             if(c == '"') return S_String_1;
-            if(isdigit(c) && (atoi(c) >= 0 && atoi(c) <= 3)) return S_Octal_0;
+            if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 3)) return S_Octal_0;
             return ERROR;
         case S_Escape_1:
-            if((int)c > 31 && c != '$') return S_String_0;
+            if(c > 31 && c != '$') return S_String_0;
             if(c == '"') return S_String_1;
             return ERROR;
         case S_Octal_0:
-            if(isdigit(c) && (atoi(c) >= 0 && atoi(c) <= 7)) return S_Octal_0;
+            if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             if(c == '"') return S_String_1;
             return ERROR;
         case S_Octal_1:
-            if(isdigit(c) && (atoi(c) >= 0 && atoi(c) <= 7)) return S_Octal_0;
+            if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             if(c == '"') return S_String_1;
             return ERROR;
         case S_Octal_2:
-            if((int)c > 31 && c != '$') return S_String_0;
+            if(c > 31 && c != '$') return S_String_0;
             if(c == '"') return S_String_1;
             return ERROR;
         case S_Hex_0:
@@ -155,7 +160,7 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '"') return S_String_1;
             return ERROR;
         case S_Hex_2:
-            if((int)c > 31 && c != '$') return S_String_0;
+            if(c > 31 && c != '$') return S_String_0;
             if(c == '"') return S_String_1;
             return ERROR;
         case S_PHP_0:
@@ -252,26 +257,160 @@ AutomatStates nextState(AutomatStates input, char c){
     }
 }
 
-Token selectToken(AutomatStates final) {
-
+Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
+    switch(final_state){
+        case S_EOF:
+            printf("\n|FINAL EOF|\n");
+            return (Token){.type=EOF_T, .info = token_msg};
+        case S_Dot:
+            printf("\n|FINAL DOT|\n");
+            return (Token){.type=DOT, .info = token_msg};
+        case S_Left_Bracket:
+            printf("\n|FINAL LEFT_BRACKET|\n");
+            return (Token){.type=LEFT_BRACKET, .info = token_msg};
+        case S_Right_Bracket:
+            printf("\n|FINAL RIGHT_BRACKET|\n");
+            return (Token){.type=RIGHT_BRACKET, .info = token_msg};
+        case S_Left_Curly_Bracket:
+            printf("\n|FINAL LEFT_CURLY_BRACKET|\n");
+            return (Token){.type=LEFT_CURLY_BRACKET, .info = token_msg};
+        case S_Right_Curly_Bracket:
+            printf("\n|FINAL RIGHT_CURLY_BRACKET|\n");
+            return (Token){.type=RIGHT_CURLY_BRACKET, .info = token_msg};
+        case S_Semicolon:
+            printf("\n|FINAL SEMICOLON|\n");
+            return (Token){.type=SEMICOLON, .info = token_msg};
+        case S_Plus:
+            printf("\n|FINAL PLUS|\n");
+            return (Token){.type=PLUS, .info = token_msg};
+        case S_Comma:
+            printf("\n|FINAL COMMA|\n");
+            return (Token){.type=COMMA, .info = token_msg};
+        case S_Multiply:
+            printf("\n|FINAL MULTIPLY|\n");
+            return (Token){.type=MULTIPLY, .info = token_msg};
+        case S_Minus:
+            printf("\n|FINAL MINUS|\n");
+            return (Token){.type=MINUS, .info = token_msg};
+        case S_Number:
+            printf("\n|FINAL NUMBER|\n");
+            return (Token){.type=NUMBER, .info = token_msg};
+        case S_Decimal_1:
+            printf("\n|FINAL DECIMAL|\n");
+            return (Token){.type=DECIMAL_NUMBER, .info = token_msg};
+        case S_Exponent_1:
+            printf("\n|FINAL EXPONENT|\n");
+            return (Token){.type=EXPONENT_NUMBER, .info = token_msg};
+        case S_Divide:
+            printf("\n|FINAL DIVIDE|\n");
+            return (Token){.type=DIVIDE, .info = token_msg};
+        case S_Question_Mark:
+            printf("\n|FINAL ?|\n");
+            return (Token){.type=QUESTION_MARK, .info = token_msg};
+        case S_PHP_END:
+            printf("\n|FINAL PHP_END|\n");
+            return (Token){.type=PHP_END, .info = token_msg};
+        case S_Var:
+            printf("\n|FINAL VAR|\n");
+            return (Token){.type=VAR_ID, .info = token_msg};
+        case S_Not_Equal_1:
+            printf("\n|FINAL NOT_EQUAL|\n");
+            return (Token){.type=NOT_EQUAL, .info = token_msg};
+        case S_Equal_1:
+            printf("\n|FINAL EQUAL|\n");
+            return (Token){.type=EQUAL, .info = token_msg};
+        case S_Identifier:
+            printf("\n|FINAL IDENTIFIER|\n");
+            return (Token){.type=IDENTIFIER, .info = token_msg};
+        case  S_Greater:
+            printf("\n|FINAL GREATER|\n");
+            return (Token){.type=GREATER, .info = token_msg};
+        case S_Greater_Equal:
+            printf("\n|FINAL GRETAER_EQUAL|\n");
+            return (Token){.type=GREATER_EQUAL, .info = token_msg};
+        case S_Less:
+            printf("\n|FINAL LESS|\n");
+            return (Token){.type=LESS, .info = token_msg};
+        case S_Less_Equal:
+            printf("\n|FINAL LESS_EQUAL|\n");
+            return (Token){.type=LESS_EQUAL, .info = token_msg};
+        case S_PHP_28:
+            printf("\n|FINAL PHP_DECLARE|\n");
+            return (Token){.type=PHP_DECLARE, .info = token_msg};
+        case S_String_1:
+            printf("\n|FINAL STRING|\n");
+            return (Token){.type=STRING, .info = token_msg};
+        case ERROR:
+            printf("\n|FINAL ERROR|\n");
+            return (Token){.type=ERROR_T, .info = token_msg};
+    }
 }
 
-void getToken(){
+Token getToken(){
+    Token return_token;
     AutomatStates current_state = Start;
+    int index = 0;
+    int size = 1;
+    char *str = calloc(size, sizeof(char));
+    if(str == NULL){
+        fprintf(stderr, "Memory didn't allocate!\n");
+        free(str);
+        return returnTokenCreator(ERROR, "Memory allocation error");
+    }
     while(1) {
         int c = getchar();
         if(c == EOF){
-            return;
+            if(current_state == Start){
+                free(str);
+                return returnTokenCreator(S_EOF, "EOF on start");
+            }else{
+                return_token = returnTokenCreator(current_state, str);
+                free(str);
+                return return_token;
+            }
         }
+
         AutomatStates next_state = nextState(current_state, c);
-        if(next == ERROR){
-            return ERROR_T;
+        if(next_state == ERROR){
+            str[index] = '\0';
+            printf("%s\n", str);
+            return_token = returnTokenCreator(current_state, str);
+            free(str);
+            return return_token;
         }
+
+        if(current_state != S_Comment_ML || current_state != S_Comment_SL){
+            str[index] = c;
+            index++;
+            if(size == index){
+                size++;
+                str = realloc(str, sizeof(char)*size);
+                if(str == NULL){
+                    fprintf(stderr, "Memory didn't allocate!\n");
+                    return returnTokenCreator(ERROR, "Memory allocation error");
+                }
+            }
+        }
+
+        if(next_state == Start){
+            index = 0;
+            size = 1;
+            free(str);
+            str = calloc(size, sizeof(char));
+        }
+
         current_state = next_state;
     }
 }
 
 int main(int argc, char* argv[]){
-    getToken();
+    printf("Starting program...\n");
+    while(1){
+        Token t = getToken();
+        if(t.type == EOF_T){
+            break;
+        }
+        //printf("%s\n", t.info);
+    }
     return 0;
 }

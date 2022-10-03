@@ -2,3 +2,7 @@
 .idea/
 
 .vscode/
+
+src/scanner.o
+
+src/scanner.exe
