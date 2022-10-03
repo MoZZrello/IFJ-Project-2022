@@ -6,6 +6,28 @@
 
 Token* tmp;
 
+AutomatStates nextState(AutomatStates input, char c);
+
+Token returnTokenCreator(AutomatStates final_state, char* token_msg);
+
+Token getToken();
+
+char* getTypeName(Token t);
+
+int main(int argc, char* argv[]){
+    printf("Starting program...\n");
+    while(1){
+        Token t = getToken();
+        if(t.type == EOF_T){
+            break;
+        }
+        printf("%s %s \n", t.info, getTypeName(t));
+        free(tmp->info);
+        free(tmp);
+    }
+    return 0;
+}
+
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
         case Start:
@@ -260,142 +282,109 @@ AutomatStates nextState(AutomatStates input, char c){
 }
 
 Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
-    tmp = malloc(sizeof(Token));
+    tmp = (Token *) calloc(1, sizeof(Token));
     if(tmp == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
-        free(tmp);
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
     tmp->info = calloc(strlen(token_msg), sizeof(char));
     if(tmp->info == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
-        free(tmp->info);
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
     tmp->info = token_msg;
     switch(final_state){
         case S_EOF:
-            printf("|FINAL EOF|\n");
             tmp->type = EOF_T;
             return *tmp;
         case S_Dot:
-            printf("|FINAL DOT|\n");
             tmp->type = DOT;
             return *tmp;
         case S_DoubleDot:
-            printf("|FINAL DOUBLEDOT|\n");
-            tmp->type = DOUBLEDOT;
+            tmp->type = DOUBLE_DOT;
             return *tmp;
         case S_Left_Bracket:
-            printf("|FINAL LEFT_BRACKET|\n");
             tmp->type = LEFT_BRACKET;
             return *tmp;
         case S_Right_Bracket:
-            printf("|FINAL RIGHT_BRACKET|\n");
             tmp->type = RIGHT_BRACKET;
             return *tmp;
         case S_Left_Curly_Bracket:
-            printf("|FINAL LEFT_CURLY_BRACKET|\n");
             tmp->type = LEFT_CURLY_BRACKET;
             return *tmp;
         case S_Right_Curly_Bracket:
-            printf("|FINAL RIGHT_CURLY_BRACKET|\n");
             tmp->type = RIGHT_CURLY_BRACKET;
             return *tmp;
         case S_Semicolon:
-            printf("|FINAL SEMICOLON|\n");
             tmp->type = SEMICOLON;
             return *tmp;
         case S_Plus:
-            printf("|FINAL PLUS|\n");
             tmp->type = PLUS;
             return *tmp;
         case S_Comma:
-            printf("|FINAL COMMA|\n");
             tmp->type = COMMA;
             return *tmp;
         case S_Multiply:
-            printf("|FINAL MULTIPLY|\n");
             tmp->type = MULTIPLY;
             return *tmp;
         case S_Minus:
-            printf("|FINAL MINUS|\n");
             tmp->type = MINUS;
             return *tmp;
         case S_Number:
-            printf("|FINAL NUMBER|\n");
             tmp->type = NUMBER;
             return *tmp;
         case S_Decimal_1:
-            printf("|FINAL DECIMAL|\n");
             tmp->type = DECIMAL_NUMBER;
             return *tmp;
         case S_Exponent_1:
-            printf("|FINAL EXPONENT|\n");
             tmp->type = EXPONENT_NUMBER;
             return *tmp;
         case S_Divide:
-            printf("|FINAL DIVIDE|\n");
             tmp->type = DIVIDE;
             return *tmp;
         case S_Question_Mark:
-            printf("|FINAL ?|\n");
             tmp->type = QUESTION_MARK;
             return *tmp;
         case S_PHP_END:
-            printf("|FINAL PHP_END|\n");
             tmp->type = PHP_END;
             return *tmp;
         case S_Var:
-            printf("|FINAL VAR|\n");
             tmp->type = VAR_ID;
             return *tmp;
         case S_Not_Equal_1:
-            printf("|FINAL NOT_EQUAL|\n");
             tmp->type = NOT_EQUAL;
             return *tmp;
         case S_Equal_1:
-            printf("|FINAL EQUAL|\n");
             tmp->type = EQUAL;
             return *tmp;
         case S_Identifier:
-            printf("|FINAL IDENTIFIER|\n");
             tmp->type = IDENTIFIER;
             return *tmp;
         case  S_Greater:
-            printf("|FINAL GREATER|\n");
             tmp->type = GREATER;
             return *tmp;
         case S_Greater_Equal:
-            printf("|FINAL GRETAER_EQUAL|\n");
             tmp->type = GREATER_EQUAL;
             return *tmp;
         case S_Less:
-            printf("|FINAL LESS|\n");
             tmp->type = LESS;
             return *tmp;
         case S_Assign:
-            printf("|FINAL ASSIGN|\n");
             tmp->type = ASSIGN;
             return *tmp;
         case S_Less_Equal:
-            printf("|FINAL LESS_EQUAL|\n");
             tmp->type = LESS_EQUAL;
             return *tmp;
         case S_PHP_28:
-            printf("|FINAL PHP_DECLARE|\n");
             tmp->type = PHP_DECLARE;
             return *tmp;
         case S_String_1:
-            printf("|FINAL STRING|\n");
             tmp->type = STRING;
             return *tmp;
         case ERROR:
-            printf("|FINAL ERROR|\n");
             tmp->type = ERROR_T;
             return *tmp;
         default:
-            printf("!NEZNAMA!\n");
             tmp->type = ERROR_T;
             return *tmp;
     }
@@ -409,18 +398,16 @@ Token getToken(){
     char *str = calloc(size, sizeof(char));
     if(str == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
-        free(str);
         return returnTokenCreator(ERROR, "Memory allocation error");
     }
     while(1) {
         int c = getchar();
         if(c == EOF){
             if(current_state == Start){
-                free(str);
                 return returnTokenCreator(S_EOF, "EOF on start");
             }else{
                 return_token = returnTokenCreator(current_state, str);
-                free(str);
+                printf("%s", return_token.info);
                 return return_token;
             }
         }
@@ -443,14 +430,12 @@ Token getToken(){
             str[index-1] = '\0';
             ungetc(c, stdin);
             return_token = returnTokenCreator(current_state, str);
-            free(str);
             return return_token;
         }
 
         if(next_state == Start){
             index = 0;
             size = 1;
-            free(str);
             str = calloc(size, sizeof(char));
         }
 
@@ -458,16 +443,71 @@ Token getToken(){
     }
 }
 
-int main(int argc, char* argv[]){
-    printf("Starting program...\n");
-    while(1){
-        Token t = getToken();
-        if(t.type == EOF_T){
-            break;
-        }
-        printf("%s\n", t.info);
-        free(tmp->info);
-        free(tmp);
+char* getTypeName(Token t){
+    switch(t.type){
+        case VAR_ID:
+            return "|VAR_ID|";
+        case IDENTIFIER:
+            return "|IDENTIFIER|";
+        case STRING:
+            return "|STRING|";
+        case EOF_T:
+            return "|EOF|";
+        case LEFT_BRACKET:
+            return "|LEFT BRACKET|";
+        case RIGHT_BRACKET:
+            return "|RIGHT BRACKET|";
+        case LEFT_CURLY_BRACKET:
+            return "|LEFT CURLY BRACKET|";
+        case RIGHT_CURLY_BRACKET:
+            return "|RIGHT CURLY BRACKET|";
+        case SEMICOLON:
+            return "|SEMICOLON|";
+        case PLUS:
+            return "|PLUS|";
+        case MINUS:
+            return "|MINUS|";
+        case COMMA:
+            return "|COMMA|";
+        case MULTIPLY:
+            return "|MULTIPLY|";
+        case DOT:
+            return "|DOT|";
+        case DOUBLE_DOT:
+            return "|DOUBLE DOT|";
+        case QUESTION_MARK:
+            return "|QUESTION MARK|";
+        case DIVIDE:
+            return "|DIVIDE|";
+        case NUMBER:
+            return "|NUMBER|";
+        case DECIMAL_NUMBER:
+            return "|DECIMAL NUMBER|";
+        case EXPONENT_NUMBER:
+            return "|EXPONENT NUMBER|";
+        case GREATER:
+            return "|GREATER|";
+        case GREATER_EQUAL:
+            return "|GREATER EQUAL|";
+        case LESS:
+            return "|LESS|";
+        case LESS_EQUAL:
+            return "|LESS EQUAL|";
+        case ASSIGN:
+            return "|ASSIGN|";
+        case EQUAL:
+            return "|EQUAL|";
+        case NOT_EQUAL:
+            return "|NOT EQUAL|";
+        case COMMENT:
+            return "|COMMENT|";
+        case PHP_DECLARE:
+            return "|PHP DECLARE|";
+        case PHP_END:
+            return "|PHP END|";
+        case ERROR_T:
+            return "|ERROR|";
+        default:
+            return "!UNKNOWN!";
     }
-    return 0;
 }

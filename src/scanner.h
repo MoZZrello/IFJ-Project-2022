@@ -107,7 +107,7 @@ typedef struct {
         COMMA,
         MULTIPLY,
         DOT,
-        DOUBLEDOT,
+        DOUBLE_DOT,
         QUESTION_MARK,
         DIVIDE,
         NUMBER,
