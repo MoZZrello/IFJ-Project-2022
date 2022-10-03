@@ -8,3 +8,17 @@ src/scanner.o
 src/scanner.exe
 
 src/ifj.exe
+
+src/cmake-build-debug/CMakeFiles/
+
+src/cmake-build-debug/
+
+cmake-build-debug/Testing/Temporary/
+
+cmake-build-debug/CMakeFiles/
+
+cmake-build-debug/.cmake/api/v1/query/
+
+cmake-build-debug/.cmake/api/v1/reply/
+
+cmake-build-debug/

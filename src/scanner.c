@@ -4,7 +4,7 @@
 
 #include "scanner.h"
 
-
+Token* tmp;
 
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
@@ -28,12 +28,15 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '!') return S_Exclamation;
             if(c == '=') return S_Assign;
             if(c == '>') return S_Greater;
+            if(c == ':') return S_DoubleDot;
             if(c == '<') return S_Less;
             if(c == '"') return S_String_0;
             return ERROR;
         case S_EOF:
             return ERROR;
         case S_Dot:
+            return ERROR;
+        case S_DoubleDot:
             return ERROR;
         case S_Left_Bracket:
             return ERROR;
@@ -257,97 +260,144 @@ AutomatStates nextState(AutomatStates input, char c){
 }
 
 Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
+    tmp = malloc(sizeof(Token));
+    if(tmp == NULL){
+        fprintf(stderr, "Memory didn't allocate!\n");
+        free(tmp);
+        return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
+    }
+    tmp->info = calloc(strlen(token_msg), sizeof(char));
+    if(tmp->info == NULL){
+        fprintf(stderr, "Memory didn't allocate!\n");
+        free(tmp->info);
+        return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
+    }
+    tmp->info = token_msg;
     switch(final_state){
         case S_EOF:
             printf("|FINAL EOF|\n");
-            return (Token){.type=EOF_T, .info = token_msg};
+            tmp->type = EOF_T;
+            return *tmp;
         case S_Dot:
             printf("|FINAL DOT|\n");
-            return (Token){.type=DOT, .info = token_msg};
+            tmp->type = DOT;
+            return *tmp;
+        case S_DoubleDot:
+            printf("|FINAL DOUBLEDOT|\n");
+            tmp->type = DOUBLEDOT;
+            return *tmp;
         case S_Left_Bracket:
             printf("|FINAL LEFT_BRACKET|\n");
-            return (Token){.type=LEFT_BRACKET, .info = token_msg};
+            tmp->type = LEFT_BRACKET;
+            return *tmp;
         case S_Right_Bracket:
             printf("|FINAL RIGHT_BRACKET|\n");
-            return (Token){.type=RIGHT_BRACKET, .info = token_msg};
+            tmp->type = RIGHT_BRACKET;
+            return *tmp;
         case S_Left_Curly_Bracket:
             printf("|FINAL LEFT_CURLY_BRACKET|\n");
-            return (Token){.type=LEFT_CURLY_BRACKET, .info = token_msg};
+            tmp->type = LEFT_CURLY_BRACKET;
+            return *tmp;
         case S_Right_Curly_Bracket:
             printf("|FINAL RIGHT_CURLY_BRACKET|\n");
-            return (Token){.type=RIGHT_CURLY_BRACKET, .info = token_msg};
+            tmp->type = RIGHT_CURLY_BRACKET;
+            return *tmp;
         case S_Semicolon:
             printf("|FINAL SEMICOLON|\n");
-            return (Token){.type=SEMICOLON, .info = token_msg};
+            tmp->type = SEMICOLON;
+            return *tmp;
         case S_Plus:
             printf("|FINAL PLUS|\n");
-            return (Token){.type=PLUS, .info = token_msg};
+            tmp->type = PLUS;
+            return *tmp;
         case S_Comma:
             printf("|FINAL COMMA|\n");
-            return (Token){.type=COMMA, .info = token_msg};
+            tmp->type = COMMA;
+            return *tmp;
         case S_Multiply:
             printf("|FINAL MULTIPLY|\n");
-            return (Token){.type=MULTIPLY, .info = token_msg};
+            tmp->type = MULTIPLY;
+            return *tmp;
         case S_Minus:
             printf("|FINAL MINUS|\n");
-            return (Token){.type=MINUS, .info = token_msg};
+            tmp->type = MINUS;
+            return *tmp;
         case S_Number:
             printf("|FINAL NUMBER|\n");
-            return (Token){.type=NUMBER, .info = token_msg};
+            tmp->type = NUMBER;
+            return *tmp;
         case S_Decimal_1:
             printf("|FINAL DECIMAL|\n");
-            return (Token){.type=DECIMAL_NUMBER, .info = token_msg};
+            tmp->type = DECIMAL_NUMBER;
+            return *tmp;
         case S_Exponent_1:
             printf("|FINAL EXPONENT|\n");
-            return (Token){.type=EXPONENT_NUMBER, .info = token_msg};
+            tmp->type = EXPONENT_NUMBER;
+            return *tmp;
         case S_Divide:
             printf("|FINAL DIVIDE|\n");
-            return (Token){.type=DIVIDE, .info = token_msg};
+            tmp->type = DIVIDE;
+            return *tmp;
         case S_Question_Mark:
             printf("|FINAL ?|\n");
-            return (Token){.type=QUESTION_MARK, .info = token_msg};
+            tmp->type = QUESTION_MARK;
+            return *tmp;
         case S_PHP_END:
             printf("|FINAL PHP_END|\n");
-            return (Token){.type=PHP_END, .info = token_msg};
+            tmp->type = PHP_END;
+            return *tmp;
         case S_Var:
             printf("|FINAL VAR|\n");
-            return (Token){.type=VAR_ID, .info = token_msg};
+            tmp->type = VAR_ID;
+            return *tmp;
         case S_Not_Equal_1:
             printf("|FINAL NOT_EQUAL|\n");
-            return (Token){.type=NOT_EQUAL, .info = token_msg};
+            tmp->type = NOT_EQUAL;
+            return *tmp;
         case S_Equal_1:
             printf("|FINAL EQUAL|\n");
-            return (Token){.type=EQUAL, .info = token_msg};
+            tmp->type = EQUAL;
+            return *tmp;
         case S_Identifier:
             printf("|FINAL IDENTIFIER|\n");
-            return (Token){.type=IDENTIFIER, .info = token_msg};
+            tmp->type = IDENTIFIER;
+            return *tmp;
         case  S_Greater:
             printf("|FINAL GREATER|\n");
-            return (Token){.type=GREATER, .info = token_msg};
+            tmp->type = GREATER;
+            return *tmp;
         case S_Greater_Equal:
             printf("|FINAL GRETAER_EQUAL|\n");
-            return (Token){.type=GREATER_EQUAL, .info = token_msg};
+            tmp->type = GREATER_EQUAL;
+            return *tmp;
         case S_Less:
             printf("|FINAL LESS|\n");
-            return (Token){.type=LESS, .info = token_msg};
+            tmp->type = LESS;
+            return *tmp;
         case S_Assign:
             printf("|FINAL ASSIGN|\n");
-            return (Token){.type=ASSIGN, .info = token_msg};
+            tmp->type = ASSIGN;
+            return *tmp;
         case S_Less_Equal:
             printf("|FINAL LESS_EQUAL|\n");
-            return (Token){.type=LESS_EQUAL, .info = token_msg};
+            tmp->type = LESS_EQUAL;
+            return *tmp;
         case S_PHP_28:
             printf("|FINAL PHP_DECLARE|\n");
-            return (Token){.type=PHP_DECLARE, .info = token_msg};
+            tmp->type = PHP_DECLARE;
+            return *tmp;
         case S_String_1:
             printf("|FINAL STRING|\n");
-            return (Token){.type=STRING, .info = token_msg};
+            tmp->type = STRING;
+            return *tmp;
         case ERROR:
             printf("|FINAL ERROR|\n");
-            return (Token){.type=ERROR_T, .info = token_msg};
+            tmp->type = ERROR_T;
+            return *tmp;
         default:
             printf("!NEZNAMA!\n");
-            return (Token){.type=ERROR_T, .info = token_msg};
+            tmp->type = ERROR_T;
+            return *tmp;
     }
 }
 
@@ -391,7 +441,6 @@ Token getToken(){
         AutomatStates next_state = nextState(current_state, c);
         if(next_state == ERROR){
             str[index-1] = '\0';
-            printf("%s\n", str); 
             ungetc(c, stdin);
             return_token = returnTokenCreator(current_state, str);
             free(str);
@@ -416,7 +465,9 @@ int main(int argc, char* argv[]){
         if(t.type == EOF_T){
             break;
         }
-        //printf("%s\n", t.info);
+        printf("%s\n", t.info);
+        free(tmp->info);
+        free(tmp);
     }
     return 0;
 }
