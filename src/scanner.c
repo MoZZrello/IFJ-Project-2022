@@ -4,7 +4,7 @@
 
 #include "scanner.h"
 
-Token* tmp;
+Token* tmp_token;
 
 AutomatStates nextState(AutomatStates input, char c);
 
@@ -14,19 +14,7 @@ Token getToken();
 
 char* getTypeName(Token t);
 
-int main(int argc, char* argv[]){
-    printf("Starting program...\n");
-    while(1){
-        Token t = getToken();
-        if(t.type == EOF_T){
-            break;
-        }
-        printf("%s %s \n", t.info, getTypeName(t));
-        free(tmp->info);
-        free(tmp);
-    }
-    return 0;
-}
+
 
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
@@ -282,111 +270,111 @@ AutomatStates nextState(AutomatStates input, char c){
 }
 
 Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
-    tmp = (Token *) calloc(1, sizeof(Token));
-    if(tmp == NULL){
+    tmp_token = (Token *) calloc(1, sizeof(Token));
+    if(tmp_token == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
-    tmp->info = calloc(strlen(token_msg), sizeof(char));
-    if(tmp->info == NULL){
+    tmp_token->info = calloc(strlen(token_msg), sizeof(char));
+    if(tmp_token->info == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
-    tmp->info = token_msg;
+    tmp_token->info = token_msg;
     switch(final_state){
         case S_EOF:
-            tmp->type = EOF_T;
-            return *tmp;
+            tmp_token->type = EOF_T;
+            return *tmp_token;
         case S_Dot:
-            tmp->type = DOT;
-            return *tmp;
+            tmp_token->type = DOT;
+            return *tmp_token;
         case S_DoubleDot:
-            tmp->type = DOUBLE_DOT;
-            return *tmp;
+            tmp_token->type = DOUBLE_DOT;
+            return *tmp_token;
         case S_Left_Bracket:
-            tmp->type = LEFT_BRACKET;
-            return *tmp;
+            tmp_token->type = LEFT_BRACKET;
+            return *tmp_token;
         case S_Right_Bracket:
-            tmp->type = RIGHT_BRACKET;
-            return *tmp;
+            tmp_token->type = RIGHT_BRACKET;
+            return *tmp_token;
         case S_Left_Curly_Bracket:
-            tmp->type = LEFT_CURLY_BRACKET;
-            return *tmp;
+            tmp_token->type = LEFT_CURLY_BRACKET;
+            return *tmp_token;
         case S_Right_Curly_Bracket:
-            tmp->type = RIGHT_CURLY_BRACKET;
-            return *tmp;
+            tmp_token->type = RIGHT_CURLY_BRACKET;
+            return *tmp_token;
         case S_Semicolon:
-            tmp->type = SEMICOLON;
-            return *tmp;
+            tmp_token->type = SEMICOLON;
+            return *tmp_token;
         case S_Plus:
-            tmp->type = PLUS;
-            return *tmp;
+            tmp_token->type = PLUS;
+            return *tmp_token;
         case S_Comma:
-            tmp->type = COMMA;
-            return *tmp;
+            tmp_token->type = COMMA;
+            return *tmp_token;
         case S_Multiply:
-            tmp->type = MULTIPLY;
-            return *tmp;
+            tmp_token->type = MULTIPLY;
+            return *tmp_token;
         case S_Minus:
-            tmp->type = MINUS;
-            return *tmp;
+            tmp_token->type = MINUS;
+            return *tmp_token;
         case S_Number:
-            tmp->type = NUMBER;
-            return *tmp;
+            tmp_token->type = NUMBER;
+            return *tmp_token;
         case S_Decimal_1:
-            tmp->type = DECIMAL_NUMBER;
-            return *tmp;
+            tmp_token->type = DECIMAL_NUMBER;
+            return *tmp_token;
         case S_Exponent_1:
-            tmp->type = EXPONENT_NUMBER;
-            return *tmp;
+            tmp_token->type = EXPONENT_NUMBER;
+            return *tmp_token;
         case S_Divide:
-            tmp->type = DIVIDE;
-            return *tmp;
+            tmp_token->type = DIVIDE;
+            return *tmp_token;
         case S_Question_Mark:
-            tmp->type = QUESTION_MARK;
-            return *tmp;
+            tmp_token->type = QUESTION_MARK;
+            return *tmp_token;
         case S_PHP_END:
-            tmp->type = PHP_END;
-            return *tmp;
+            tmp_token->type = PHP_END;
+            return *tmp_token;
         case S_Var:
-            tmp->type = VAR_ID;
-            return *tmp;
+            tmp_token->type = VAR_ID;
+            return *tmp_token;
         case S_Not_Equal_1:
-            tmp->type = NOT_EQUAL;
-            return *tmp;
+            tmp_token->type = NOT_EQUAL;
+            return *tmp_token;
         case S_Equal_1:
-            tmp->type = EQUAL;
-            return *tmp;
+            tmp_token->type = EQUAL;
+            return *tmp_token;
         case S_Identifier:
-            tmp->type = IDENTIFIER;
-            return *tmp;
+            tmp_token->type = IDENTIFIER;
+            return *tmp_token;
         case  S_Greater:
-            tmp->type = GREATER;
-            return *tmp;
+            tmp_token->type = GREATER;
+            return *tmp_token;
         case S_Greater_Equal:
-            tmp->type = GREATER_EQUAL;
-            return *tmp;
+            tmp_token->type = GREATER_EQUAL;
+            return *tmp_token;
         case S_Less:
-            tmp->type = LESS;
-            return *tmp;
+            tmp_token->type = LESS;
+            return *tmp_token;
         case S_Assign:
-            tmp->type = ASSIGN;
-            return *tmp;
+            tmp_token->type = ASSIGN;
+            return *tmp_token;
         case S_Less_Equal:
-            tmp->type = LESS_EQUAL;
-            return *tmp;
+            tmp_token->type = LESS_EQUAL;
+            return *tmp_token;
         case S_PHP_28:
-            tmp->type = PHP_DECLARE;
-            return *tmp;
+            tmp_token->type = PHP_DECLARE;
+            return *tmp_token;
         case S_String_1:
-            tmp->type = STRING;
-            return *tmp;
+            tmp_token->type = STRING;
+            return *tmp_token;
         case ERROR:
-            tmp->type = ERROR_T;
-            return *tmp;
+            tmp_token->type = ERROR_T;
+            return *tmp_token;
         default:
-            tmp->type = ERROR_T;
-            return *tmp;
+            tmp_token->type = ERROR_T;
+            return *tmp_token;
     }
 }
 

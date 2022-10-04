@@ -6,5 +6,4 @@ set(CMAKE_C_STANDARD 11)
 include_directories(src)
 
 add_executable(IFJ_Project_2022
-        src/scanner.c
-        src/scanner.h)
+         src/main.c)
