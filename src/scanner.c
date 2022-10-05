@@ -19,7 +19,6 @@ char* getTypeName(Token t);
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
         case Start:
-            if(c == 'd') return S_PHP_5;
             if(isspace(c)) return Start;
             if(isalpha(c)) return S_Identifier;
             if(isdigit(c)) return S_Number;
@@ -190,83 +189,6 @@ AutomatStates nextState(AutomatStates input, char c){
             return ERROR;
         case S_PHP_4:
             return ERROR;
-        case S_PHP_5:
-            if(c == 'e') return S_PHP_6;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_6:
-            if(c == 'c') return S_PHP_7;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_7:
-            if(c == 'l') return S_PHP_8;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_8:
-            if(c == 'a') return S_PHP_9;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_9:
-            if(c == 'r') return S_PHP_10;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_10:
-            if(c == 'e') return S_PHP_11;
-            if(isalpha(c)) return S_Identifier;
-            return ERROR;
-        case S_PHP_11:
-            if(c == '(') return S_PHP_12;
-            return ERROR;
-        case S_PHP_12:
-            if(c == 's') return S_PHP_13;
-            return ERROR;
-        case S_PHP_13:
-            if(c == 't') return S_PHP_14;
-            return ERROR;
-        case S_PHP_14:
-            if(c == 'r') return S_PHP_15;
-            return ERROR;
-        case S_PHP_15:
-            if(c == 'i') return S_PHP_16;
-            return ERROR;
-        case S_PHP_16:
-            if(c == 'c') return S_PHP_17;
-            return ERROR;
-        case S_PHP_17:
-            if(c == 't') return S_PHP_18;
-            return ERROR;
-        case S_PHP_18:
-            if(c == '_') return S_PHP_19;
-            return ERROR;
-        case S_PHP_19:
-            if(c == 't') return S_PHP_20;
-            return ERROR;
-        case S_PHP_20:
-            if(c == 'y') return S_PHP_21;
-            return ERROR;
-        case S_PHP_21:
-            if(c == 'p') return S_PHP_22;
-            return ERROR;
-        case S_PHP_22:
-            if(c == 'e') return S_PHP_23;
-            return ERROR;
-        case S_PHP_23:
-            if(c == 's') return S_PHP_24;
-            return ERROR;
-        case S_PHP_24:
-            if(c == '=') return S_PHP_25;
-            return ERROR;
-        case S_PHP_25:
-            if(c == '1') return S_PHP_26;
-            return ERROR;
-        case S_PHP_26:
-            if(c == ')') return S_PHP_27;
-            return ERROR;
-        case S_PHP_27:
-            if(c == ';') return S_PHP_28;
-            return ERROR;
-        case S_PHP_28:
-            return ERROR;
         case S_PHP_END:
             return ERROR;
         case ERROR:
@@ -371,9 +293,6 @@ Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
             return *tmp_token;
         case S_PHP_4:
             tmp_token->type = PHP;
-            return *tmp_token;
-        case S_PHP_28:
-            tmp_token->type = DECLARE;
             return *tmp_token;
         case S_String_1:
             tmp_token->type = STRING;
@@ -500,8 +419,6 @@ char* getTypeName(Token t){
             return "|COMMENT|";
         case PHP:
             return "|PHP|";
-        case DECLARE:
-            return "|DECLARE|";
         case PHP_END:
             return "|PHP END|";
         case ERROR_T:
