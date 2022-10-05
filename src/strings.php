@@ -1,4 +1,4 @@
-<?php
+<?php //comment
 declare(strict_types=1);
 /* Program 3: Prace s retezci a vestavenymi funkcemi */
 $str1 = "Toto je nejaky text v programu jazyka IFJ22";

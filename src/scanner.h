@@ -121,7 +121,8 @@ typedef struct {
         EQUAL,
         NOT_EQUAL,
         COMMENT,
-        PHP_DECLARE,
+        PHP,
+        DECLARE,
         PHP_END,
         ERROR_T,
     } type;

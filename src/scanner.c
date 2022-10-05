@@ -19,8 +19,9 @@ char* getTypeName(Token t);
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
         case Start:
+            if(c == 'd') return S_PHP_5;
             if(isspace(c)) return Start;
-            if(isalpha(c) || c == '_') return S_Identifier;
+            if(isalpha(c)) return S_Identifier;
             if(isdigit(c)) return S_Number;
             if(c == '-') return S_Minus;
             if(c == '*') return S_Multiply;
@@ -188,25 +189,30 @@ AutomatStates nextState(AutomatStates input, char c){
             if(isspace(c)) return S_PHP_4;
             return ERROR;
         case S_PHP_4:
-            if(c == 'd') return S_PHP_5;
             return ERROR;
         case S_PHP_5:
             if(c == 'e') return S_PHP_6;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_6:
             if(c == 'c') return S_PHP_7;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_7:
             if(c == 'l') return S_PHP_8;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_8:
             if(c == 'a') return S_PHP_9;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_9:
             if(c == 'r') return S_PHP_10;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_10:
             if(c == 'e') return S_PHP_11;
+            if(isalpha(c)) return S_Identifier;
             return ERROR;
         case S_PHP_11:
             if(c == '(') return S_PHP_12;
@@ -363,8 +369,11 @@ Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
         case S_Less_Equal:
             tmp_token->type = LESS_EQUAL;
             return *tmp_token;
+        case S_PHP_4:
+            tmp_token->type = PHP;
+            return *tmp_token;
         case S_PHP_28:
-            tmp_token->type = PHP_DECLARE;
+            tmp_token->type = DECLARE;
             return *tmp_token;
         case S_String_1:
             tmp_token->type = STRING;
@@ -489,8 +498,10 @@ char* getTypeName(Token t){
             return "|NOT EQUAL|";
         case COMMENT:
             return "|COMMENT|";
-        case PHP_DECLARE:
-            return "|PHP DECLARE|";
+        case PHP:
+            return "|PHP|";
+        case DECLARE:
+            return "|DECLARE|";
         case PHP_END:
             return "|PHP END|";
         case ERROR_T:
