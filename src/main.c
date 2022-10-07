@@ -12,7 +12,7 @@ int main(){
         if(t.type == EOF_T){
             break;
         }
-        printf("%s %s \n", t.info, getTypeName(t));
+        printf("%s %s \n",t.info ,getTypeName(t));
         free(tmp_token->info);
         free(tmp_token);
     }

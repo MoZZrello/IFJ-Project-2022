@@ -40,7 +40,7 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '>') return S_Greater;
             if(c == ':') return S_DoubleDot;
             if(c == '<') return S_Less;
-            if(c == '"') return S_String_0;
+            if(c == '"' || c == 39) return S_String_0;
             return ERROR;
         case S_EOF:
             return ERROR;
@@ -99,6 +99,7 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c != '*') return S_Comment_ML;
         case S_Comment_ML_End:
             if(c == '/') return Start;
+            return S_Comment_ML;
         case S_Dollar:
             if(isalnum(c)) return S_Var;
             return ERROR;
@@ -136,43 +137,43 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_Less_Equal:
             return ERROR;
         case S_String_0:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(c == '\\') return S_Escape_0;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_String_1:
             return ERROR;
         case S_Escape_0:
-            if(c == '\\' || c == '"' || c == 'n' || c == 't' || c == '$') return S_Escape_1;
+            if(c == '\\' || c == '"' || c == 'n' || c == 't' || c == '$' || c == 39) return S_Escape_1;
             if(c == 'x') return S_Hex_0;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 3)) return S_Octal_0;
-            return ERROR;
+            return S_String_0;
         case S_Escape_1:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_Octal_0:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             return ERROR;
         case S_Octal_1:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             return ERROR;
         case S_Octal_2:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_Hex_0:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(isalnum(c)) return S_Hex_1;
             return ERROR;
         case S_Hex_1:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(isalnum(c)) return S_Hex_2;
             return ERROR;
         case S_Hex_2:
-            if(c == '"') return S_String_1;
+            if(c == '"' || c == 39) return S_String_1;
             if(c > 31 && c != '$') return S_String_0;
             return ERROR;
         case S_PHP_0:
@@ -323,7 +324,6 @@ Token getToken(){
                 return returnTokenCreator(S_EOF, "EOF on start");
             }else{
                 return_token = returnTokenCreator(current_state, str);
-                printf("%s", return_token.info);
                 return return_token;
             }
         }
