@@ -8,7 +8,7 @@
 
 typedef struct string_struct
 {
-    char* info;
+    char* data;
     int length;
     int allocSize;
 } string;

@@ -11,6 +11,8 @@
 #include "string.h"
 #include "scanner.h"
 #include "strings.h"
+#include "errors.h"
+#include "stdbool.h"
 
 typedef enum {
     Start,
@@ -68,6 +70,20 @@ typedef enum {
     ERROR
 } AutomatStates;
 
+typedef enum {
+    ELSE_K,
+    FLOAT_K,
+    FUNCTION_K,
+    IF_K,
+    INT_K,
+    NULL_K,
+    RETURN_K,
+    STRING_K,
+    VOID_K,
+    WHILE_K,
+    UNKNOWN_K,
+} KeywordType;
+
 typedef struct {
     enum {
         VAR_ID,
@@ -102,7 +118,9 @@ typedef struct {
         PHP_END,
         ERROR_T,
     } type;
-    char* info;
+    char *info;
+    bool isKeyword;
+    KeywordType kwt;
 } Token;
 
 

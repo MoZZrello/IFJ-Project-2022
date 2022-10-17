@@ -9,11 +9,13 @@ Token *tmp_token;
 
 AutomatStates nextState(AutomatStates input, char c);
 
-Token returnTokenCreator(AutomatStates final_state, char* str);
+Token returnTokenCreator(AutomatStates final_state, string* str);
 
 Token getToken();
 
 char* getTypeName(Token t);
+
+char* getKeywordTypeName(Token t);
 
 void tokenFree();
 
@@ -201,13 +203,20 @@ AutomatStates nextState(AutomatStates input, char c){
     }
 }
 
-Token returnTokenCreator(AutomatStates final_state, char* str) {
+Token returnTokenCreator(AutomatStates final_state, string* str) {
     tmp_token = (Token *) calloc(1, sizeof(Token));
     if(tmp_token == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
-    tmp_token->info = str;
+    tmp_token->kwt = keywordCheck(str);
+    if (tmp_token->kwt != UNKNOWN_K){
+        tmp_token->isKeyword = true;
+    } else {
+        tmp_token->isKeyword = false;
+    }
+    tmp_token->info = str->data;
+
     switch(final_state){
         case S_EOF:
             tmp_token->type = EOF_T;
@@ -302,11 +311,6 @@ Token returnTokenCreator(AutomatStates final_state, char* str) {
     }
 }
 
-void tokenFree(){
-    free(tmp_token->info);
-    free(tmp_token);
-}
-
 Token getToken(string str){
     Token return_token;
     AutomatStates current_state = Start;
@@ -314,10 +318,10 @@ Token getToken(string str){
         int c = getchar();
         if(c == EOF){
             if(current_state == Start){
-                str.info = "EOF";
-                return returnTokenCreator(S_EOF, "EOF on start");
+                str.data = "EOF";
+                return returnTokenCreator(S_EOF, &str);
             }else{
-                return_token = returnTokenCreator(current_state, str.info);
+                return_token = returnTokenCreator(current_state, &str);
                 return return_token;
             }
         }
@@ -325,7 +329,7 @@ Token getToken(string str){
         AutomatStates next_state = nextState(current_state, (char)c);
         if(next_state == ERROR){
             ungetc(c, stdin);
-            return_token = returnTokenCreator(current_state, str.info);
+            return_token = returnTokenCreator(current_state, &str);
             return return_token;
         }
 
@@ -408,4 +412,34 @@ char* getTypeName(Token t){
         default:
             return "!UNKNOWN!";
     }
+}
+
+char* getKeywordTypeName(Token t){
+    switch(t.kwt){
+        case ELSE_K:
+            return "|KW - ELSE|";
+        case FLOAT_K:
+            return "|KW - FLOAT|";
+        case FUNCTION_K:
+            return "|KW - FUNCTION|";
+        case IF_K:
+            return "|KW - IF|";
+        case INT_K:
+            return "|KW - INT|";
+        case NULL_K:
+            return "|KW - NULL|";
+        case RETURN_K:
+            return "|KW - RETURN|";
+        case STRING_K:
+            return "|KW - STRING|";
+        case VOID_K:
+            return "|KW - VOID|";
+        default:
+            return "";
+    }
+}
+
+void tokenFree(){
+    free(tmp_token->info);
+    free(tmp_token);
 }

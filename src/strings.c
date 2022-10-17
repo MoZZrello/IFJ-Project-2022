@@ -6,41 +6,68 @@
 #include "stdlib.h"
 #include "string.h"
 #include "strings.h"
+#include "errors.h"
 
 
 
 int stringInit(string *s){
-    s->info = (char*) malloc(8*sizeof(char));
-    if(s->info == NULL){
+    s->data = (char*) malloc(8 * sizeof(char));
+    if(s->data == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
-        return 1;
+        return ERR_INTERNAL;
     }
-    s->info[0] = '\0';
+    s->data[0] = '\0';
     s->length = 0;
     s->allocSize = 8;
-    return 0;
+    return PROG_OK;
 }
 
 int addChar(string *s, char c){
     if (s->length +1 >= s->allocSize) {
-        char *tmp = (char *) realloc(s->info, (s->length + 8)*sizeof(char));
+        char *tmp = (char *) realloc(s->data, (s->length + 8) * sizeof(char));
         if (tmp == NULL) {
             fprintf(stderr, "Memory didn't allocate!\n");
-            return 1;
+            return ERR_INTERNAL;
         } else {
-            s->info = tmp;
+            s->data = tmp;
         }
         s->allocSize = s->length + 8;
     }
 
-    s->info[s->length] = c;
+    s->data[s->length] = c;
     s->length++;
-    s->info[s->length] = '\0';
-    return 0;
+    s->data[s->length] = '\0';
+    return PROG_OK;
 }
 
 void stringClear(string *s){
-    s->info[0] = '\0';
+    s->data[0] = '\0';
     s->length = 0;
+}
+
+KeywordType keywordCheck(string *s){
+    if (strcmp(s->data, "else") == 0){
+        return ELSE_K;
+    } else if (strcmp(s->data, "float") == 0) {
+        return FLOAT_K;
+    } else if (strcmp(s->data, "function") == 0) {
+        return FUNCTION_K;
+    } else if (strcmp(s->data, "if") == 0) {
+        return IF_K;
+    } else if (strcmp(s->data, "int") == 0) {
+        return INT_K;
+    } else if (strcmp(s->data, "null") == 0) {
+        return NULL_K;
+    } else if (strcmp(s->data, "return") == 0) {
+        return RETURN_K;
+    } else if (strcmp(s->data, "string") == 0) {
+        return STRING_K;
+    } else if (strcmp(s->data, "void") == 0) {
+        return VOID_K;
+    } else if (strcmp(s->data, "while") == 0) {
+        return WHILE_K;
+    } else {
+        return UNKNOWN_K;
+    }
 }
 
