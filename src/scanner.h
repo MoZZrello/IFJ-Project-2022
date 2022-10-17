@@ -7,9 +7,10 @@
 
 #include "ctype.h"
 #include "stdio.h"
-#include "stdbool.h"
 #include "stdlib.h"
 #include "string.h"
+#include "scanner.h"
+#include "strings.h"
 
 typedef enum {
     Start,
@@ -103,5 +104,7 @@ typedef struct {
     } type;
     char* info;
 } Token;
+
+
 
 #endif //IFJ_PROJECT_2022_SCANNER_H

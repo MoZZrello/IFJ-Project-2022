@@ -3,16 +3,19 @@
 //
 
 #include "scanner.h"
+#include "strings.c"
 
-Token* tmp_token;
+Token *tmp_token;
 
 AutomatStates nextState(AutomatStates input, char c);
 
-Token returnTokenCreator(AutomatStates final_state, char* token_msg);
+Token returnTokenCreator(AutomatStates final_state, char* str);
 
 Token getToken();
 
 char* getTypeName(Token t);
+
+void tokenFree();
 
 
 
@@ -198,18 +201,13 @@ AutomatStates nextState(AutomatStates input, char c){
     }
 }
 
-Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
+Token returnTokenCreator(AutomatStates final_state, char* str) {
     tmp_token = (Token *) calloc(1, sizeof(Token));
     if(tmp_token == NULL){
         fprintf(stderr, "Memory didn't allocate!\n");
         return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
     }
-    tmp_token->info = calloc(strlen(token_msg), sizeof(char));
-    if(tmp_token->info == NULL){
-        fprintf(stderr, "Memory didn't allocate!\n");
-        return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
-    }
-    tmp_token->info = token_msg;
+    tmp_token->info = str;
     switch(final_state){
         case S_EOF:
             tmp_token->type = EOF_T;
@@ -298,61 +296,44 @@ Token returnTokenCreator(AutomatStates final_state, char* token_msg) {
         case S_String_1:
             tmp_token->type = STRING;
             return *tmp_token;
-        case ERROR:
-            tmp_token->type = ERROR_T;
-            return *tmp_token;
         default:
             tmp_token->type = ERROR_T;
             return *tmp_token;
     }
 }
 
-Token getToken(){
+void tokenFree(){
+    free(tmp_token->info);
+    free(tmp_token);
+}
+
+Token getToken(string str){
     Token return_token;
     AutomatStates current_state = Start;
-    int index = 0;
-    int size = 1;
-    char *str = calloc(size, sizeof(char));
-    if(str == NULL){
-        fprintf(stderr, "Memory didn't allocate!\n");
-        return returnTokenCreator(ERROR, "Memory allocation error");
-    }
     while(1) {
         int c = getchar();
         if(c == EOF){
             if(current_state == Start){
                 return returnTokenCreator(S_EOF, "EOF on start");
             }else{
-                return_token = returnTokenCreator(current_state, str);
+                return_token = returnTokenCreator(current_state, str.info);
                 return return_token;
             }
         }
 
-        if(current_state != S_Comment_ML || current_state != S_Comment_SL){
-            str[index] = c;
-            index++;
-            if(size == index){
-                size++;
-                str = realloc(str, sizeof(char)*size);
-                if(str == NULL){
-                    fprintf(stderr, "Memory didn't allocate!\n");
-                    return returnTokenCreator(ERROR, "Memory allocation error");
-                }
-            }
-        }
-
-        AutomatStates next_state = nextState(current_state, c);
+        AutomatStates next_state = nextState(current_state, (char)c);
         if(next_state == ERROR){
-            str[index-1] = '\0';
             ungetc(c, stdin);
-            return_token = returnTokenCreator(current_state, str);
+            return_token = returnTokenCreator(current_state, str.info);
             return return_token;
         }
 
+        if(current_state != S_Comment_ML || current_state != S_Comment_SL){
+            addChar(&str, (char)c);
+        }
+
         if(next_state == Start){
-            index = 0;
-            size = 1;
-            str = calloc(size, sizeof(char));
+            stringClear(&str);
         }
 
         current_state = next_state;

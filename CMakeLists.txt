@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16)
 project(IFJ_Project_2022 C)
 
 set(CMAKE_C_STANDARD 11)
