@@ -314,6 +314,7 @@ Token getToken(string str){
         int c = getchar();
         if(c == EOF){
             if(current_state == Start){
+                str.info = "EOF";
                 return returnTokenCreator(S_EOF, "EOF on start");
             }else{
                 return_token = returnTokenCreator(current_state, str.info);
@@ -328,7 +329,7 @@ Token getToken(string str){
             return return_token;
         }
 
-        if(current_state != S_Comment_ML || current_state != S_Comment_SL){
+        if(current_state != S_Comment_ML && current_state != S_Comment_SL){
             addChar(&str, (char)c);
         }
 
