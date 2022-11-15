@@ -204,7 +204,7 @@ void stmt() {
 
     else if (!strcmp(getTypeName(token), "|VAR_ID|")) { //todo urobit premenne  //tu sme skoncili
         token = getToken(str);
-        if (strcmp(token.info, "=")) {
+        if (strcmp(token.info, "=") == 0) {
             printf("error =\n");
         }
         else {
