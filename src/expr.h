@@ -34,7 +34,7 @@ typedef enum{
 typedef struct stack_entry{
 	char *data;
 	struct stack_entry *next;
-};
+} stack_entry;
 
 struct stack_t {
 	struct stack_entry *head;

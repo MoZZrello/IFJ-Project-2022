@@ -101,7 +101,7 @@ void pop(struct stack_t *theStack)
   }
 }
 
-void empty(struct stack_t *stack) {
+int empty(struct stack_t *stack) {
   if(stack-> head != NULL) //??stack top 
     return 1;
   else

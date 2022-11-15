@@ -5,7 +5,19 @@
 #ifndef IFJ_PROJECT_2022_STRINGS_H
 #define IFJ_PROJECT_2022_STRINGS_H
 
-#include <scanner.h>
+typedef enum {
+    ELSE_K,
+    FLOAT_K,
+    FUNCTION_K,
+    IF_K,
+    INT_K,
+    NULL_K,
+    RETURN_K,
+    STRING_K,
+    VOID_K,
+    WHILE_K,
+    UNKNOWN_K,
+} KeywordType;
 
 typedef struct string_struct
 {
