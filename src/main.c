@@ -4,6 +4,7 @@
 
 #include "scanner.c"
 #include "scanner.h"
+#include "parser.c"
 
 int main(){
     printf("Starting program...\n");
@@ -20,8 +21,18 @@ int main(){
             free(str.data);
             break;
         }
+        
 
-        printf("%s %s %s\n",t.info ,getTypeName(t) , getKeywordTypeName(t));
+        //printf("%s %s %s %s\n",t.info ,getTypeName(t) , getKeywordTypeName(t), str.data);
+        
+        prolog(&t);
+        
+        if(end_file) {
+            printf("som tu\n");
+            free(str.data);
+            break;
+        }
+
         tokenFree();
     }
     return PROG_OK;
