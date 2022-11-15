@@ -5,6 +5,7 @@
 #ifndef IFJ_PROJECT_2022_STRINGS_H
 #define IFJ_PROJECT_2022_STRINGS_H
 
+#include <scanner.h>
 
 typedef struct string_struct
 {
@@ -12,5 +13,10 @@ typedef struct string_struct
     int length;
     int allocSize;
 } string;
+
+int stringInit(string *s);
+int addChar(string *s, char c);
+void stringClear(string *s);
+KeywordType keywordCheck(string *s);
 
 #endif //IFJ_PROJECT_2022_STRINGS_H

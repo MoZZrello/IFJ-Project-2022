@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "scanner.h"
-//#inculde "hash.h"
-//#include "scanner.c"
-#include "string.h"
-#include "expr.h"
+#include <scanner.h>
+#include <string.h>
+#include <expr.h>
 
 void body();
 void stmt();

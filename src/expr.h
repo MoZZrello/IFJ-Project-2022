@@ -49,3 +49,4 @@ void pop(struct stack_t *theStack);
 void clear (struct stack_t *theStack);
 void destroyStack(struct stack_t **theStack);
 void expression(char *neviem);
+void init();

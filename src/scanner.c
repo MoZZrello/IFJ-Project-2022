@@ -3,23 +3,7 @@
 //
 
 #include "scanner.h"
-#include "strings.c"
-
-Token *tmp_token;
-
-AutomatStates nextState(AutomatStates input, char c);
-
-Token returnTokenCreator(AutomatStates final_state, string* str);
-
-Token getToken();
-
-char* getTypeName(Token t);
-
-char* getKeywordTypeName(Token t);
-
-void tokenFree();
-
-
+#include "strings.h"
 
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){

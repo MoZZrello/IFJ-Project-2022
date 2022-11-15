@@ -123,6 +123,18 @@ typedef struct {
     KeywordType kwt;
 } Token;
 
+Token *tmp_token;
 
+AutomatStates nextState(AutomatStates input, char c);
+
+Token returnTokenCreator(AutomatStates final_state, string* str);
+
+Token getToken();
+
+char* getTypeName(Token t);
+
+char* getKeywordTypeName(Token t);
+
+void tokenFree();
 
 #endif //IFJ_PROJECT_2022_SCANNER_H
