@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <scanner.h>
-#include <string.h>
-#include <expr.h>
+#include "scanner.h"
+#include "strings.h"
+#include "expr.h"
 
 void body();
 void stmt();
@@ -34,42 +34,44 @@ void prolog(Token *t) {
     //todo inicializovat hashtable
 
     //inicializacia stacku ?? pre expr
-    if (strcmp("|PHP|", getTypeName(token)) == 0) {
+    
+    //TODO strict types vymenit!!!!!!!!
+    if (strcmp("|PHP|", getTypeName(token)) != 0) {
         printf("Error 1\n");
     }
     else {
         token = getToken(str);
-        if(strcmp(token.info, "declare") == 0) {
+        if(strcmp(token.info, "declare") != 0) {
             printf("Error 2\n");
         }
         else {
             token = getToken(str);
-            if (strcmp(token.info, "(") == 0) {
+            if (strcmp(token.info, "(") != 0) {
                 printf("Error 3\n");
             }
             else {
                 token = getToken(str);
-                if(strcmp(getTypeName(token), "|IDENTIFIER|") == 0) {
+                if(strcmp(getTypeName(token), "|IDENTIFIER|") != 0) {
                     printf("Error 4\n");
                 }
                 else {
                     token = getToken(str);
-                    if (strcmp(token.info, "=") == 0) {
+                    if (strcmp(token.info, "=") != 0) {
                         printf("Error 5\n");
                     }
                     else {
                         token = getToken(str);
-                        if (strcmp(getTypeName(token), "|NUMBER|") == 0) {
+                        if (strcmp(getTypeName(token), "|NUMBER|") != 0) {
                             printf("Error 6\n");
                         }
                         else {
                             token = getToken(str);
-                            if (strcmp(token.info, ")") == 0) {
+                            if (strcmp(token.info, ")") != 0) {
                                 printf("Error 7\n");
                             }
                             else {
                                 token = getToken(str);
-                                if(strcmp(token.info, ";") == 0) {
+                                if(strcmp(token.info, ";") != 0) {
                                     printf("Error 8\n");
                                 }
                                 else {
@@ -204,7 +206,7 @@ void stmt() {
 
     else if (!strcmp(getTypeName(token), "|VAR_ID|")) { //todo urobit premenne  //tu sme skoncili
         token = getToken(str);
-        if (strcmp(token.info, "=") == 0) {
+        if (strcmp(token.info, "=") != 0) {
             printf("error =\n");
         }
         else {
@@ -229,7 +231,7 @@ void end() {
 void stmt_list() {
     printf("%s %s v stmt\n", token.info, getTypeName(token));
     token = getToken(str);
-    if(strcmp(token.info, "}") == 0) {
+    if(strcmp(token.info, "}") != 0) {
         stmt();
         stmt_list();
     } else {
@@ -249,7 +251,7 @@ void else_stmt() {
             brac_count++;
             stmt_list();
             //token = getToken(str);
-            if (strcmp(token.info, "}") == 0) {
+            if (strcmp(token.info, "}") != 0) {
                 printf("error else }\n");
             }
             else {
@@ -263,12 +265,12 @@ void else_stmt() {
 
 void func() {
     token = getToken(str);
-    if(strcmp(getTypeName(token), "|IDENTIFIER|") == 0) {  //identifier nemoze byt zakazany nazov
+    if(strcmp(getTypeName(token), "|IDENTIFIER|") != 0) {  //identifier nemoze byt zakazany nazov
         printf("chyba func id\n");
     }
     else {
         token = getToken(str);
-        if(strcmp(token.info, "(") == 0) {
+        if(strcmp(token.info, "(") != 0) {
             printf("funkcia ( error\n");
         }
         else {
@@ -281,7 +283,7 @@ void func() {
             if (ret) {
                token = getToken(str); 
             }
-            if(strcmp(token.info, "{") == 0) {
+            if(strcmp(token.info, "{") != 0) {
                 printf("error v fun {\n");
             }
             else {
@@ -293,7 +295,7 @@ void func() {
                     token = getToken(str);
                 }*/
                 printf("%s %s v func\n", token.info, getTypeName(token));
-                if(strcmp(token.info, "}") == 0) {
+                if(strcmp(token.info, "}") != 0) {
                     printf("error func }\n");
                 }
                 else {
@@ -401,7 +403,7 @@ void expr_skip() {
     printf("tuuu %s %s %d\n", token.info, getTypeName(token), token.type); 
     token = getToken(str);
     if (sem_find) {
-        while (strcmp(token.info, ";") == 0) {
+        while (strcmp(token.info, ";") != 0) {
             //expression(getTypeName(token));
             //expression(token.type);
             token = getToken(str);
@@ -409,7 +411,7 @@ void expr_skip() {
         }
     }
     else if (brac_find) {
-       while (strcmp(token.info, ")") == 0) {
+       while (strcmp(token.info, ")") != 0) {
             expression(getTypeName(token));
             token = getToken(str);
         } 
