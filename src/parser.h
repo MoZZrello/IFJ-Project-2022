@@ -11,6 +11,7 @@
 #include "strings.h"
 #include "expr.h"
 #include "errors.h"
+#include "list.h"
 
 void body();
 void stmt();
@@ -33,5 +34,7 @@ bool brac_find = false;
 bool literal = false;
 bool ret = false;
 int brac_count = 0;
+
+
 
 #endif //IFJ_PROJECT_2022_PARSER_H

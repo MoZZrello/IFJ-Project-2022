@@ -1,0 +1,6 @@
+1. list tokenov celeho programu pre opakovane pouzitie
+2. vytvorenie hashtable struktur
+3. rozdelenie celeho programu do struktur a hashtable
+4. pri naplneni struktury na nu zavolat semanticku
+5. ked prejde cely program do hashtable a semantikou, zavolat generator kodu
+6. generator kodu z hashtable
