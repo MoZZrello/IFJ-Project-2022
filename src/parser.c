@@ -1,30 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "scanner.h"
-#include "strings.h"
-#include "expr.h"
-
-void body();
-void stmt();
-void end();
-void expr_skip();
-void else_stmt();
-void stmt_list();
-void func();
-void ret_type();
-void data_type();
-void args();
-void arg_def();
-void arg_list();
-
-string str;
-Token token;
-extern bool end_file = false;
-bool sem_find = false;
-bool brac_find = false;
-bool literal = false;
-bool ret = false;
-int brac_count = 0;
+#include "parser.h"
 
 void prolog(Token *t) {
 
@@ -37,42 +11,42 @@ void prolog(Token *t) {
     
     //TODO strict types vymenit!!!!!!!!
     if (strcmp("|PHP|", getTypeName(token)) != 0) {
-        printf("Error 1\n");
+        callError(ERR_SYN);
     }
     else {
         token = getToken(str);
         if(strcmp(token.info, "declare") != 0) {
-            printf("Error 2\n");
+            callError(ERR_SYN);
         }
         else {
             token = getToken(str);
             if (strcmp(token.info, "(") != 0) {
-                printf("Error 3\n");
+                callError(ERR_SYN);
             }
             else {
                 token = getToken(str);
-                if(strcmp(getTypeName(token), "|IDENTIFIER|") != 0) {
-                    printf("Error 4\n");
+                if(strcmp(token.info, "strict_types") != 0) {
+                    callError(ERR_SYN);
                 }
                 else {
                     token = getToken(str);
                     if (strcmp(token.info, "=") != 0) {
-                        printf("Error 5\n");
+                        callError(ERR_SYN);
                     }
                     else {
                         token = getToken(str);
-                        if (strcmp(getTypeName(token), "|NUMBER|") != 0) {
-                            printf("Error 6\n");
+                        if (strcmp(token.info, "1") != 0) {
+                            callError(ERR_SYN);
                         }
                         else {
                             token = getToken(str);
                             if (strcmp(token.info, ")") != 0) {
-                                printf("Error 7\n");
+                                callError(ERR_SYN);
                             }
                             else {
                                 token = getToken(str);
                                 if(strcmp(token.info, ";") != 0) {
-                                    printf("Error 8\n");
+                                    callError(ERR_SYN);
                                 }
                                 else {
                                     //printf("toto je %s %s\n",token.info, getTypeName(token));
@@ -98,21 +72,17 @@ void body() {
 
     if(!strcmp( getTypeName(token), "|IDENTIFIER|")){
         stmt();
-    }
-    else if (!strcmp( getTypeName(token), "|VAR_ID|")) {
+    } else if (!strcmp( getTypeName(token), "|VAR_ID|")) {
        stmt();
-    }
-    else if (!strcmp( getTypeName(token), "|PHP END|")) {
+    } else if (!strcmp( getTypeName(token), "|PHP END|")) {
         printf("end\n");
         return;
-    }
-    else if (!strcmp( getTypeName(token), "|EOF|")) {
+    } else if (!strcmp( getTypeName(token), "|EOF|")) {
         printf("end\n");
         end_file = true;
         return;
-    }
-    else {
-        printf("error body\n");
+    } else {
+        callError(ERR_SYN);
     }
 
     body();
@@ -121,9 +91,7 @@ void body() {
 void stmt() {
     if (!strcmp(token.info, "function")) {
         func();
-    }
-
-    else if (!strcmp(token.info, "if")) {  
+    } else if (!strcmp(token.info, "if")) {
         token = getToken(str);
         if (!strcmp(token.info, "(")) { 
             brac_find = true;  
@@ -138,26 +106,23 @@ void stmt() {
                 //token = getToken(str);
                 if (!strcmp(token.info, "}")) {
                     //printf("%s %s sme pred else\n", token.info,getTypeName(token));
-    //return;
+                    //return;
                     brac_count--;
                     else_stmt();
-                }
-                else {
+                } else {
                     printf("error if }\n");
-                    
+                    callError(ERR_SYN);
                 }
-            } 
-            else {
+            } else {
                 printf("error if {\n");
+                callError(ERR_SYN);
             }
-        }
-        else{
+        } else{
             printf("error if\n");
+            callError(ERR_SYN);
         }
 
-    }
-
-    else if (!strcmp(token.info, "while")) {
+    } else if (!strcmp(token.info, "while")) {
         token = getToken(str);
         if (!strcmp(token.info, "(")) { 
             brac_find = true;  
@@ -170,18 +135,17 @@ void stmt() {
                 //token = getToken(str);
                 if (strcmp(token.info, "}")) {
                     printf("error while }\n");
-                }
-                else {
+                } else {
                     brac_find--;
                     printf("presli sme cez while\n");
                 }
-            } 
-            else {
+            } else {
                 printf("error while {\n");
+                callError(ERR_SYN);
             }
-        }
-        else {
+        } else {
             printf("error while\n");
+            callError(ERR_SYN);
         }  
     }
 
@@ -191,8 +155,7 @@ void stmt() {
             expr_skip();
             sem_find = false;
             printf("mame return\n");
-        }
-        else {
+        } else {
             printf("mame volanie funkcie\n");
             //zatial skip parametre funkcie
             token = getToken(str);
@@ -202,23 +165,19 @@ void stmt() {
                 sem_find = false;
             }
         }
-    }
-
-    else if (!strcmp(getTypeName(token), "|VAR_ID|")) { //todo urobit premenne  //tu sme skoncili
+    } else if (!strcmp(getTypeName(token), "|VAR_ID|")) { //todo urobit premenne  //tu sme skoncili
         token = getToken(str);
         if (strcmp(token.info, "=") != 0) {
             printf("error =\n");
-        }
-        else {
+        } else {
             sem_find = true;
             expr_skip();
             sem_find = false;
             printf("var ok\n");
         }
-    }
-
-    else {
+    } else {
         printf("error stmt\n");
+        callError(ERR_SYN);
     }
 }
 
@@ -253,6 +212,7 @@ void else_stmt() {
             //token = getToken(str);
             if (strcmp(token.info, "}") != 0) {
                 printf("error else }\n");
+                callError(ERR_SYN);
             }
             else {
                 brac_count--;
@@ -267,13 +227,13 @@ void func() {
     token = getToken(str);
     if(strcmp(getTypeName(token), "|IDENTIFIER|") != 0) {  //identifier nemoze byt zakazany nazov
         printf("chyba func id\n");
-    }
-    else {
+        callError(ERR_SYN);
+    } else {
         token = getToken(str);
         if(strcmp(token.info, "(") != 0) {
             printf("funkcia ( error\n");
-        }
-        else {
+            callError(ERR_SYN);
+        } else {
             /*brac_find = true;
             expr_skip();
             brac_find = false;*/
@@ -285,8 +245,8 @@ void func() {
             }
             if(strcmp(token.info, "{") != 0) {
                 printf("error v fun {\n");
-            }
-            else {
+                callError(ERR_SYN);
+            } else {
                 brac_count++;
                 stmt_list();
                 //printf("%s %s pred\n", token.info, getTypeName(token));
@@ -297,10 +257,12 @@ void func() {
                 printf("%s %s v func\n", token.info, getTypeName(token));
                 if(strcmp(token.info, "}") != 0) {
                     printf("error func }\n");
+                    callError(ERR_SYN);
                 }
                 else {
                     brac_count--;
                     printf("func je okej\n");
+                    callError(ERR_SYN);
                 }
             }
 
@@ -314,8 +276,7 @@ void args() {
     token = getToken(str);
     if (!strcmp(token.info, ")")){
         printf("dalej nic nie je\n");
-    }
-    else if (!strcmp(getTypeName(token), "|IDENTIFIER|")) {
+    } else if (!strcmp(getTypeName(token), "|IDENTIFIER|")) {
         data_type();
         token = getToken(str);
         if (!strcmp(getTypeName(token), "|VAR_ID|")) {
@@ -337,12 +298,11 @@ void arg_def() {
         token = getToken(str);
         if(!strcmp(getTypeName(token), "|STRING|")) {
             return;
-        }
-        else if (!strcmp(getTypeName(token), "|NUMBER|")) {
+        } else if (!strcmp(getTypeName(token), "|NUMBER|")) {
             return;
-        }
-        else {
+        } else {
             printf("eror arg def\n");
+            callError(ERR_SYN);
         }
     }
     //printf("%s %s\n",token.info ,getTypeName(token));
@@ -357,12 +317,11 @@ void arg_list() {
             token = getToken(str);
             arg_list();
         }
-    }
-    else if(!strcmp(token.info, ")")) {
+    } else if(!strcmp(token.info, ")")) {
         printf("dalej nic nie je\n");
-    }
-    else {
-        printf("error arg list\n"); 
+    } else {
+        printf("error arg list\n");
+        callError(ERR_SYN);
     }
 }
 
@@ -383,18 +342,15 @@ void ret_type() {
 void data_type() {
     if(!strcmp(token.info, "void")) {
         printf("mame void\n");
-    }
-    else if(!strcmp(token.info, "int")) {
+    } else if(!strcmp(token.info, "int")) {
         printf("mame int\n");
-    }
-    else if(!strcmp(token.info, "float")) {
+    } else if(!strcmp(token.info, "float")) {
         printf("mame float\n");
-    }
-    else if(!strcmp(token.info, "string")) {
+    } else if(!strcmp(token.info, "string")) {
         printf("mame string\n");
-    }
-    else {
+    } else {
         printf("Datovy typ error\n");
+        callError(ERR_SYN);
     }
 }
 
@@ -409,8 +365,7 @@ void expr_skip() {
             token = getToken(str);
             
         }
-    }
-    else if (brac_find) {
+    } else if (brac_find) {
        while (strcmp(token.info, ")") != 0) {
             expression(getTypeName(token));
             token = getToken(str);

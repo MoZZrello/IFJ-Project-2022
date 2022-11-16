@@ -182,16 +182,14 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_PHP_END:
             return ERROR;
         case ERROR:
-            fprintf(stderr, "Program Error\n");
-            return ERROR;
+            callError(ERROR);
     }
 }
 
 Token returnTokenCreator(AutomatStates final_state, string* str) {
     tmp_token = (Token *) calloc(1, sizeof(Token));
     if(tmp_token == NULL){
-        fprintf(stderr, "Memory didn't allocate!\n");
-        return (Token){.type=ERROR_T, .info="Memory didn't allocate."};
+        callError(ERR_INTERNAL);
     }
     tmp_token->kwt = keywordCheck(str);
     if (tmp_token->kwt != UNKNOWN_K){

@@ -5,6 +5,9 @@
 #ifndef IFJ_PROJECT_2022_ERRORS_H
 #define IFJ_PROJECT_2022_ERRORS_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #define PROG_OK           0
 #define ERR_LEX           1
 #define ERR_SYN           2
@@ -15,5 +18,7 @@
 #define ERR_SEM_COMPAT    7
 #define ERR_SEM_OTHER     8
 #define ERR_INTERNAL      99
+
+void callError(int err_num);
 
 #endif //IFJ_PROJECT_2022_ERRORS_H
