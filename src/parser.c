@@ -1,5 +1,13 @@
 #include "parser.h"
 
+string str;
+Token token;
+bool sem_find = false;
+bool brac_find = false;
+bool literal = false;
+bool ret = false;
+int brac_count = 0;
+
 void prolog(Token *t) {
 
     token = *t;
@@ -355,21 +363,23 @@ void data_type() {
 }
 
 void expr_skip() {
-    init();
     printf("tuuu %s %s %d\n", token.info, getTypeName(token), token.type); 
     token = getToken(str);
     if (sem_find) {
-        while (strcmp(token.info, ";") != 0) {
+        /*while (strcmp(token.info, ";") != 0) {
             //expression(getTypeName(token));
             //expression(token.type);
             token = getToken(str);
             
-        }
+        }*/
+        
     } else if (brac_find) {
-       while (strcmp(token.info, ")") != 0) {
+       /*while (strcmp(token.info, ")") != 0) {
             expression(getTypeName(token));
             token = getToken(str);
-        } 
+        } */
+        //while a if - vraciam ked koniec zatorky
+        expression(&token);
     }
     
 

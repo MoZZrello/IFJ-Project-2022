@@ -13,6 +13,9 @@
 #include "errors.h"
 #include "list.h"
 
+static bool end_file = false;
+
+void prolog(Token *t);
 void body();
 void stmt();
 void end();
@@ -25,16 +28,5 @@ void data_type();
 void args();
 void arg_def();
 void arg_list();
-
-string str;
-Token token;
-extern bool end_file = false;
-bool sem_find = false;
-bool brac_find = false;
-bool literal = false;
-bool ret = false;
-int brac_count = 0;
-
-
 
 #endif //IFJ_PROJECT_2022_PARSER_H

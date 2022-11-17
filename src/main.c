@@ -2,9 +2,8 @@
 // Created by Richard Harman on 4. 10. 2022.
 //
 
-#include "scanner.c"
 #include "scanner.h"
-#include "parser.c"
+#include "parser.h"
 
 int main(){
     printf("Starting program...\n");
