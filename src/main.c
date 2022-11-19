@@ -2,7 +2,6 @@
 // Created by Richard Harman on 4. 10. 2022.
 //
 
-#include "scanner.h"
 #include "parser.h"
 
 int main(){

@@ -3,7 +3,8 @@
 //
 
 #include "scanner.h"
-#include "strings.h"
+
+Token *tmp_token;
 
 AutomatStates nextState(AutomatStates input, char c){
     switch(input){
@@ -391,6 +392,8 @@ char* getTypeName(Token t){
             return "|PHP END|";
         case ERROR_T:
             return "|ERROR|";
+        case EOML:
+            return "|EOML|";
         default:
             return "!UNKNOWN!";
     }

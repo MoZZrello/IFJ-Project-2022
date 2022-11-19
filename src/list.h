@@ -23,8 +23,19 @@ typedef struct {
     t_element activeElement;
 }List;
 
+typedef struct allTokens{
+    Token* list;
+    int len;
+} allTokens;
+
 void Init_List( List *);
 void Insert(List *, Token ); //Token tam je fitkivne len
 void Delete(List *);
+
+void initTokenList();
+void addTokenToList(Token t);
+void deleteLastTokenFromList();
+void emptyTokenList();
+
 
 #endif //IFJ_PROJECT_2022_LIST_H

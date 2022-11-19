@@ -5,14 +5,13 @@
 #ifndef IFJ_PROJECT_2022_SCANNER_H
 #define IFJ_PROJECT_2022_SCANNER_H
 
-#include "ctype.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "scanner.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "strings.h"
 #include "errors.h"
-#include "stdbool.h"
 
 typedef enum {
     Start,
@@ -103,13 +102,12 @@ typedef struct {
         PHP,
         PHP_END,
         ERROR_T,
+        EOML,
     } type;
     char *info;
     bool isKeyword;
     KeywordType kwt;
 } Token;
-
-Token *tmp_token;
 
 AutomatStates nextState(AutomatStates input, char c);
 

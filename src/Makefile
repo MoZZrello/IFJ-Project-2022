@@ -12,4 +12,4 @@ ifj: $(OBJECTS)
 	gcc $(CFLAGS) -c $^ -o $@
 
 clean:
-	rm *.o $(PROGRAMS)
+	rm *.o
