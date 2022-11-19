@@ -391,18 +391,18 @@ void expr_skip() {
     token = getToken(str);
     addTokenToList(token);
     if (sem_find) {
-        /*while (strcmp(token.info, ";") != 0) {
+        while (strcmp(token.info, ";") != 0) {
             //expression(getTypeName(token));
             //expression(token.type);
             token = getToken(str);
             
-        }*/
+        }
     } else if (brac_find) {
-       /*while (strcmp(token.info, ")") != 0) {
-            expression(getTypeName(token));
+      while (strcmp(token.info, ")") != 0) {
+            //expression(getTypeName(token));
             token = getToken(str);
-        } */
+        } 
         //while a if - vraciam ked koniec zatorky
-        expression(&token);
+        //expression(&token);
     }
 }
