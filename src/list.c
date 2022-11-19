@@ -13,6 +13,8 @@ void List_Init( List *list) {
 
 void initTokenList(){
     prog_list = malloc(sizeof(allTokens));
+    prog_list->list = NULL;
+    prog_list->len = 0;
 }
 
 void addTokenToList(Token t){

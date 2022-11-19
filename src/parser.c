@@ -192,7 +192,8 @@ void stmt() {
             printf("var ok\n");
         }
     } else {
-        printf("error stmt\n");
+        emptyTokenList();
+        printf("error stmt %s\n", getTypeName(token));
         callError(ERR_SYN);
     }
 }
@@ -284,7 +285,7 @@ void func() {
                 else {
                     brac_count--;
                     printf("func je okej\n");
-                    callError(ERR_SYN);
+                    //callError(ERR_SYN);
                 }
             }
 
