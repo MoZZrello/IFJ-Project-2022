@@ -62,7 +62,7 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * Pri implementácii využite funkciu ht_search. Pri vkladaní prvku do zoznamu
  * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
-void ht_insert(ht_table_t *table, char *key, float value) {
+/*void ht_insert(ht_table_t *table, char *key, float value) {
   if (table == NULL) return;
 
     int index = get_hash(key);
@@ -84,7 +84,7 @@ void ht_insert(ht_table_t *table, char *key, float value) {
         (*table)[index] = item;
     }
 }
-
+*/
 
 /*
  * Získanie hodnoty z tabuľky.
@@ -94,7 +94,7 @@ void ht_insert(ht_table_t *table, char *key, float value) {
  *
  * Pri implementácii využite funkciu ht_search.
  */
-float *ht_get(ht_table_t *table, char *key) {
+/*float *ht_get(ht_table_t *table, char *key) {
   ht_item_t *item = ht_search(table, key);
 
   if(&(item->value) != NULL){
@@ -102,7 +102,7 @@ float *ht_get(ht_table_t *table, char *key) {
   } else {
       return NULL;
   }
-}
+}*/
 
 /*
  * Zmazanie prvku z tabuľky.

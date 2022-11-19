@@ -4,3 +4,7 @@
 
 #include "list.h"
 
+void List_Init( List *list) {
+    list->firstElement = NULL;
+    list->activeElement = NULL;
+}

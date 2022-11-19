@@ -10,10 +10,21 @@
 #include "scanner.h"
 #include "errors.h"
 
-typedef struct token_list {
+
+typedef struct token_element {
     Token* program_tokens_list;
     int index;
     int length;
-} t_list;
+    struct token_element *nextElement;
+} *t_element;
+
+typedef struct {
+    t_element firstElement;
+    t_element activeElement;
+}List;
+
+void Init_List( List *);
+void Insert(List *, Token ); //Token tam je fitkivne len
+void Delete(List *);
 
 #endif //IFJ_PROJECT_2022_LIST_H
