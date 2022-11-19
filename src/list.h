@@ -39,6 +39,7 @@ void addTokenToList(Token t);
 void deleteLastTokenFromList();
 void emptyTokenList();
 void printTokenList();
+void changeTokenListIndex(int index);
 Token getTokenFromList();
 
 

@@ -56,6 +56,10 @@ void createTokenList(){
     }
 }
 
+void changeTokenListIndex(int index){
+    prog_list->index = index;
+}
+
 Token getTokenFromList(){
     return prog_list->list[prog_list->index++];
 }
