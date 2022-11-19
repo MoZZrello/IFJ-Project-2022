@@ -14,6 +14,7 @@ void List_Init( List *list) {
 void initTokenList(){
     prog_list = malloc(sizeof(allTokens));
     prog_list->list = NULL;
+    prog_list->index = 0;
     prog_list->len = 0;
 }
 
@@ -36,4 +37,25 @@ void printTokenList(){
     for(int i=0; i < prog_list->len; i++){
         printf("%s\n", prog_list->list[i].info);
     }
+}
+
+void createTokenList(){
+    initTokenList();
+    while(1){
+        string str;
+        stringInit(&str);
+        Token t = getToken(str);
+        if(t.type == ERROR_T){
+            callError(ERR_LEX);
+        }
+        if(t.type == EOF_T){
+            break;
+        }
+        addTokenToList(t);
+        tokenFree();
+    }
+}
+
+Token getTokenFromList(){
+    return prog_list->list[prog_list->index++];
 }

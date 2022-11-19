@@ -15,7 +15,7 @@
 
 static bool end_file = false;
 
-void prolog(Token *t);
+void prolog();
 void body();
 void stmt();
 void end();

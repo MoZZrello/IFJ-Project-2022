@@ -25,6 +25,7 @@ typedef struct {
 
 typedef struct allTokens{
     Token* list;
+    int index;
     int len;
 } allTokens;
 
@@ -32,11 +33,13 @@ void Init_List( List *);
 void Insert(List *, Token ); //Token tam je fitkivne len
 void Delete(List *);
 
+void createTokenList();
 void initTokenList();
 void addTokenToList(Token t);
 void deleteLastTokenFromList();
 void emptyTokenList();
 void printTokenList();
+Token getTokenFromList();
 
 
 #endif //IFJ_PROJECT_2022_LIST_H
