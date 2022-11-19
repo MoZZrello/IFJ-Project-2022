@@ -29,7 +29,11 @@ void deleteLastTokenFromList(){
 }
 
 void emptyTokenList(){
+
+}
+
+void printTokenList(){
     for(int i=0; i < prog_list->len; i++){
-        printf("%s\n", getTypeName(prog_list->list[i]));
+        printf("%s\n", prog_list->list[i].info);
     }
 }

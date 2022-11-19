@@ -36,6 +36,7 @@ void initTokenList();
 void addTokenToList(Token t);
 void deleteLastTokenFromList();
 void emptyTokenList();
+void printTokenList();
 
 
 #endif //IFJ_PROJECT_2022_LIST_H

@@ -70,7 +70,7 @@ void prolog(Token *t) {
             }
         }
     }
-    emptyTokenList();
+    printTokenList();
 }
 
 
@@ -396,12 +396,13 @@ void expr_skip() {
             //expression(getTypeName(token));
             //expression(token.type);
             token = getToken(str);
-            
+            addTokenToList(token);
         }
     } else if (brac_find) {
       while (strcmp(token.info, ")") != 0) {
             //expression(getTypeName(token));
             token = getToken(str);
+            addTokenToList(token);
         } 
         //while a if - vraciam ked koniec zatorky
         //expression(&token);

@@ -425,6 +425,5 @@ char* getKeywordTypeName(Token t){
 }
 
 void tokenFree(){
-    free(tmp_token->info);
     free(tmp_token);
 }

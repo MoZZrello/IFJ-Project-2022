@@ -19,7 +19,6 @@ int main(){
             free(str.data);
             break;
         }
-        
 
         //printf("%s %s %s %s\n",t.info ,getTypeName(t) , getKeywordTypeName(t), str.data);
         
