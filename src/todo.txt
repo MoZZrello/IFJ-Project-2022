@@ -1,10 +1,10 @@
 DONE:
 list tokenov celeho programu pre opakovane pouzitie - by Riso
+vytvorenie hashtable struktur- by Riso
+rozdelenie celeho programu do struktur - by Riso
 
 NEXT:
-1. vytvorenie hashtable struktur - Marek a Jasmi
-2. rozdelenie celeho programu do struktur a hashtable - Marek a Jasmi
-3. pri naplneni struktury na nu zavolat semanticku - Marek a Jasmi
-4. semantika - Riso
-5. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso
-6. generator kodu z hashtable - Uvidi sa
+1. struktury do hashtable - Marek a Jasmi
+2. semantika - Riso
+3. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso
+4. generator kodu z hashtable - Uvidi sa
