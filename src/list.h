@@ -25,6 +25,7 @@ void printTokenList();
 void changeTokenListIndex(int index);
 void previousTokenListIndex();
 Token getTokenFromList();
+Token getEmptyToken();
 
 
 #endif //IFJ_PROJECT_2022_LIST_H

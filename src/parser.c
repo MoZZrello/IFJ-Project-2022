@@ -387,8 +387,9 @@ void antilog(ht_table_t *table){
 
     elementList = sortSem(elementList, key);
 
+    semControl(elementList, key[0]);
+
     for(int i=0; i < key[0]; i++){
-        printf("%s\n", elementList[i].name.info);
         if(elementList[i].name.info != NULL){
             free(elementList[i].name.info);
 
@@ -398,6 +399,7 @@ void antilog(ht_table_t *table){
             free(elementList[i].argslist);
         }
     }
+
     free(elementList);
     free(key);
 }
@@ -443,6 +445,9 @@ element* sortSem(element* elementList, int *retKey){
             elementList[key] = sem_var();
             key++;
             previousTokenListIndex();
+        } else if(t.type == IDENTIFIER){
+            elementList[key] = sem_identif();
+            key++;
         } else if(t.type != SEMICOLON){
             elementList[key] = sem_else();
             key++;
@@ -490,6 +495,7 @@ element sem_return(){
     element e;
     e.name = t;
     e.argslist = NULL;
+    e.ret_type = getEmptyToken();
     t = getTokenFromList();
     if(t.type != SEMICOLON){
         int argsCount = 0;
@@ -514,6 +520,7 @@ element sem_if_while(){
     element e;
     e.name = t;
     e.argslist = NULL;
+    e.ret_type = getEmptyToken();
     int argsCount = 0;
     t = getTokenFromList();
     t = getTokenFromList();
@@ -537,6 +544,7 @@ element sem_else(){
     element e;
     e.name = t;
     e.argslist = NULL;
+    e.ret_type = getEmptyToken();
     return e;
 }
 
@@ -546,6 +554,7 @@ element sem_var(){
     element e;
     e.name = t;
     e.argslist = NULL;
+    e.ret_type = getEmptyToken();
     int argsCount = 0;
     t = getTokenFromList();
     if(t.type == ASSIGN){
@@ -560,6 +569,53 @@ element sem_var(){
         }
     }
     return e;
+}
+
+element sem_identif(){
+    previousTokenListIndex();
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = NULL;
+    e.ret_type = getEmptyToken();
+    int argsCount = 0;
+    t = getTokenFromList();
+    t = getTokenFromList();
+    if(t.type != RIGHT_BRACKET){
+        e.argslist = malloc(sizeof(argList));
+        e.argslist->list = malloc(sizeof(arg));
+        previousTokenListIndex();
+        while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
+            e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
+            e.argslist->list[argsCount].arg = t;
+            e.argslist->len = argsCount;
+            argsCount++;
+        }
+    }
+    return e;
+}
+
+void semControl(element* elementList, int key){
+    for(int i=0; i < key; i++){
+        // if it's variable
+        if(elementList[i].name.type == VAR_ID){
+            printf("%s\n", elementList[i].name.info);
+
+        // if it's function
+        } else if (elementList[i].ret_type.type != ERROR_T){
+            printf("%s\n", elementList[i].ret_type.info);
+
+        // if it's return
+        } else if(elementList[i].name.kwt == RETURN_K){
+            printf("%s\n", elementList[i].name.info);
+
+        // if it's function call
+        } else if(elementList[i].name.type == IDENTIFIER){
+            printf("%s\n", elementList[i].name.info);
+        } else {
+            continue;
+        }
+    }
 }
 
 void check_sem_return(element func_e, element ret_e){

@@ -36,6 +36,8 @@ element sem_return();
 element sem_if_while();
 element sem_else();
 element sem_var();
+element sem_identif();
+void semControl(element* elementList, int key);
 void check_sem_return(element func_e, element ret_e);
 
 #endif //IFJ_PROJECT_2022_PARSER_H

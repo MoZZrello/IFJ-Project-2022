@@ -64,3 +64,7 @@ void previousTokenListIndex(){
         prog_list->index--;
     }
 }
+
+Token getEmptyToken(){
+    return (Token){.info=NULL,.type=ERROR_T,.kwt=UNKNOWN_K, .isKeyword=false};
+}
