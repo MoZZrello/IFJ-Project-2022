@@ -36,6 +36,6 @@ void callError(int err_num){
             fprintf(stderr, "Unknown error.\n");
             break;
     }
-
+    //printf("ERROR %d\n", err_num);
     exit(err_num);
 }

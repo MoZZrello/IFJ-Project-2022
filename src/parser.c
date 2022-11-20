@@ -492,13 +492,13 @@ element sem_func(){
 element sem_return(){
     previousTokenListIndex();
     Token t = getTokenFromList();
+    int argsCount = 0;
     element e;
     e.name = t;
     e.argslist = NULL;
     e.ret_type = getEmptyToken();
     t = getTokenFromList();
     if(t.type != SEMICOLON){
-        int argsCount = 0;
         e.argslist = malloc(sizeof(argList));
         e.argslist->list = malloc(sizeof(arg));
         e.argslist->len = 0;
@@ -509,7 +509,15 @@ element sem_return(){
             e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
             e.argslist->list[argsCount].arg = t;
             e.argslist->len++;
+            argsCount++;
         }
+    } else {
+        e.argslist = malloc(sizeof(argList));
+        e.argslist->list = malloc(sizeof(arg));
+        e.argslist->len = 0;
+        e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
+        e.argslist->list[argsCount].arg = t;
+        e.argslist->len++;
     }
     return e;
 }
@@ -596,22 +604,57 @@ element sem_identif(){
 }
 
 void semControl(element* elementList, int key){
+    int lastFuncKey = 0;
+    bool inFunction = false;
+    bool inIF = false;
+    bool returned = false;
     for(int i=0; i < key; i++){
+        printf("%s\n", elementList[i].name.info);
         // if it's variable
         if(elementList[i].name.type == VAR_ID){
-            printf("%s\n", elementList[i].name.info);
+            //printf("%s\n", elementList[i].name.info);
 
         // if it's function
         } else if (elementList[i].ret_type.type != ERROR_T){
-            printf("%s\n", elementList[i].ret_type.info);
+            lastFuncKey = i;
+            inFunction = true;
+            //printf("%s\n", elementList[i].ret_type.info);
 
         // if it's return
         } else if(elementList[i].name.kwt == RETURN_K){
-            printf("%s\n", elementList[i].name.info);
+            check_sem_return(elementList[lastFuncKey], elementList[i]);
+            returned = true;
 
         // if it's function call
         } else if(elementList[i].name.type == IDENTIFIER){
-            printf("%s\n", elementList[i].name.info);
+            if(strcmp(elementList[i].name.info, "if") == 0){
+                inIF = true;
+            }
+            //printf("%s\n", elementList[i].name.info);
+        } else if(elementList[i].name.type == RIGHT_CURLY_BRACKET){
+            if (inFunction){
+                if(inIF){
+                    inIF = false;
+                    continue;
+                } else {
+                    if(returned){
+                        returned = false;
+                        inFunction = false;
+                        continue;
+                    } else if(elementList[lastFuncKey].ret_type.kwt != VOID_K){
+                        callError(ERR_SEM_RETURN);
+                    } else {
+                        inFunction = false;
+                        continue;
+                    }
+                }
+            } else {
+                callError(ERR_SEM_RETURN);
+            }
+            if (inIF){
+                inIF = false;
+            }
+            //printf("%s\n", elementList[i].name.info);
         } else {
             continue;
         }
@@ -619,17 +662,18 @@ void semControl(element* elementList, int key){
 }
 
 void check_sem_return(element func_e, element ret_e){
-    Token t = getTokenFromList(); // beriem si RIGHT_CURLY_BRACKET
-    if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list->arg.type == STRING ||
-       func_e.ret_type.kwt == VOID_K && ret_e.name.type == SEMICOLON){
+    if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING ||
+       func_e.ret_type.kwt == VOID_K && ret_e.argslist->list[0].arg.type == SEMICOLON){
         return;
-    } else if (func_e.ret_type.kwt == INT_K && ret_e.argslist->list->arg.type == NUMBER){
+    } else if (func_e.ret_type.kwt == INT_K &&
+                (ret_e.argslist->list[0].arg.type == NUMBER || ret_e.argslist->list[0].arg.type == EXPONENT_NUMBER)){
         if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
             return;
         } else {
             callError(ERR_SEM_ARGS);
         }
-    } else if (func_e.ret_type.kwt == FLOAT_K && ret_e.argslist->list->arg.type == NUMBER){
+    } else if (func_e.ret_type.kwt == FLOAT_K &&
+                (ret_e.argslist->list[0].arg.type == DECIMAL_NUMBER || ret_e.argslist->list[0].arg.type == EXPONENT_NUMBER)){
         if(strchr(ret_e.argslist->list->arg.info, '.') != NULL){
             return;
         } else {
