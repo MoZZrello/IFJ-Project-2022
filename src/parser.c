@@ -389,7 +389,7 @@ void antilog(ht_table_t *table){
     int freeEnd = *key;
     elementList = addBuiltInFuncs(elementList, key);
 
-    semControl(elementList, key[0]);
+    semControl(elementList, freeEnd);
 
     for(int i=0; i < freeEnd; i++){
         if(elementList[i].name.info != NULL){
@@ -660,30 +660,30 @@ void semControl(element* elementList, int key){
     data.returned = false;
     data.inIF = false;
     data.inFunction = false;
+    data.inElse = false;
+    data.inWhile = false;
     data.lastFuncKey = 0;
     data.funcCounter = 0;
     data.varCounter = 0;
-    data.definedFunctions = NULL;
+    data.definedFunctions = malloc(sizeof(char) * strlen("reads;readi;readf;write;strlen;substring;ord;cbr;"));
+    strcat(data.definedFunctions,"reads;readi;readf;write;strlen;substring;ord;cbr;");
     data.definedVars = NULL;
     for(int i=0; i < key; i++){
 
         if(elementList[i].name.type == VAR_ID){ // if it's variable
             //printf("%s\n", elementList[i].name.info);
 
+        } else if(elementList[i].name.kwt == RETURN_K){ // if it's return
+            check_sem_return(elementList[data.lastFuncKey], elementList[i]);
+            data.returned = true;
+
         } else if (elementList[i].ret_type.type != ERROR_T){ // if it's function
-            int len;
-            if(data.definedFunctions != NULL){
-                len = (int)strlen(data.definedFunctions) + (int)strlen(elementList[i].name.info) + data.funcCounter;
-            } else {
-                len = (int)strlen(elementList[i].name.info) + data.funcCounter;
-            }
+            int len = (int)strlen(data.definedFunctions) + (int)strlen(elementList[i].name.info) + data.funcCounter;
 
             data.lastFuncKey = i;
             data.inFunction = true;
 
-            if(data.definedFunctions != NULL) {
-                check_defined_functions(data, elementList[i].name.info);
-            }
+            check_defined_functions(data, elementList[i].name.info);
 
             data.definedFunctions = realloc(data.definedFunctions, sizeof(char) * len);
             strcat(data.definedFunctions, elementList[i].name.info);
@@ -691,37 +691,42 @@ void semControl(element* elementList, int key){
 
             //printf("%s\n", elementList[i].ret_type.info);
 
-        } else if(elementList[i].name.kwt == RETURN_K){ // if it's return
-            check_sem_return(elementList[data.lastFuncKey], elementList[i]);
-            data.returned = true;
-
         } else if(elementList[i].name.type == IDENTIFIER){ // if it's function call
             if(strcmp(elementList[i].name.info, "if") == 0){
                 data.inIF = true;
+            } else if(strcmp(elementList[i].name.info, "while") == 0){
+                data.inWhile = true;
+            } else if(strcmp(elementList[i].name.info, "else") == 0){
+                data.inElse = true;
             }
-            printf("%s\n", elementList[i].name.info);
+            //printf("%s\n", elementList[i].name.info);
         } else if(elementList[i].name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
                 if(data.inIF){
                     data.inIF = false;
                     continue;
+                } else if (data.inWhile){
+                    data.inWhile = false;
+                } else if (data.inElse){
+                    data.inElse = false;
                 } else {
                     if(data.returned){
                         data.returned = false;
                         data.inFunction = false;
-                        continue;
                     } else if(elementList[data.lastFuncKey].ret_type.kwt != VOID_K){
                         callError(ERR_SEM_RETURN);
                     } else {
                         data.inFunction = false;
-                        continue;
                     }
                 }
+            } else if (data.inIF){
+                data.inIF = false;
+            } else if (data.inWhile){
+                data.inWhile = false;
+            } else if (data.inElse){
+                data.inElse = false;
             } else {
                 callError(ERR_SEM_RETURN);
-            }
-            if (data.inIF){
-                data.inIF = false;
             }
             //printf("%s\n", elementList[i].name.info);
         } else {

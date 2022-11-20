@@ -19,6 +19,8 @@ typedef struct progdata{
     int lastFuncKey;
     bool inFunction;
     bool inIF;
+    bool inWhile;
+    bool inElse;
     bool returned;
     char* definedFunctions;
     int funcCounter;
