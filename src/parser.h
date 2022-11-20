@@ -15,6 +15,17 @@
 
 static bool end_file = false;
 
+typedef struct progdata{
+    int lastFuncKey;
+    bool inFunction;
+    bool inIF;
+    bool returned;
+    char* definedFunctions;
+    int funcCounter;
+    char* definedVars;
+    int varCounter;
+} progdata;
+
 void prolog();
 void body();
 void stmt();
@@ -39,5 +50,6 @@ element sem_var();
 element sem_identif();
 void semControl(element* elementList, int key);
 void check_sem_return(element func_e, element ret_e);
+void check_defined_functions(progdata data, char* name);
 
 #endif //IFJ_PROJECT_2022_PARSER_H

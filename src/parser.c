@@ -604,55 +604,72 @@ element sem_identif(){
 }
 
 void semControl(element* elementList, int key){
-    int lastFuncKey = 0;
-    bool inFunction = false;
-    bool inIF = false;
-    bool returned = false;
+    progdata data;
+    data.returned = false;
+    data.inIF = false;
+    data.inFunction = false;
+    data.lastFuncKey = 0;
+    data.funcCounter = 0;
+    data.varCounter = 0;
+    data.definedFunctions = NULL;
+    data.definedVars = NULL;
     for(int i=0; i < key; i++){
-        printf("%s\n", elementList[i].name.info);
-        // if it's variable
-        if(elementList[i].name.type == VAR_ID){
+
+        if(elementList[i].name.type == VAR_ID){ // if it's variable
             //printf("%s\n", elementList[i].name.info);
 
-        // if it's function
-        } else if (elementList[i].ret_type.type != ERROR_T){
-            lastFuncKey = i;
-            inFunction = true;
+        } else if (elementList[i].ret_type.type != ERROR_T){ // if it's function
+            int len;
+            if(data.definedFunctions != NULL){
+                len = (int)strlen(data.definedFunctions) + (int)strlen(elementList[i].name.info) + data.funcCounter;
+            } else {
+                len = (int)strlen(elementList[i].name.info) + data.funcCounter;
+            }
+
+            data.lastFuncKey = i;
+            data.inFunction = true;
+
+            if(data.definedFunctions != NULL) {
+                check_defined_functions(data, elementList[i].name.info);
+            }
+
+            data.definedFunctions = realloc(data.definedFunctions, sizeof(char) * len);
+            strcat(data.definedFunctions, elementList[i].name.info);
+            strcat(data.definedFunctions, ";");
+
             //printf("%s\n", elementList[i].ret_type.info);
 
-        // if it's return
-        } else if(elementList[i].name.kwt == RETURN_K){
-            check_sem_return(elementList[lastFuncKey], elementList[i]);
-            returned = true;
+        } else if(elementList[i].name.kwt == RETURN_K){ // if it's return
+            check_sem_return(elementList[data.lastFuncKey], elementList[i]);
+            data.returned = true;
 
-        // if it's function call
-        } else if(elementList[i].name.type == IDENTIFIER){
+        } else if(elementList[i].name.type == IDENTIFIER){ // if it's function call
             if(strcmp(elementList[i].name.info, "if") == 0){
-                inIF = true;
+                data.inIF = true;
             }
-            //printf("%s\n", elementList[i].name.info);
+            printf("%s\n", elementList[i].name.info);
         } else if(elementList[i].name.type == RIGHT_CURLY_BRACKET){
-            if (inFunction){
-                if(inIF){
-                    inIF = false;
+            if (data.inFunction){
+                if(data.inIF){
+                    data.inIF = false;
                     continue;
                 } else {
-                    if(returned){
-                        returned = false;
-                        inFunction = false;
+                    if(data.returned){
+                        data.returned = false;
+                        data.inFunction = false;
                         continue;
-                    } else if(elementList[lastFuncKey].ret_type.kwt != VOID_K){
+                    } else if(elementList[data.lastFuncKey].ret_type.kwt != VOID_K){
                         callError(ERR_SEM_RETURN);
                     } else {
-                        inFunction = false;
+                        data.inFunction = false;
                         continue;
                     }
                 }
             } else {
                 callError(ERR_SEM_RETURN);
             }
-            if (inIF){
-                inIF = false;
+            if (data.inIF){
+                data.inIF = false;
             }
             //printf("%s\n", elementList[i].name.info);
         } else {
@@ -681,5 +698,11 @@ void check_sem_return(element func_e, element ret_e){
         }
     } else {
         callError(ERR_SEM_ARGS);
+    }
+}
+
+void check_defined_functions(progdata data, char* name){
+    if(strstr(data.definedFunctions, name) != NULL){
+        callError(ERR_SEM_FUNC);
     }
 }
