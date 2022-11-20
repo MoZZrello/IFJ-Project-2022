@@ -379,3 +379,157 @@ void expr_skip() {
         //expression(&token);
     }
 }
+
+void antilog(ht_table_t *table){
+    int index = 8;
+    bool in_function = false;
+    int key = 0;
+    int* func_keys = NULL;
+    Token t;
+    element* elementList = NULL;
+    int lastFunctionKey = 0;
+
+    changeTokenListIndex(index);
+
+    while((t=getTokenFromList()).type != EOF_T){
+        elementList = realloc(elementList, sizeof(element)*(key+1));
+        //printf("%s  %s\n", t.info, getTypeName(t));
+        if(t.isKeyword){
+            switch(t.kwt){
+                case ELSE_K:
+                    break;
+                case FLOAT_K:
+                    break;
+                case FUNCTION_K:
+                    if(in_function){
+                        callError(ERR_SEM_OTHER);
+                    }
+                    elementList[key] = sem_func();
+                    in_function = true;
+                    lastFunctionKey = key;
+                    /*char c[1000];
+                    snprintf(c, sizeof(c), "%d", key);
+                    ht_insert(table,  c, elementList[key]);*/
+                    key++;
+                    break;
+                case IF_K:
+                    break;
+                case NULL_K:
+                    break;
+                case RETURN_K:
+                    elementList[key] = sem_return();
+                    if(in_function){
+                        check_sem_return(elementList[lastFunctionKey], elementList[key]);
+                    } else {
+
+                    }
+                    in_function = false;
+                    key++;
+                    break;
+                case STRING_K:
+                    break;
+                case VOID_K:
+                    break;
+                case INT_K:
+                    break;
+                case WHILE_K:
+                    break;
+                case UNKNOWN_K:
+                    break;
+            }
+        } else if(t.type == RIGHT_CURLY_BRACKET){
+            if(in_function && elementList[lastFunctionKey].ret_type.kwt == VOID_K){
+                in_function = false;
+            } else {
+                callError(ERR_SEM_ARGS);
+            }
+        }
+
+    }
+
+    for(int i=0; i < key; i++){
+        if(elementList[i].name.info != NULL){
+            free(elementList[i].name.info);
+
+        }
+        if(elementList[i].argslist != NULL){
+            free(elementList[i].argslist->list);
+            free(elementList[i].argslist);
+        }
+    }
+    free(elementList);
+}
+
+element sem_func(){
+    int argsCount = 0;
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = malloc(sizeof(argList));
+    e.argslist->list = malloc(sizeof(arg));
+    e.argslist->len = 0;
+    while((t=getTokenFromList()).type != RIGHT_BRACKET){
+        if(t.type == COMMA || t.type == LEFT_BRACKET){
+            continue;
+        } else {
+            e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
+            e.argslist->list[argsCount].type = t;
+            t = getTokenFromList();
+            e.argslist->list[argsCount].arg = t;
+            e.argslist->len++;
+        }
+        argsCount++;
+    }
+    t = getTokenFromList();
+    if(t.type == DOUBLE_DOT){
+        t = getTokenFromList();
+        e.ret_type = t;
+    } else {
+        previousTokenListIndex();
+    }
+    return e;
+}
+
+element sem_return(){
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = NULL;
+    if(t.type != SEMICOLON){
+        int argsCount = 0;
+        e.argslist = malloc(sizeof(argList));
+        e.argslist->list = malloc(sizeof(arg));
+        e.argslist->len = 0;
+        e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
+        e.argslist->list[argsCount].arg = t;
+        e.argslist->len++;
+        while((t=getTokenFromList()).type != SEMICOLON){
+            e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
+            e.argslist->list[argsCount].arg = t;
+            e.argslist->len++;
+        }
+    }
+    return e;
+}
+
+void check_sem_return(element func_e, element ret_e){
+    Token t = getTokenFromList(); // beriem si RIGHT_CURLY_BRACKET
+    if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list->arg.type == STRING ||
+       func_e.ret_type.kwt == VOID_K && ret_e.name.type == SEMICOLON){
+        return;
+    } else if (func_e.ret_type.kwt == INT_K && ret_e.argslist->list->arg.type == NUMBER){
+        if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
+            return;
+        } else {
+            callError(ERR_SEM_ARGS);
+        }
+    } else if (func_e.ret_type.kwt == FLOAT_K && ret_e.argslist->list->arg.type == NUMBER){
+        if(strchr(ret_e.argslist->list->arg.info, '.') != NULL){
+            return;
+        } else {
+            callError(ERR_SEM_ARGS);
+        }
+    } else {
+        callError(ERR_SEM_ARGS);
+    }
+}

@@ -6,11 +6,6 @@
 
 allTokens *prog_list;
 
-void List_Init( List *list) {
-    list->firstElement = NULL;
-    list->activeElement = NULL;
-}
-
 void initTokenList(){
     prog_list = malloc(sizeof(allTokens));
     prog_list->list = NULL;
@@ -48,10 +43,10 @@ void createTokenList(){
         if(t.type == ERROR_T){
             callError(ERR_LEX);
         }
+        addTokenToList(t);
         if(t.type == EOF_T){
             break;
         }
-        addTokenToList(t);
         tokenFree();
     }
 }
@@ -62,4 +57,10 @@ void changeTokenListIndex(int index){
 
 Token getTokenFromList(){
     return prog_list->list[prog_list->index++];
+}
+
+void previousTokenListIndex(){
+    if(prog_list->index > 0){
+        prog_list->index--;
+    }
 }

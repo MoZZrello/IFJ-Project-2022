@@ -29,4 +29,9 @@ void args();
 void arg_def();
 void arg_list();
 
+void antilog(ht_table_t *table);
+element sem_func();
+element sem_return();
+void check_sem_return(element func_e, element ret_e);
+
 #endif //IFJ_PROJECT_2022_PARSER_H

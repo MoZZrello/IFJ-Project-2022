@@ -6,13 +6,21 @@
 
 int main(){
     printf("Starting program...\n");
-    createTokenList();
-    //printTokenList();
 
-    prolog();
+    ht_table_t *table;
+    table = malloc(sizeof(ht_table_t));
+    ht_init(table);
+
+    createTokenList();
+
+    //prolog();
+    antilog(table);
+    //neulog();
 
     if(end_file) {
         printf("som tu\n");
     }
+
+    free(table);
     return PROG_OK;
 }

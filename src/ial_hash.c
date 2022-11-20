@@ -32,9 +32,9 @@ int get_hash(char *key) {
  * Inicializácia tabuľky — zavolá sa pred prvým použitím tabuľky.
  */
 void ht_init(ht_table_t *table) {
-  for (int i = 0; i < HT_SIZE; i++){
-    (*table)[i] = NULL;
-  }
+    for (int i = 0; i < HT_SIZE; i++){
+        (*table)[i] = NULL;
+    }
 }
 
 /*
@@ -62,18 +62,18 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * Pri implementácii využite funkciu ht_search. Pri vkladaní prvku do zoznamu
  * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
-/*void ht_insert(ht_table_t *table, char *key, float value) {
+void ht_insert(ht_table_t *table, char *key, element data) {
   if (table == NULL) return;
 
     int index = get_hash(key);
     ht_item_t *item = ht_search(table, key);
 
     if (item != NULL) {
-        item->value = value;
+        item->e = &data;
     }
     else {
         item = (ht_item_t *) malloc(sizeof(ht_item_t));
-        item->value = value;
+        item->e = &data;
         item->key = key;
 
         if ((*table)[index] != NULL) {
@@ -84,7 +84,6 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
         (*table)[index] = item;
     }
 }
-*/
 
 /*
  * Získanie hodnoty z tabuľky.
@@ -94,15 +93,15 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  *
  * Pri implementácii využite funkciu ht_search.
  */
-/*float *ht_get(ht_table_t *table, char *key) {
+element *ht_get(ht_table_t *table, char *key) {
   ht_item_t *item = ht_search(table, key);
 
-  if(&(item->value) != NULL){
-    return &(item->value);
+  if(&(item->e->name) != NULL){
+    return item->e;
   } else {
       return NULL;
   }
-}*/
+}
 
 /*
  * Zmazanie prvku z tabuľky.
