@@ -36,6 +36,7 @@ typedef struct element{
     Token name;
     argList* argslist;
     Token ret_type;
+    bool nullRet;
 } element;
 
 // Prvok tabuľky

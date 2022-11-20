@@ -386,13 +386,14 @@ void antilog(ht_table_t *table){
     element* elementList = NULL;
 
     elementList = sortSem(elementList, key);
+    int freeEnd = *key;
+    elementList = addBuiltInFuncs(elementList, key);
 
     semControl(elementList, key[0]);
 
-    for(int i=0; i < key[0]; i++){
+    for(int i=0; i < freeEnd; i++){
         if(elementList[i].name.info != NULL){
             free(elementList[i].name.info);
-
         }
         if(elementList[i].argslist != NULL){
             free(elementList[i].argslist->list);
@@ -459,6 +460,50 @@ element* sortSem(element* elementList, int *retKey){
     return elementList;
 }
 
+element* addBuiltInFuncs(element* elementList, int *retKey){
+    Token name_t, rettype_t;
+    int key = *retKey;
+    elementList = realloc(elementList, sizeof(element)*(key+9));
+
+    name_t = (Token){.info="reads", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="?string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+
+    name_t = (Token){.info="readi", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="?int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+
+
+    name_t = (Token){.info="readf", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="?float", .type=IDENTIFIER, .isKeyword=true, .kwt=FLOAT_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+
+    name_t = (Token){.info="write", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+
+    name_t = (Token){.info="strlen", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+
+    name_t = (Token){.info="substring", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="?string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+
+
+    name_t = (Token){.info="ord", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+
+
+    name_t = (Token){.info="chr", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
+    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+
+    *retKey = key;
+    return elementList;
+}
+
 element sem_func(){
     int argsCount = 0;
     Token t = getTokenFromList();
@@ -483,7 +528,14 @@ element sem_func(){
     if(t.type == DOUBLE_DOT){
         t = getTokenFromList();
         e.ret_type = t;
+        if(t.info[0] == '?'){
+            e.nullRet = true;
+        } else {
+            e.nullRet = false;
+        }
     } else {
+        e.nullRet = false;
+        e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
     return e;
