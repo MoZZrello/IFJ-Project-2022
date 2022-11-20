@@ -9,7 +9,10 @@ function hlavni_program(int $year) : string {
 }
 
 function pohlavni_program(string $month) : void {
+  $var = "ffff";
   write("Hello from IFJ", $year, "\n");
+
+  return;
 }
 
 hlavni_program(22);

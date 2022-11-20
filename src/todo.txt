@@ -1,4 +1,4 @@
-1. list tokenov celeho programu pre opakovane pouzitie - Marek
+1. list tokenov celeho programu pre opakovane pouzitie - Marek -DONE by Riso
 2. vytvorenie hashtable struktur - Marek a Jasmi
 3. rozdelenie celeho programu do struktur a hashtable - Marek a Jasmi
 4. pri naplneni struktury na nu zavolat semanticku - Marek a Jasmi

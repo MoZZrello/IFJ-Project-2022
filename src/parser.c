@@ -381,73 +381,14 @@ void expr_skip() {
 }
 
 void antilog(ht_table_t *table){
-    int index = 8;
-    bool in_function = false;
-    int key = 0;
-    int* func_keys = NULL;
-    Token t;
+    int *key = malloc(sizeof(int));
+    key[0] = 0;
     element* elementList = NULL;
-    int lastFunctionKey = 0;
 
-    changeTokenListIndex(index);
+    elementList = sortSem(elementList, key);
 
-    while((t=getTokenFromList()).type != EOF_T){
-        elementList = realloc(elementList, sizeof(element)*(key+1));
-        //printf("%s  %s\n", t.info, getTypeName(t));
-        if(t.isKeyword){
-            switch(t.kwt){
-                case ELSE_K:
-                    break;
-                case FLOAT_K:
-                    break;
-                case FUNCTION_K:
-                    if(in_function){
-                        callError(ERR_SEM_OTHER);
-                    }
-                    elementList[key] = sem_func();
-                    in_function = true;
-                    lastFunctionKey = key;
-                    /*char c[1000];
-                    snprintf(c, sizeof(c), "%d", key);
-                    ht_insert(table,  c, elementList[key]);*/
-                    key++;
-                    break;
-                case IF_K:
-                    break;
-                case NULL_K:
-                    break;
-                case RETURN_K:
-                    elementList[key] = sem_return();
-                    if(in_function){
-                        check_sem_return(elementList[lastFunctionKey], elementList[key]);
-                    } else {
-
-                    }
-                    in_function = false;
-                    key++;
-                    break;
-                case STRING_K:
-                    break;
-                case VOID_K:
-                    break;
-                case INT_K:
-                    break;
-                case WHILE_K:
-                    break;
-                case UNKNOWN_K:
-                    break;
-            }
-        } else if(t.type == RIGHT_CURLY_BRACKET){
-            if(in_function && elementList[lastFunctionKey].ret_type.kwt == VOID_K){
-                in_function = false;
-            } else {
-                callError(ERR_SEM_ARGS);
-            }
-        }
-
-    }
-
-    for(int i=0; i < key; i++){
+    for(int i=0; i < key[0]; i++){
+        printf("%s\n", elementList[i].name.info);
         if(elementList[i].name.info != NULL){
             free(elementList[i].name.info);
 
@@ -458,6 +399,59 @@ void antilog(ht_table_t *table){
         }
     }
     free(elementList);
+    free(key);
+}
+
+element* sortSem(element* elementList, int *retKey){
+    Token t;
+    int index = 8, key = *retKey;
+    changeTokenListIndex(index);
+
+    while((t=getTokenFromList()).type != EOF_T){
+        elementList = realloc(elementList, sizeof(element)*(key+1));
+        if(t.isKeyword){
+            switch(t.kwt){
+                case ELSE_K:
+                    elementList[key] = sem_else();
+                    key++;
+                    break;
+                case FUNCTION_K:
+                    elementList[key] = sem_func();
+                    key++;
+                    break;
+                case IF_K:
+                    elementList[key] = sem_if_while();
+                    key++;
+                    break;
+                case RETURN_K:
+                    elementList[key] = sem_return();
+                    key++;
+                    break;
+                case WHILE_K:
+                    elementList[key] = sem_if_while();
+                    key++;
+                    break;
+                case NULL_K:
+                case FLOAT_K:
+                case STRING_K:
+                case VOID_K:
+                case INT_K:
+                case UNKNOWN_K:
+                    break;
+            }
+        } else if(t.type == VAR_ID){
+            elementList[key] = sem_var();
+            key++;
+            previousTokenListIndex();
+        } else if(t.type != SEMICOLON){
+            elementList[key] = sem_else();
+            key++;
+        } else {
+            continue;
+        }
+    }
+    retKey[0] = key;
+    return elementList;
 }
 
 element sem_func(){
@@ -491,10 +485,12 @@ element sem_func(){
 }
 
 element sem_return(){
+    previousTokenListIndex();
     Token t = getTokenFromList();
     element e;
     e.name = t;
     e.argslist = NULL;
+    t = getTokenFromList();
     if(t.type != SEMICOLON){
         int argsCount = 0;
         e.argslist = malloc(sizeof(argList));
@@ -507,6 +503,60 @@ element sem_return(){
             e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
             e.argslist->list[argsCount].arg = t;
             e.argslist->len++;
+        }
+    }
+    return e;
+}
+
+element sem_if_while(){
+    previousTokenListIndex();
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = NULL;
+    int argsCount = 0;
+    t = getTokenFromList();
+    t = getTokenFromList();
+    if(t.type != RIGHT_BRACKET) {
+        e.argslist = malloc(sizeof(argList));
+        e.argslist->list = malloc(sizeof(arg));
+        previousTokenListIndex();
+        while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
+            e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
+            e.argslist->list[argsCount].arg = t;
+            e.argslist->len = argsCount;
+            argsCount++;
+        }
+    }
+    return e;
+}
+
+element sem_else(){
+    previousTokenListIndex();
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = NULL;
+    return e;
+}
+
+element sem_var(){
+    previousTokenListIndex();
+    Token t = getTokenFromList();
+    element e;
+    e.name = t;
+    e.argslist = NULL;
+    int argsCount = 0;
+    t = getTokenFromList();
+    if(t.type == ASSIGN){
+        e.argslist = malloc(sizeof(argList));
+        e.argslist->list = malloc(sizeof(arg));
+        previousTokenListIndex();
+        while ((t = getTokenFromList()).type != SEMICOLON) {
+            e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
+            e.argslist->list[argsCount].arg = t;
+            e.argslist->len = argsCount;
+            argsCount++;
         }
     }
     return e;
