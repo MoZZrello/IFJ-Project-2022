@@ -20,10 +20,11 @@ int HT_SIZE = MAX_HT_SIZE;
  * rovnomerne po všetkých indexoch. Zamyslite sa nad kvalitou zvolenej funkcie.
  */
 int get_hash(char *key) {
-  int result = 1;
-  int length = (int)strlen(key);
-  for (int i = 0; i < length; i++) {
-    result += key[i];
+  int result = 1, i = 0;
+
+  while(key[i] != '\0'){
+      result += key[i];
+      i++;
   }
   return (result % HT_SIZE);
 }
@@ -63,25 +64,33 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
 void ht_insert(ht_table_t *table, char *key, element data) {
-  if (table == NULL) return;
-
-    int index = get_hash(key);
-    ht_item_t *item = ht_search(table, key);
-
-    if (item != NULL) {
-        item->e = &data;
+    if (table == NULL) {
+        return;
     }
-    else {
-        item = (ht_item_t *) malloc(sizeof(ht_item_t));
-        item->e = &data;
-        item->key = key;
 
-        if ((*table)[index] != NULL) {
-          item->next = (*table)[index];
-        } else {
-          item->next = NULL;
+    ht_item_t *item_exist = ht_search(table, key);
+
+    if(item_exist!= NULL){
+        item_exist->e= &data;
+    }
+    else{
+        //alokujeme si pamat
+        ht_item_t *new_item = malloc(sizeof (ht_item_t));
+        if(new_item == NULL){
+            return;
         }
-        (*table)[index] = item;
+        //priradime hodnoty do noveho pridaneho prvku
+        new_item->e= &data;
+        new_item->next = NULL;
+        new_item->key = key;
+
+        int index = get_hash(key);
+
+        item_exist = (*table)[index];
+        if(item_exist){
+            new_item->next = item_exist;
+        }
+        (*table)[index] = new_item;
     }
 }
 
