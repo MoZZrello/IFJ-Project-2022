@@ -383,25 +383,14 @@ void expr_skip() {
 void antilog(ht_table_t *table){
     int *key = malloc(sizeof(int));
     key[0] = 0;
-    element* elementList = NULL;
 
-    elementList = sortSem(table, key);
+    sortSem(table, key);
     int freeEnd = *key;
-    elementList = addBuiltInFuncs(elementList, key);
+    addBuiltInFuncs(table, key);
 
-    semControl(elementList, freeEnd);
+    //semControl(elementList, freeEnd);
 
-    /*for(int i=0; i < freeEnd; i++){
-        if(elementList[i].name.info != NULL){
-            free(elementList[i].name.info);
-        }
-        if(elementList[i].argslist != NULL){
-            free(elementList[i].argslist->list);
-            free(elementList[i].argslist);
-        }
-    }*/
-    //free(elementList);
-   //free(key);
+    free(key);
 }
 
 ht_table_t* sortSem(ht_table_t *table, int *retKey){
@@ -409,57 +398,44 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
     int index = 8, key = *retKey; char func[MAX_HT_SIZE];
     changeTokenListIndex(index);
     element* data;
-    element* data1;
     data = malloc(sizeof(element));
-    data1 = malloc(sizeof(element));
     while((t=getTokenFromList()).type != EOF_T){
-        //elementList = realloc(elementList, sizeof(element)*(key+1));
         if(t.isKeyword){
             switch(t.kwt){
                 case ELSE_K:
                     data = realloc(data, sizeof(element)*(key+1));
-                    itoa(key, func ,  10);
+                    sprintf( func,"%d", key);
                     data[key] = sem_else();
                     ht_insert(table, func, &data[key]);
                     key++;
-                   /* elementList[key] = sem_else();
-                    key++;*/
                     break;
                 case FUNCTION_K:
                     data = realloc(data, sizeof(element)*(key+1));
-                    itoa(key, func ,  5);
+                    sprintf( func,"%d", key);
                     data[key] = sem_func();
                     ht_insert(table, func, &data[key]);
                     key++;
-                    /*  elementList[key] = sem_func();
-                    key++;*/
                     break;
                 case IF_K:
                     data = realloc(data, sizeof(element)*(key+1));
-                    itoa(key, func ,  10);
+                    sprintf( func,"%d", key);
                     data[key] = sem_if_while();
                     ht_insert(table, func, &data[key]);
                     key++;
-                   /* elementList[key] = sem_if_while();
-                    key++;*/
                     break;
                 case RETURN_K:
                     data = realloc(data, sizeof(element)*(key+1));
-                    itoa(key, func ,  10);
+                    sprintf( func,"%d", key);
                     data[key] = sem_return();
                     ht_insert(table, func, &data[key]);
                     key++;
-                    /*  elementList[key] = sem_return();
-                    key++;*/
                     break;
                 case WHILE_K:
                     data = realloc(data, sizeof(element)*(key+1));
-                    itoa(key, func ,  10);
+                    sprintf( func,"%d", key);
                     data[key] = sem_if_while();
                     ht_insert(table, func, &data[key]);
                     key++;
-                  /*  elementList[key] = sem_if_while();
-                    key++;*/
                     break;
                 case NULL_K:
                 case FLOAT_K:
@@ -487,54 +463,63 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
         } else {
             continue;
         }
+
     }
+
+    free(data);
     retKey[0] = key;
     return table;
 
 }
 
-element* addBuiltInFuncs(element* elementList, int *retKey){
+ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey){
     Token name_t, rettype_t;
     int key = *retKey;
-    elementList = realloc(elementList, sizeof(element)*(key+9));
+    char func[MAX_HT_SIZE];
 
     name_t = (Token){.info="reads", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="?string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true});
 
     name_t = (Token){.info="readi", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="?int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
-
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true});
 
     name_t = (Token){.info="readf", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="?float", .type=IDENTIFIER, .isKeyword=true, .kwt=FLOAT_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true});
 
     name_t = (Token){.info="write", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
     name_t = (Token){.info="strlen", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
     name_t = (Token){.info="substring", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="?string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true};
-
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=true});
 
     name_t = (Token){.info="ord", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
 
     name_t = (Token){.info="chr", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
-    elementList[key++] = (element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
     *retKey = key;
-    return elementList;
+    return table;
 }
 
 element sem_func(){

@@ -44,7 +44,7 @@ void arg_list();
 
 void antilog(ht_table_t *table);
 ht_table_t* sortSem(ht_table_t *table, int *retKey);
-element* addBuiltInFuncs(element* elementList, int *retKey);
+ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey);
 element sem_func();
 element sem_return();
 element sem_if_while();

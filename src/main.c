@@ -17,6 +17,23 @@ int main(){
     antilog(table);
     //neulog();
 
+    int i = 0;
+    while(!0){
+        char func[MAX_HT_SIZE];
+        sprintf(func, "%d", i++);
+        element* e = ht_get(table, func);
+        if(e == NULL){
+            break;
+        }
+        printf("%s\n", e->name.info);
+        if(e->argslist != NULL){
+            free(e->argslist->list);
+            free(e->argslist);
+        }
+    }
+
+    ht_delete_all(table);
+
     if(end_file) {
         printf("som tu\n");
     }

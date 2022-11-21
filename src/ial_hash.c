@@ -78,22 +78,19 @@ void ht_insert(ht_table_t *table, char *key, element *data) {
     ht_item_t *item_exist = ht_search(table, key);
 
     if(item_exist!= NULL){
-        item_exist->e = data;
+        item_exist->e = *data;
     }
     else{
+        int index = get_hash(key);
         //alokujeme si pamat
-        ht_item_t *new_item = malloc(sizeof (ht_item_t));
-        if(new_item == NULL){
-            return;
+        ht_item_t *item = malloc(sizeof (ht_item_t));
+        if(item == NULL){
+            callError(ERR_INTERNAL);
         }
         //priradime hodnoty do noveho pridaneho prvku
-        new_item->e = data;
-        new_item->key = *key;
-
-        int index = get_hash(key);
-
-        item_exist = (*table)[index];
-        (*table)[index] = new_item;
+        memcpy(&item->e, data, sizeof(element));
+        memcpy(&item->key, key, sizeof(*key));
+        (*table)[index] = item;
     }
 }
 
@@ -108,8 +105,8 @@ void ht_insert(ht_table_t *table, char *key, element *data) {
 element *ht_get(ht_table_t *table, char *key) {
   ht_item_t *item = ht_search(table, key);
 
-  if(&(item->e->name) != NULL){
-    return item->e;
+  if(item != NULL){
+    return &item->e;
   } else {
       return NULL;
   }

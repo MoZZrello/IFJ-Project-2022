@@ -42,7 +42,7 @@ typedef struct element{
 // Prvok tabuľky
 typedef struct ht_item {
   char key;            // kľúč prvku
-  element* e;         //ukazovateľ na to čo to je
+  element e;         //ukazovateľ na to čo to je
 } ht_item_t;
 
 // Tabuľka o reálnej veľkosti MAX_HT_SIZE

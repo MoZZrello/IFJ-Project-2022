@@ -22,6 +22,10 @@ int stringInit(string *s){
     return PROG_OK;
 }
 
+void stringFree(string *s){
+    free(s->data);
+}
+
 int addChar(string *s, char c){
     if (s->length +1 >= s->allocSize) {
         char *tmp = (char *) realloc(s->data, (s->length + 8) * sizeof(char));

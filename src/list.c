@@ -36,8 +36,8 @@ void printTokenList(){
 
 void createTokenList(){
     initTokenList();
+    string str;
     while(1){
-        string str;
         stringInit(&str);
         Token t = getToken(str);
         if(t.type == ERROR_T){
@@ -49,6 +49,7 @@ void createTokenList(){
         }
         tokenFree();
     }
+    stringFree(&str);
 }
 
 void changeTokenListIndex(int index){
