@@ -3,6 +3,9 @@ list tokenov celeho programu pre opakovane pouzitie - by Riso
 vytvorenie hashtable struktur- by Riso
 rozdelenie celeho programu do struktur - by Riso
 
+INBETWEEN:
+syntakticka by mala vyhodit error ka ide $var $var, aktualne nevyhodi
+
 NEXT:
 1. struktury do hashtable - Marek a Jasmi
 2. semantika - Riso

@@ -183,7 +183,7 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_PHP_END:
             return ERROR;
         case ERROR:
-            callError(ERROR);
+            callError(ERR_LEX);
     }
 }
 
