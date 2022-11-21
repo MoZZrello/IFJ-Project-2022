@@ -385,13 +385,13 @@ void antilog(ht_table_t *table){
     key[0] = 0;
     element* elementList = NULL;
 
-    elementList = sortSem(elementList, key);
+    elementList = sortSem(table, key);
     int freeEnd = *key;
     elementList = addBuiltInFuncs(elementList, key);
 
     semControl(elementList, freeEnd);
 
-    for(int i=0; i < freeEnd; i++){
+    /*for(int i=0; i < freeEnd; i++){
         if(elementList[i].name.info != NULL){
             free(elementList[i].name.info);
         }
@@ -399,40 +399,67 @@ void antilog(ht_table_t *table){
             free(elementList[i].argslist->list);
             free(elementList[i].argslist);
         }
-    }
-
-    free(elementList);
-    free(key);
+    }*/
+    //free(elementList);
+   //free(key);
 }
 
-element* sortSem(element* elementList, int *retKey){
+ht_table_t* sortSem(ht_table_t *table, int *retKey){
     Token t;
-    int index = 8, key = *retKey;
+    int index = 8, key = *retKey; char func[MAX_HT_SIZE];
     changeTokenListIndex(index);
-
+    element* data;
+    element* data1;
+    data = malloc(sizeof(element));
+    data1 = malloc(sizeof(element));
     while((t=getTokenFromList()).type != EOF_T){
-        elementList = realloc(elementList, sizeof(element)*(key+1));
+        //elementList = realloc(elementList, sizeof(element)*(key+1));
         if(t.isKeyword){
             switch(t.kwt){
                 case ELSE_K:
-                    elementList[key] = sem_else();
+                    data = realloc(data, sizeof(element)*(key+1));
+                    itoa(key, func ,  10);
+                    data[key] = sem_else();
+                    ht_insert(table, func, &data[key]);
                     key++;
+                   /* elementList[key] = sem_else();
+                    key++;*/
                     break;
                 case FUNCTION_K:
-                    elementList[key] = sem_func();
+                    data = realloc(data, sizeof(element)*(key+1));
+                    itoa(key, func ,  5);
+                    data[key] = sem_func();
+                    ht_insert(table, func, &data[key]);
                     key++;
+                    /*  elementList[key] = sem_func();
+                    key++;*/
                     break;
                 case IF_K:
-                    elementList[key] = sem_if_while();
+                    data = realloc(data, sizeof(element)*(key+1));
+                    itoa(key, func ,  10);
+                    data[key] = sem_if_while();
+                    ht_insert(table, func, &data[key]);
                     key++;
+                   /* elementList[key] = sem_if_while();
+                    key++;*/
                     break;
                 case RETURN_K:
-                    elementList[key] = sem_return();
+                    data = realloc(data, sizeof(element)*(key+1));
+                    itoa(key, func ,  10);
+                    data[key] = sem_return();
+                    ht_insert(table, func, &data[key]);
                     key++;
+                    /*  elementList[key] = sem_return();
+                    key++;*/
                     break;
                 case WHILE_K:
-                    elementList[key] = sem_if_while();
+                    data = realloc(data, sizeof(element)*(key+1));
+                    itoa(key, func ,  10);
+                    data[key] = sem_if_while();
+                    ht_insert(table, func, &data[key]);
                     key++;
+                  /*  elementList[key] = sem_if_while();
+                    key++;*/
                     break;
                 case NULL_K:
                 case FLOAT_K:
@@ -443,21 +470,27 @@ element* sortSem(element* elementList, int *retKey){
                     break;
             }
         } else if(t.type == VAR_ID){
-            elementList[key] = sem_var();
+            /*data = realloc(data, sizeof(element)*(key+1));
+            itoa(key, func ,  10);
+            data[key] = sem_var();
+            ht_insert(table, func, &data[key]);
+            key++;*/
+            /*elementList[key] = sem_var();
             key++;
-            previousTokenListIndex();
+            previousTokenListIndex();*/
         } else if(t.type == IDENTIFIER){
-            elementList[key] = sem_identif();
-            key++;
+           /* elementList[key] = sem_identif();
+            key++;*/
         } else if(t.type != SEMICOLON){
-            elementList[key] = sem_else();
-            key++;
+           /* elementList[key] = sem_else();
+            key++;*/
         } else {
             continue;
         }
     }
     retKey[0] = key;
-    return elementList;
+    return table;
+
 }
 
 element* addBuiltInFuncs(element* elementList, int *retKey){

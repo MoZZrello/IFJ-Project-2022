@@ -43,7 +43,7 @@ void arg_def();
 void arg_list();
 
 void antilog(ht_table_t *table);
-element* sortSem(element* elementList, int* retKey);
+ht_table_t* sortSem(ht_table_t *table, int *retKey);
 element* addBuiltInFuncs(element* elementList, int *retKey);
 element sem_func();
 element sem_return();
