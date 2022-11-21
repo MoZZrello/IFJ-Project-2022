@@ -6,6 +6,9 @@ struktury do hashtable - by Marek a Riso
 
 INBETWEEN:
 syntakticka by mala vyhodit error ka ide $var $var, aktualne nevyhodi
+malloc neuspesny je ERR_INTERNAL
+zmenit !strcmp na strcmp == 0
+semControl zmenit elementList na hashtable data
 
 NEXT:
 1. semantika - Riso
