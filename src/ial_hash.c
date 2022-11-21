@@ -26,14 +26,14 @@ int get_hash(char *key) {
       result += key[i];
       i++;
   }
-  return (result % HT_SIZE);
+  return (result % MAX_HT_SIZE);
 }
 
 /*
  * Inicializácia tabuľky — zavolá sa pred prvým použitím tabuľky.
  */
 void ht_init(ht_table_t *table) {
-    for (int i = 0; i < HT_SIZE; i++){
+    for (int i = 0; i < MAX_HT_SIZE; i++){
         (*table)[i] = NULL;
     }
 }
@@ -45,14 +45,21 @@ void ht_init(ht_table_t *table) {
  * hodnotu NULL.
  */
 ht_item_t *ht_search(ht_table_t *table, char *key) {
-  ht_item_t *item = (*table)[get_hash(key)];
-
-  for (;item; item = item->next){
-    if (strcmp(item->key, key) == 0){
-      return item;
+    if (table == NULL) {
+        return NULL;
     }
-  }
-  return NULL;
+    //index do tabulky
+    int index = get_hash(key);
+    ht_item_t *search = (*table)[index];
+
+    //dokym neprejdeme vsetko
+    while(search != NULL){
+        //ak sa rovnaju
+        if(search->key == *key){
+            return search;
+        }
+    }
+    return NULL;
 }
 
 /*
@@ -63,7 +70,7 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * Pri implementácii využite funkciu ht_search. Pri vkladaní prvku do zoznamu
  * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
-void ht_insert(ht_table_t *table, char *key, element data) {
+void ht_insert(ht_table_t *table, char *key, element *data) {
     if (table == NULL) {
         return;
     }
@@ -71,7 +78,7 @@ void ht_insert(ht_table_t *table, char *key, element data) {
     ht_item_t *item_exist = ht_search(table, key);
 
     if(item_exist!= NULL){
-        item_exist->e= &data;
+        item_exist->e = data;
     }
     else{
         //alokujeme si pamat
@@ -80,16 +87,12 @@ void ht_insert(ht_table_t *table, char *key, element data) {
             return;
         }
         //priradime hodnoty do noveho pridaneho prvku
-        new_item->e= &data;
-        new_item->next = NULL;
-        new_item->key = key;
+        new_item->e = data;
+        new_item->key = *key;
 
         int index = get_hash(key);
 
         item_exist = (*table)[index];
-        if(item_exist){
-            new_item->next = item_exist;
-        }
         (*table)[index] = new_item;
     }
 }
@@ -113,39 +116,12 @@ element *ht_get(ht_table_t *table, char *key) {
 }
 
 /*
- * Zmazanie prvku z tabuľky.
- *
- * Funkcia korektne uvoľní všetky alokované zdroje priradené k danému prvku.
- * Pokiaľ prvok neexistuje, nerobte nič.
- *
- * Pri implementácii NEVYUŽÍVAJTE funkciu ht_search.
- */
-void ht_delete(ht_table_t *table, char *key) {
-  int hashtag = get_hash(key);
-  ht_item_t *NEXTitem = NULL;
-  ht_item_t *PREVitem = NULL;
-  ht_item_t *item = (*table)[hashtag];
-
-  for(; item; PREVitem = item, item = item->next){
-      NEXTitem = item->next;
-      if(strcmp(key, item->key) == 0){
-          free(item);
-          if(!PREVitem){
-              (*table)[hashtag] = NEXTitem;
-              return;
-          }
-          PREVitem->next = NEXTitem;
-          return;
-      }
-  }
-}
-
-/*
  * Zmazanie všetkých prvkov z tabuľky.
  *
  * Funkcia korektne uvoľní všetky alokované zdroje a uvedie tabuľku do stavu po
  * inicializácii.
  */
+
 void ht_delete_all(ht_table_t *table) {
   ht_item_t *active;
 
@@ -154,8 +130,7 @@ void ht_delete_all(ht_table_t *table) {
       if(((*table)[i]) != NULL){
         active = (*table)[i];
         free(active);
-        (*table)[i] = NULL; 
-        active = active->next;
+        (*table)[i] = NULL;
       }
     } 
   } else {

@@ -41,9 +41,8 @@ typedef struct element{
 
 // Prvok tabuľky
 typedef struct ht_item {
-  char* key;            // kľúč prvku
+  char key;            // kľúč prvku
   element* e;         //ukazovateľ na to čo to je
-  struct ht_item_t* next; // ukazateľ na ďalšie synonymum
 } ht_item_t;
 
 // Tabuľka o reálnej veľkosti MAX_HT_SIZE
@@ -52,9 +51,9 @@ typedef ht_item_t *ht_table_t[MAX_HT_SIZE];
 int get_hash(char *key);
 void ht_init(ht_table_t *table);
 ht_item_t *ht_search(ht_table_t *table, char *key);
-void ht_insert(ht_table_t *table, char *key, element data);
+void ht_insert(ht_table_t *table, char *key, element *data);
 element *ht_get(ht_table_t *table, char *key);
-void ht_delete(ht_table_t *table, char *key);
 void ht_delete_all(ht_table_t *table);
+
 
 #endif
