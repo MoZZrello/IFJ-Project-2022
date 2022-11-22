@@ -1,6 +1,7 @@
 /*
- * Hlavičkový súbor pre tabuľku s rozptýlenými položkami.
- * Tento súbor neupravujte.
+ * Created by Marek Spirka and Jasmina Csalova on 17.11.2022
+ *
+ * Inspired by the second project from the IAL 2022 course
  */
 
 #ifndef IAL_HASHTABLE_H
@@ -9,17 +10,8 @@
 #include <stdbool.h>
 #include "scanner.h"
 
-/*
- * Maximálna veľkosť poľa pre implementáciu tabuľky.
- * Funkcie pracujúce s tabuľkou uvažujú veľkosť HT_SIZE.
- */
-#define MAX_HT_SIZE 4096
+#define MAX_HT_SIZE 65536
 
-/*
- * Veľkosť tabuľky s ktorou pracujú implementované funkcie.
- * Pre účely testovania je vhodné mať možnosť meniť veľkosť tabuľky.
- * Pre správne fungovanie musí byť veľkosť prvočíslom.
- */
 extern int HT_SIZE;
 
 typedef struct arg{
