@@ -51,7 +51,7 @@ element sem_if_while();
 element sem_else();
 element sem_var();
 element sem_identif();
-void semControl(element* elementList, int key);
+void semControl(ht_table_t *table, int key);
 void check_sem_return(element func_e, element ret_e);
 void check_defined_functions(progdata data, char* name);
 

@@ -389,7 +389,7 @@ void antilog(ht_table_t *table){
     int freeEnd = *key;
     addBuiltInFuncs(table, key);
 
-    //semControl(elementList, freeEnd);
+   // semControl(table, freeEnd);
 
     free(key);
 }
@@ -444,27 +444,31 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
                 case VOID_K:
                 case INT_K:
                 case UNKNOWN_K:
-                    break;
+                    continue;
             }
         } else if(t.type == VAR_ID){
-            /*data = realloc(data, sizeof(element)*(key+1));
-            itoa(key, func ,  10);
+            data = realloc(data, sizeof(element)*(key+1));
+            sprintf( func,"%d", key);
             data[key] = sem_var();
             ht_insert(table, func, &data[key]);
-            key++;*/
-            /*elementList[key] = sem_var();
             key++;
-            previousTokenListIndex();*/
+            previousTokenListIndex();
         } else if(t.type == IDENTIFIER){
-           /* elementList[key] = sem_identif();
-            key++;*/
+            data = realloc(data, sizeof(element)*(key+1));
+            sprintf( func,"%d", key);
+            data[key] = sem_identif();
+            ht_insert(table, func, &data[key]);
+            key++;
         } else if(t.type != SEMICOLON){
-           /* elementList[key] = sem_else();
-            key++;*/
+            data = realloc(data, sizeof(element)*(key+1));
+            sprintf( func,"%d", key);
+            data[key] = sem_else();
+            ht_insert(table, func, &data[key]);
+            key++;
         } else {
+            key--;
             continue;
         }
-
     }
 
     free(data);
@@ -674,7 +678,7 @@ element sem_identif(){
     return e;
 }
 
-void semControl(element* elementList, int key){
+/*void semControl(ht_table_t *table, int key){
     progdata data;
     data.returned = false;
     data.inIF = false;
@@ -752,7 +756,7 @@ void semControl(element* elementList, int key){
             continue;
         }
     }
-}
+}*/
 
 void check_sem_return(element func_e, element ret_e){
     if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING ||
