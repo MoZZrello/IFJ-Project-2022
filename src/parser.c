@@ -9,13 +9,7 @@ int brac_count = 0;
 
 void prolog() {
     token = getTokenFromList();
-    //printf("%s\n", getTypeName(*token));
-    //printf("%s\n", token->info);
-    //todo inicializovat hashtable
-
     //inicializacia stacku ?? pre expr
-    
-    //TODO strict types vymenit!!!!!!!!
     if (strcmp("|PHP|", getTypeName(token)) != 0) {
         callError(ERR_SYN);
     }
@@ -55,11 +49,7 @@ void prolog() {
                                     callError(ERR_SYN);
                                 }
                                 else {
-                                    //printf("toto je %s %s\n",token.info, getTypeName(token));
                                     body();
-                                    /*free(token->info);
-                                    //free(token->type);
-                                    free(token);*/
                                 }
                             }
                         }
@@ -389,7 +379,7 @@ void antilog(ht_table_t *table){
     int freeEnd = *key;
     addBuiltInFuncs(table, key);
 
-   // semControl(table, freeEnd);
+    //semControl(table, freeEnd);
 
     free(key);
 }

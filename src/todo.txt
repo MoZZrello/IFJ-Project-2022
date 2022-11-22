@@ -13,4 +13,3 @@ semControl zmenit elementList na hashtable data
 NEXT:
 1. semantika - Riso
 2. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso
-3. generator kodu z hashtable - Uvidi sa
