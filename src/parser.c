@@ -443,7 +443,7 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
                 case VOID_K:
                 case INT_K:
                 case UNKNOWN_K:
-                    break;
+                    continue;
             }
         } else if(t.type == VAR_ID){
             data = realloc(data, sizeof(element)*(key+1));
@@ -465,6 +465,7 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
             ht_insert(table, func, &data[key]);
             key++;
         } else {
+            key--;
             continue;
         }
     }
