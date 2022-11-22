@@ -13,8 +13,8 @@ int main(){
 
     createTokenList();
 
-    //prolog();
-    antilog(table);
+    prolog();
+    //antilog(table);
     //neulog();
 
     int i = 0;

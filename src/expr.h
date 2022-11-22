@@ -1,6 +1,9 @@
 #include <stdio.h>
-
-#define SIZE 20
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "scanner.h"
+#include "list.h"
 
 typedef enum{
 	VALUE, // promena 0
@@ -17,7 +20,7 @@ typedef enum{
 	COM, // , 11
 	BRACE_L, // ( 12
 	BRACE_R, // ) 13		
-	KONK, // konkatenace . 14
+	KONK, // konkatenacia . 14
 	D_DOT,
 	END, // $ 15
 
@@ -29,24 +32,29 @@ typedef enum{
 	X, // 20
 	ENDSTACK, // 21
 	ERR // 22
-} expr_type;
+} expr_symb;
 
-typedef struct stack_entry{
-	char *data;
-	struct stack_entry *next;
-} stack_entry;
+typedef struct stack_item{
+	Token token;
+	expr_symb symbol;
+	struct stack_item *next;
+} stack_item_t;
 
 struct stack_t {
-	struct stack_entry *head;
+	stack_item_t *head;
 	size_t stack_size;
 };
 
-struct stack_t *newStack(void);
-char *copyString(char *str);
-void push(struct stack_t *theStack, char *value);
-char *top(struct stack_t *theStack);
+void newStack(struct stack_t *theStack);
+void push(struct stack_t *theStack, expr_symb symb, Token value);
 void pop(struct stack_t *theStack);
+expr_symb top(struct stack_t *theStack);
 void clear (struct stack_t *theStack);
 void destroyStack(struct stack_t **theStack);
-void expression(char *neviem);
-void init();
+void expression(Token *token);
+expr_symb token_to_index(int token);
+expr_symb skip_term(struct stack_t *stack);
+
+void equal(struct stack_t *stack, expr_symb symb, Token *token);
+void less(struct stack_t *stack, expr_symb symb);
+void greater(struct stack_t *stack);
