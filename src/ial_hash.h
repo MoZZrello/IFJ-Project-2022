@@ -13,7 +13,7 @@
  * Maximálna veľkosť poľa pre implementáciu tabuľky.
  * Funkcie pracujúce s tabuľkou uvažujú veľkosť HT_SIZE.
  */
-#define MAX_HT_SIZE 1000
+#define MAX_HT_SIZE 4096
 
 /*
  * Veľkosť tabuľky s ktorou pracujú implementované funkcie.
@@ -39,13 +39,13 @@ typedef struct element{
     bool nullRet;
 } element;
 
-// Prvok tabuľky
+
 typedef struct ht_item {
-  char key;            // kľúč prvku
-  element e;         //ukazovateľ na to čo to je
+  char key;
+  element e;
 } ht_item_t;
 
-// Tabuľka o reálnej veľkosti MAX_HT_SIZE
+
 typedef ht_item_t *ht_table_t[MAX_HT_SIZE];
 
 int get_hash(char *key);
@@ -54,6 +54,5 @@ ht_item_t *ht_search(ht_table_t *table, char *key);
 void ht_insert(ht_table_t *table, char *key, element *data);
 element *ht_get(ht_table_t *table, char *key);
 void ht_delete_all(ht_table_t *table);
-
 
 #endif

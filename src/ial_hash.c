@@ -20,13 +20,12 @@ int HT_SIZE = MAX_HT_SIZE;
  * rovnomerne po všetkých indexoch. Zamyslite sa nad kvalitou zvolenej funkcie.
  */
 int get_hash(char *key) {
-  int result = 1, i = 0;
 
-  while(key[i] != '\0'){
-      result += key[i];
-      i++;
-  }
-  return (result % MAX_HT_SIZE);
+    unsigned result;
+
+    for ( result = 0; *key!= '\0'; key++)
+        result = *key + 31 *  result;
+    return  result % MAX_HT_SIZE;
 }
 
 /*

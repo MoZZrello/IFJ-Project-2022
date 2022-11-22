@@ -466,7 +466,6 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
             ht_insert(table, func, &data[key]);
             key++;
         } else {
-            key--;
             continue;
         }
     }
@@ -474,7 +473,6 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
     free(data);
     retKey[0] = key;
     return table;
-
 }
 
 ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey){
@@ -523,7 +521,7 @@ ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey){
     sprintf(func, "%d", key++);
     ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
-    *retKey = key;
+    retKey[0] = key;
     return table;
 }
 
