@@ -8,6 +8,9 @@ allTokens *prog_list;
 
 void initTokenList(){
     prog_list = malloc(sizeof(allTokens));
+    if(prog_list == NULL){
+        callError(ERR_INTERNAL);
+    }
     prog_list->list = NULL;
     prog_list->index = 0;
     prog_list->len = 0;

@@ -9,6 +9,10 @@ int main(){
 
     ht_table_t *table;
     table = malloc(sizeof(ht_table_t));
+    if(table == NULL){
+        callError(ERR_INTERNAL);
+    }
+
     ht_init(table);
 
     createTokenList();

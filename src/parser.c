@@ -373,6 +373,10 @@ void expr_skip() {
 
 void antilog(ht_table_t *table){
     int *key = malloc(sizeof(int));
+    //check malloc
+    if(key == NULL){
+        callError(ERR_INTERNAL);
+    }
     key[0] = 0;
 
     sortSem(table, key);
@@ -390,6 +394,11 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
     changeTokenListIndex(index);
     element* data;
     data = malloc(sizeof(element));
+    //check malloc
+    if(data == NULL){
+        callError(ERR_INTERNAL);
+    }
+
     while((t=getTokenFromList()).type != EOF_T){
         if(t.isKeyword){
             switch(t.kwt){
@@ -521,7 +530,16 @@ element sem_func(){
     element e;
     e.name = t;
     e.argslist = malloc(sizeof(argList));
+    //check malloc
+    if(e.argslist == NULL){
+        callError(ERR_INTERNAL);
+    }
     e.argslist->list = malloc(sizeof(arg));
+    //check malloc
+    if(e.argslist->list == NULL){
+        callError(ERR_INTERNAL);
+    }
+
     e.argslist->len = 0;
     while((t=getTokenFromList()).type != RIGHT_BRACKET){
         if(t.type == COMMA || t.type == LEFT_BRACKET){
@@ -563,7 +581,15 @@ element sem_return(){
     t = getTokenFromList();
     if(t.type != SEMICOLON){
         e.argslist = malloc(sizeof(argList));
+        //check malloc
+        if(e.argslist == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->list = malloc(sizeof(arg));
+        //check malloc
+        if(e.argslist->list == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->len = 0;
         e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
         e.argslist->list[argsCount].arg = t;
@@ -576,7 +602,15 @@ element sem_return(){
         }
     } else {
         e.argslist = malloc(sizeof(argList));
+        //check malloc
+        if(e.argslist == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->list = malloc(sizeof(arg));
+        //check malloc
+        if(e.argslist->list == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->len = 0;
         e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
         e.argslist->list[argsCount].arg = t;
@@ -597,7 +631,15 @@ element sem_if_while(){
     t = getTokenFromList();
     if(t.type != RIGHT_BRACKET) {
         e.argslist = malloc(sizeof(argList));
+        //check malloc
+        if(e.argslist == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->list = malloc(sizeof(arg));
+        //check malloc
+        if(e.argslist->list == NULL){
+            callError(ERR_INTERNAL);
+        }
         previousTokenListIndex();
         while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
             e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
@@ -630,7 +672,15 @@ element sem_var(){
     t = getTokenFromList();
     if(t.type == ASSIGN){
         e.argslist = malloc(sizeof(argList));
+        //check malloc
+        if(e.argslist == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->list = malloc(sizeof(arg));
+        //check malloc
+        if(e.argslist->list == NULL){
+            callError(ERR_INTERNAL);
+        }
         previousTokenListIndex();
         while ((t = getTokenFromList()).type != SEMICOLON) {
             e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
@@ -654,7 +704,15 @@ element sem_identif(){
     t = getTokenFromList();
     if(t.type != RIGHT_BRACKET){
         e.argslist = malloc(sizeof(argList));
+        //check malloc
+        if(e.argslist == NULL){
+            callError(ERR_INTERNAL);
+        }
         e.argslist->list = malloc(sizeof(arg));
+        //check malloc
+        if(e.argslist->list == NULL){
+            callError(ERR_INTERNAL);
+        }
         previousTokenListIndex();
         while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
             e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
