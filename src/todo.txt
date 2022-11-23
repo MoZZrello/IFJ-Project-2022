@@ -3,10 +3,11 @@ list tokenov celeho programu pre opakovane pouzitie - by Riso
 vytvorenie hashtable struktur- by Riso
 rozdelenie celeho programu do struktur - by Riso
 struktury do hashtable - by Marek a Riso
+malloc neuspesny je ERR_INTERNAL - by Marek
 
 INBETWEEN:
 syntakticka by mala vyhodit error ka ide $var $var, aktualne nevyhodi
-malloc neuspesny je ERR_INTERNAL
+
 zmenit !strcmp na strcmp == 0
 semControl zmenit elementList na hashtable data
 
