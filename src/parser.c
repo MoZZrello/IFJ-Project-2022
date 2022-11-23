@@ -717,6 +717,8 @@ element sem_identif(){
 
 void semControl(ht_table_t *table, int key){
     progdata data;
+    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+
     data.returned = false;
     data.inIF = false;
     data.inFunction = false;
@@ -725,10 +727,17 @@ void semControl(ht_table_t *table, int key){
     data.lastFuncKey = 0;
     data.funcCounter = 0;
     data.varCounter = 0;
-    data.definedFunctions = malloc(sizeof(char) * (strlen("reads;readi;readf;write;strlen;substring;ord;cbr;")+1));
-    memset(data.definedFunctions, 0, sizeof(*data.definedFunctions));
-    strcat(data.definedFunctions,"reads;readi;readf;write;strlen;substring;ord;cbr;");
-    data.definedVars = NULL;
+    data.definedFunctions = malloc(sizeof(char) * (strlen(funcChar)+1));
+    if(data.definedFunctions == NULL){
+        callError(ERR_INTERNAL);
+    }
+    strcpy(data.definedFunctions, funcChar);
+    data.definedVars = malloc(sizeof(char)*2);
+    if(data.definedVars == NULL){
+        callError(ERR_INTERNAL);
+    }
+    strcpy(data.definedVars, "");
+
     char index[MAX_HT_SIZE], lastFuncIndex[MAX_HT_SIZE];
     element* e = NULL;
 
@@ -737,14 +746,28 @@ void semControl(ht_table_t *table, int key){
         sprintf(lastFuncIndex, "%d", data.lastFuncKey);
         e = ht_get(table, index);
         if(e->name.type == VAR_ID){ // if it's variable
-            //printf("%s\n", elementList[i].name.info);
+            data.varCounter++;
+            int len = (int)strlen(data.definedVars) + (int)strlen(e->name.info) + data.varCounter + 1;
+
+            data.definedVars = realloc(data.definedVars, sizeof(char) * len);
+            if(data.definedVars == NULL){
+                callError(ERR_INTERNAL);
+            }
+            strcat(data.definedVars, e->name.info);
+            strcat(data.definedVars, ";");
 
         } else if(e->name.kwt == RETURN_K){ // if it's return
             check_sem_return(*ht_get(table, lastFuncIndex), *e);
             data.returned = true;
 
         } else if (e->ret_type.type != ERROR_T){ // if it's function
-            int len = (int)strlen(data.definedFunctions) + (int)strlen(e->name.info) + data.funcCounter;
+            data.funcCounter++;
+            // Syntax error if function definition isn't in main body of program
+            if(data.inElse || data.inWhile || data.inIF){
+                callError(ERR_SYN);
+            }
+
+            int len = (int)strlen(data.definedFunctions) + (int)strlen(e->name.info) + data.funcCounter + 1;
 
             data.lastFuncKey = i;
             data.inFunction = true;
@@ -752,10 +775,11 @@ void semControl(ht_table_t *table, int key){
             check_defined_functions(data, e->name.info);
 
             data.definedFunctions = realloc(data.definedFunctions, sizeof(char) * len);
+            if(data.definedFunctions == NULL){
+                callError(ERR_INTERNAL);
+            }
             strcat(data.definedFunctions, e->name.info);
             strcat(data.definedFunctions, ";");
-
-            //printf("%s\n", elementList[i].ret_type.info);
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
@@ -764,8 +788,9 @@ void semControl(ht_table_t *table, int key){
                 data.inWhile = true;
             } else if(strcmp(e->name.info, "else") == 0){
                 data.inElse = true;
+            } else { // function calls
+                solve_function_call(table, *e, key);
             }
-            //printf("%s\n", elementList[i].name.info);
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
                 if(data.inIF){
@@ -794,12 +819,12 @@ void semControl(ht_table_t *table, int key){
             } else {
                 callError(ERR_SEM_RETURN);
             }
-            //printf("%s\n", elementList[i].name.info);
         } else {
             continue;
         }
     }
     free(data.definedFunctions);
+    free(data.definedVars);
 }
 
 void check_sem_return(element func_e, element ret_e){
@@ -828,5 +853,17 @@ void check_sem_return(element func_e, element ret_e){
 void check_defined_functions(progdata data, char* name){
     if(strstr(data.definedFunctions, name) != NULL){
         callError(ERR_SEM_FUNC);
+    }
+}
+
+void solve_function_call(ht_table_t *table, element call, int key){
+    element* compare_e = NULL;
+    char index[MAX_HT_SIZE];
+    for(int i = 0; i < key; i++){
+        sprintf(index, "%d", i);
+        compare_e = ht_get(table, index);
+        if (compare_e->ret_type.type != ERROR_T){
+            printf("%s\n",compare_e->name.info);
+        }
     }
 }

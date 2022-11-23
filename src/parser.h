@@ -54,5 +54,6 @@ element sem_identif();
 void semControl(ht_table_t *table, int key);
 void check_sem_return(element func_e, element ret_e);
 void check_defined_functions(progdata data, char* name);
+void solve_function_call(ht_table_t *table, element call, int key);
 
 #endif //IFJ_PROJECT_2022_PARSER_H
