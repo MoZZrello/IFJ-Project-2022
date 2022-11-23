@@ -374,7 +374,7 @@ void antilog(ht_table_t *table){
     int freeEnd = *key;
     addBuiltInFuncs(table, key);
 
-    //semControl(table, freeEnd);
+    semControl(table, freeEnd);
 
     free(key);
 }
@@ -715,7 +715,7 @@ element sem_identif(){
     return e;
 }
 
-/*void semControl(ht_table_t *table, int key){
+void semControl(ht_table_t *table, int key){
     progdata data;
     data.returned = false;
     data.inIF = false;
@@ -725,42 +725,48 @@ element sem_identif(){
     data.lastFuncKey = 0;
     data.funcCounter = 0;
     data.varCounter = 0;
-    data.definedFunctions = malloc(sizeof(char) * strlen("reads;readi;readf;write;strlen;substring;ord;cbr;"));
+    data.definedFunctions = malloc(sizeof(char) * (strlen("reads;readi;readf;write;strlen;substring;ord;cbr;")+1));
+    memset(data.definedFunctions, 0, sizeof(*data.definedFunctions));
     strcat(data.definedFunctions,"reads;readi;readf;write;strlen;substring;ord;cbr;");
     data.definedVars = NULL;
-    for(int i=0; i < key; i++){
+    char index[MAX_HT_SIZE], lastFuncIndex[MAX_HT_SIZE];
+    element* e = NULL;
 
-        if(elementList[i].name.type == VAR_ID){ // if it's variable
+    for(int i=0; i < key; i++){
+        sprintf(index, "%d", i);
+        sprintf(lastFuncIndex, "%d", data.lastFuncKey);
+        e = ht_get(table, index);
+        if(e->name.type == VAR_ID){ // if it's variable
             //printf("%s\n", elementList[i].name.info);
 
-        } else if(elementList[i].name.kwt == RETURN_K){ // if it's return
-            check_sem_return(elementList[data.lastFuncKey], elementList[i]);
+        } else if(e->name.kwt == RETURN_K){ // if it's return
+            check_sem_return(*ht_get(table, lastFuncIndex), *e);
             data.returned = true;
 
-        } else if (elementList[i].ret_type.type != ERROR_T){ // if it's function
-            int len = (int)strlen(data.definedFunctions) + (int)strlen(elementList[i].name.info) + data.funcCounter;
+        } else if (e->ret_type.type != ERROR_T){ // if it's function
+            int len = (int)strlen(data.definedFunctions) + (int)strlen(e->name.info) + data.funcCounter;
 
             data.lastFuncKey = i;
             data.inFunction = true;
 
-            check_defined_functions(data, elementList[i].name.info);
+            check_defined_functions(data, e->name.info);
 
             data.definedFunctions = realloc(data.definedFunctions, sizeof(char) * len);
-            strcat(data.definedFunctions, elementList[i].name.info);
+            strcat(data.definedFunctions, e->name.info);
             strcat(data.definedFunctions, ";");
 
             //printf("%s\n", elementList[i].ret_type.info);
 
-        } else if(elementList[i].name.type == IDENTIFIER){ // if it's function call
-            if(strcmp(elementList[i].name.info, "if") == 0){
+        } else if(e->name.type == IDENTIFIER){ // if it's function call
+            if(strcmp(e->name.info, "if") == 0){
                 data.inIF = true;
-            } else if(strcmp(elementList[i].name.info, "while") == 0){
+            } else if(strcmp(e->name.info, "while") == 0){
                 data.inWhile = true;
-            } else if(strcmp(elementList[i].name.info, "else") == 0){
+            } else if(strcmp(e->name.info, "else") == 0){
                 data.inElse = true;
             }
             //printf("%s\n", elementList[i].name.info);
-        } else if(elementList[i].name.type == RIGHT_CURLY_BRACKET){
+        } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
                 if(data.inIF){
                     data.inIF = false;
@@ -773,7 +779,7 @@ element sem_identif(){
                     if(data.returned){
                         data.returned = false;
                         data.inFunction = false;
-                    } else if(elementList[data.lastFuncKey].ret_type.kwt != VOID_K){
+                    } else if((*ht_get(table, lastFuncIndex)).ret_type.kwt != VOID_K){
                         callError(ERR_SEM_RETURN);
                     } else {
                         data.inFunction = false;
@@ -793,7 +799,8 @@ element sem_identif(){
             continue;
         }
     }
-}*/
+    free(data.definedFunctions);
+}
 
 void check_sem_return(element func_e, element ret_e){
     if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING ||

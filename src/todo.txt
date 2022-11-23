@@ -5,10 +5,11 @@ rozdelenie celeho programu do struktur - by Riso
 struktury do hashtable - by Marek a Riso
 malloc neuspesny je ERR_INTERNAL - by Marek
 zmenit !strcmp na strcmp == 0 - by Riso
+semControl zmenit elementList na hashtable data - by Riso
 
 INBETWEEN:
 syntakticka by mala vyhodit error ak ide $var $var, aktualne nevyhodi
-semControl zmenit elementList na hashtable data
+vsetky //todo  v syntaktickej
 
 NEXT:
 1. semantika - Riso
