@@ -789,7 +789,7 @@ void semControl(ht_table_t *table, int key){
             } else if(strcmp(e->name.info, "else") == 0){
                 data.inElse = true;
             } else { // function calls
-                solve_function_call(table, *e, key);
+                see_call_defined(table, *e);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
@@ -856,14 +856,27 @@ void check_defined_functions(progdata data, char* name){
     }
 }
 
-void solve_function_call(ht_table_t *table, element call, int key){
-    element* compare_e = NULL;
+void see_call_defined(ht_table_t *table, element call){
+    int i = 0;
+    bool defined = false;
     char index[MAX_HT_SIZE];
-    for(int i = 0; i < key; i++){
-        sprintf(index, "%d", i);
+    element* compare_e = NULL;
+
+    while(!0){
+        sprintf(index, "%d", i++);
         compare_e = ht_get(table, index);
+        if(compare_e == NULL) break;
+
         if (compare_e->ret_type.type != ERROR_T){
-            printf("%s\n",compare_e->name.info);
+            if(strcmp(compare_e->name.info, call.name.info) == 0){
+                defined = true;
+            }
         }
+    }
+    if(defined){
+        //see_call_arguments();
+    } else {
+        // undefined function called
+        callError(ERR_SEM_FUNC);
     }
 }
