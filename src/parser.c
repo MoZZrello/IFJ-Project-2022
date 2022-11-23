@@ -708,7 +708,7 @@ element sem_identif(){
         while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
             e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
             e.argslist->list[argsCount].arg = t;
-            e.argslist->len = argsCount;
+            e.argslist->len = argsCount+1;
             argsCount++;
         }
     }
@@ -861,6 +861,7 @@ void see_call_defined(ht_table_t *table, element call){
     bool defined = false;
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
+    element* definition_e = NULL;
 
     while(!0){
         sprintf(index, "%d", i++);
@@ -869,14 +870,40 @@ void see_call_defined(ht_table_t *table, element call){
 
         if (compare_e->ret_type.type != ERROR_T){
             if(strcmp(compare_e->name.info, call.name.info) == 0){
+                definition_e = compare_e;
                 defined = true;
             }
         }
     }
     if(defined){
-        //see_call_arguments();
+        see_call_arguments(*definition_e, call);
     } else {
         // undefined function called
         callError(ERR_SEM_FUNC);
     }
+}
+
+void see_call_arguments(element func, element call){
+    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+    if(strstr(funcChar, call.name.info) == NULL){ // defined in program
+        if(func.argslist->len != call.argslist->len){
+            callError(ERR_SEM_ARGS);
+        }
+
+        int i = 0;
+        while(i < func.argslist->len){
+            if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i].arg.type == NUMBER) ||
+               (func.argslist->list[i].type.kwt == FLOAT_K && call.argslist->list[i].arg.type == DECIMAL_NUMBER) ||
+               (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i].arg.type == STRING)){
+                i++;
+                continue;
+            } else {
+                callError(ERR_SEM_ARGS);
+            }
+            i++;
+        }
+    } else { //predefined function
+
+    }
+    //printf("%s|%s\n", func.name.info, call.name.info);
 }

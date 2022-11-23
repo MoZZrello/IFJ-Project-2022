@@ -29,7 +29,7 @@ int main(){
         if(e == NULL){
             break;
         }
-        printf("%s\n", e->name.info);
+        //printf("%s\n", e->name.info);
         if(e->argslist != NULL){
             free(e->argslist->list);
             free(e->argslist);
