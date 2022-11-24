@@ -17,7 +17,7 @@ int main(){
 
     createTokenList();
 
-    //prolog();
+    prolog();
     antilog(table);
     //neulog();
 
