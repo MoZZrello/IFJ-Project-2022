@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "scanner.h"
 #include "list.h"
+#include "error.h"
 
 typedef enum{
 	VALUE, // promena 0
@@ -21,7 +22,6 @@ typedef enum{
 	BRACE_L, // ( 12
 	BRACE_R, // ) 13		
 	KONK, // konkatenacia . 14
-	D_DOT,
 	END, // $ 15
 
 	// nonterminal
@@ -33,6 +33,20 @@ typedef enum{
 	ENDSTACK, // 21
 	ERR // 22
 } expr_symb;
+
+typedef enum{
+	R_ADD, //E + E
+	R_SUB, // E - E
+	R_MUL, // E * E
+	R_DIV, // E / E
+	R_G, // E > E
+	R_GE, // E >= E
+	R_L, // E < E
+	R_LE, // E <= E
+	R_EQ, // E == E
+	R_NEQ, // E != E
+	R_KONK // E . E	
+} rules;
 
 typedef struct stack_item{
 	Token token;
@@ -51,10 +65,10 @@ void pop(struct stack_t *theStack);
 expr_symb top(struct stack_t *theStack);
 void clear (struct stack_t *theStack);
 void destroyStack(struct stack_t **theStack);
-void expression(Token *token);
+void expression(Token *token, bool var);
 expr_symb token_to_index(int token);
 expr_symb skip_term(struct stack_t *stack);
 
 void equal(struct stack_t *stack, expr_symb symb, Token *token);
-void less(struct stack_t *stack, expr_symb symb);
+void less(struct stack_t *stack, expr_symb symb, Token *token);
 void greater(struct stack_t *stack);
