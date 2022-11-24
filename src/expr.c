@@ -28,11 +28,8 @@ int table [SIZE][SIZE] = {
 //struct stack_t stack;
 
 void newStack(struct stack_t *theStack) {
-  //theStack = malloc(sizeof *theStack);
-  //if (theStack) {
     theStack->head = NULL;
     theStack->stack_size = 0;
-  //}
 }
 
 /**
@@ -49,6 +46,7 @@ void push(struct stack_t *theStack, expr_symb symb, Token value) {
   }
   else {
     clear(theStack);
+    callError(ERR_INTERNAL);
   }
 }
 
@@ -112,7 +110,8 @@ void expression(Token *token, bool var) {
     struct stack_t tmp_stack;
     newStack(&tmp_stack);
     if(var == true) {
-      while (token->type != SEMICOLON) {//kym nenarazim na ) alebo ; 
+      while (token->type != SEMICOLON) {
+        //printf("token nam chodi %d\n", token->type);
         symb_a = token_to_index(token->type);
         symb_b = top(&stack);
 
@@ -120,7 +119,7 @@ void expression(Token *token, bool var) {
           expr_symb symb;
           while (1) {
             symb = top(&stack);
-                    printf(" top je %d\n", symb);
+                    //printf(" top je %d\n", symb);
             if(symb < NONTERM) {
               while(empty(&tmp_stack)) {
                 push(&stack, top(&tmp_stack), tmp_stack.head->token);
@@ -136,14 +135,14 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        printf("b je %d a je %d\n", symb_b, symb_a);
+        //printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
-          printf("error\n");
+          callError(ERR_SYN);
         }
 
-        printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
+        //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
         switch (table[symb_b][symb_a]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -152,25 +151,26 @@ void expression(Token *token, bool var) {
               less(&stack, symb_a, &(*token));
               break;
           case G:
-              printf("top zasobnika je %d\n", top(&stack));
+              //printf("top zasobnika je %d\n", top(&stack));
               greater(&stack);
               rdc = true;
               break;
           case X:
               clear(&stack);
               //todo error prazdne miesto z tabulky
-              printf("error prazdna tabulka\n");
+              //printf("error prazdna tabulka\n");
+              callError(ERR_SYN);
               break;
           default:
               clear(&stack);
               //todo error
-              printf("error neexistujuca hodnota\n");
+              //printf("error neexistujuca hodnota\n");
+              callError(ERR_SYN);
               break;
         }
 
         if(!rdc) {
           *token = getTokenFromList();
-          printf("token nam chodi %d\n", token->type);
         }
         else {
           rdc = false;
@@ -179,7 +179,7 @@ void expression(Token *token, bool var) {
             //printf("vyskocim z podmienke\n");
     }
     else if(var == false) {
-      while (token->type != RIGHT_BRACKET) {//kym nenarazim na ) alebo ; 
+      while (token->type != RIGHT_BRACKET) {
         symb_a = token_to_index(token->type);
         symb_b = top(&stack);
 
@@ -187,7 +187,7 @@ void expression(Token *token, bool var) {
           expr_symb symb;
           while (1) {
             symb = top(&stack);
-                    printf(" top je %d\n", symb);
+                    //printf(" top je %d\n", symb);
             if(symb < NONTERM) {
               while(empty(&tmp_stack)) {
                 push(&stack, top(&tmp_stack), tmp_stack.head->token);
@@ -203,14 +203,15 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        printf("b je %d a je %d\n", symb_b, symb_a);
+       // printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
-          printf("error\n");
+          //printf("error\n");
+          callError(ERR_SYN);
         }
 
-        printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
+        //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
         switch (table[symb_b][symb_a]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -219,19 +220,21 @@ void expression(Token *token, bool var) {
               less(&stack, symb_a, &(*token));
               break;
           case G:
-              printf("top zasobnika je %d\n", top(&stack));
+              //printf("top zasobnika je %d\n", top(&stack));
               greater(&stack);
               rdc = true;
               break;
           case X:
               clear(&stack);
               //todo error prazdne miesto z tabulky
-              printf("error prazdna tabulka\n");
+              //printf("error prazdna tabulka\n");
+              callError(ERR_SYN);
               break;
           default:
               clear(&stack);
               //todo error
-              printf("error neexistujuca hodnota\n");
+              //printf("error neexistujuca hodnota\n");
+              callError(ERR_SYN);
               break;
         }
 
@@ -300,7 +303,7 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
   struct stack_t *curr_ptr = stack;
   stack_item_t *prev_ptr = NULL;
   Token token;
-  printf("%d token je\n", t->type);
+  //printf("%d token je\n", t->type);
   switch(t->type) {
     case NUMBER:
     case DECIMAL_NUMBER:
@@ -317,7 +320,7 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
     default:
       break;
   }
-  printf("idem pushnut %d\n", symb);
+  //printf("idem pushnut %d\n", symb);
   if (top(curr_ptr) <= ENDSTACK) {
     push(stack, L, token);
     push(stack, symb, token);
@@ -330,7 +333,8 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
     if(tmp_item == NULL) {
       clear(stack);
       //todo error
-      printf("chyba pri alokacii\n");
+      //printf("chyba pri alokacii\n");
+      callError(ERR_INTERNAL);
     }
 
     tmp_item->symbol = tmp_sym;
@@ -342,7 +346,8 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
 
   clear(stack);
   //todo error
-  printf("chyba pri less\n");
+  //printf("chyba pri less\n");
+  callError(ERR_SYN);
 }
 
 void greater(struct stack_t *stack) {
@@ -350,7 +355,7 @@ void greater(struct stack_t *stack) {
   struct stack_t tmp_stack;
   newStack(&tmp_stack);
 
-  printf("vrchol stacku je %d\n", stack->head->symbol);
+  //printf("vrchol stacku je %d\n", stack->head->symbol);
   while(top(stack) != ENDSTACK) {
     if(top(curr_ptr) != L) {
       push(&tmp_stack,top(curr_ptr), curr_ptr->head->token);
@@ -367,7 +372,8 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error rule EXPR → literal\n");
+              //printf("error rule EXPR → literal\n");
+              callError(ERR_SYN);
             }
             push(curr_ptr, NONTERM, tmp_token);
             break;
@@ -378,14 +384,16 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error v E -> (E)\n");
+              //printf("error v E -> (E)\n");
+              callError(ERR_SYN);
             }
             pop(&tmp_stack);
             if(top(&tmp_stack) != NONTERM) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error v E -> (E)\n");
+              //printf("error v E -> (E)\n");
+              callError(ERR_SYN);
             }
             Token tmp_token = tmp_stack.head->token;
             pop(&tmp_stack);
@@ -393,14 +401,16 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error v E -> (E)\n");
+              //printf("error v E -> (E)\n");
+              callError(ERR_SYN);
             }
             pop(&tmp_stack);
             if(empty(&tmp_stack)) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error v E -> (E)\n");
+              //printf("error v E -> (E)\n");
+              callError(ERR_SYN);
             }
             push(curr_ptr, NONTERM, tmp_token);
             break;
@@ -411,7 +421,8 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("error v operandoch\n");
+              //printf("error v operandoch\n");
+              callError(ERR_SYN);
             }
             Token token = tmp_stack.head->token;
             pop(&tmp_stack);
@@ -420,7 +431,8 @@ void greater(struct stack_t *stack) {
                 clear(&tmp_stack);
                 clear(stack);
                 //todo error
-                printf("error v operandoch\n");
+                //printf("error v operandoch\n");
+                callError(ERR_SYN);
               }
             }
             rules op;
@@ -458,7 +470,7 @@ void greater(struct stack_t *stack) {
                 op = R_KONK;
                 break;
               default:
-                //todo error
+                callError(ERR_SYN);
                 break;
             }
 
@@ -467,7 +479,8 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo erooor
-              printf("error v operandoch\n");
+              //printf("error v operandoch\n");
+              callError(ERR_SYN);
             }
 
             Token token2 = tmp_stack.head->token;
@@ -477,18 +490,20 @@ void greater(struct stack_t *stack) {
               clear(&tmp_stack);
               clear(stack);
               //todo error
-              printf("stack error\n");
+              //printf("stack error\n");
+              callError(ERR_SYN);
             }
 
             //???
-            printf("tu v E op E je %d %d\n", token.type, token2.type);
+            //printf("tu v E op E je %d %d\n", token.type, token2.type);
             //printf("som aj tu?\n");
             break;
         default:
           clear(&tmp_stack);
           clear(stack);
           //todo error
-          printf("error v rules\n");
+          //printf("error v rules\n");
+          callError(ERR_SYN);
           break;
       }
       return;
@@ -497,5 +512,5 @@ void greater(struct stack_t *stack) {
   }
    clear(&tmp_stack);
    clear(stack);
-   //todo error
+   callError(ERR_SYN);
 }

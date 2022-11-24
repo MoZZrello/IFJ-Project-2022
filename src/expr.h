@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "scanner.h"
 #include "list.h"
+#include "error.h"
 
 typedef enum{
 	VALUE, // promena 0
