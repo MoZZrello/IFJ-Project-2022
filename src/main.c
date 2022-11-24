@@ -38,10 +38,7 @@ int main(){
 
     ht_delete_all(table);
 
-    if(end_file) {
-        printf("som tu\n");
-    }
-
     free(table);
+    printf("Program done...\n");
     return PROG_OK;
 }
