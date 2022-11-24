@@ -4,7 +4,7 @@
  * Inspired by the second project from the IAL 2022 course
  */
 
-#include "ial_hash.h"
+#include "symtable.h"
 #include <stdlib.h>
 #include <string.h>
 

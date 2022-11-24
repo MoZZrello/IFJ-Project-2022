@@ -6,6 +6,7 @@ struktury do hashtable - by Marek a Riso
 malloc neuspesny je ERR_INTERNAL - by Marek
 zmenit !strcmp na strcmp == 0 - by Riso
 semControl zmenit elementList na hashtable data - by Riso
+80% semantika done - by Riso
 
 INBETWEEN:
 syntakticka by mala vyhodit error ak ide $var $var, aktualne nevyhodi
@@ -13,5 +14,5 @@ syntakticka by mala hodit chybu ked v args nejde type a po nej var, nevyhodi (sk
 vsetky //todo  v syntaktickej
 
 NEXT:
-1. semantika - Riso
+1. expression na dokoncenie semantiky - Terka
 2. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso

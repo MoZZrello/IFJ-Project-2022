@@ -894,7 +894,8 @@ void see_call_arguments(element func, element call){
         while(i < func.argslist->len){
             if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i].arg.type == NUMBER) ||
                (func.argslist->list[i].type.kwt == FLOAT_K && call.argslist->list[i].arg.type == DECIMAL_NUMBER) ||
-               (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i].arg.type == STRING)){
+               (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i].arg.type == STRING) ||
+               (func.argslist->list[i].type.canBeNull && call.argslist->list[i].arg.kwt == NULL_K)){
                 i++;
                 continue;
             } else {
@@ -903,7 +904,31 @@ void see_call_arguments(element func, element call){
             i++;
         }
     } else { //predefined function
-
+        if(strcmp(call.name.info, "reads") == 0 ||
+           strcmp(call.name.info, "readi") == 0 ||
+           strcmp(call.name.info, "readf") == 0){
+            if(call.argslist != NULL){
+                callError(ERR_SEM_ARGS);
+            }
+        } else if(strcmp(call.name.info, "strlen") == 0 ||
+                  strcmp(call.name.info, "ord") == 0){
+            if(call.argslist->len != 1 ||
+               call.argslist->list[0].arg.type != STRING){
+                callError(ERR_SEM_ARGS);
+            }
+        } else if(strcmp(call.name.info, "substring") == 0){
+            if(call.argslist->len != 3 ||
+               call.argslist->list[0].arg.type != STRING ||
+               call.argslist->list[1].arg.type != NUMBER ||
+               call.argslist->list[2].arg.type != NUMBER){
+                callError(ERR_SEM_ARGS);
+            }
+        } else if(strcmp(call.name.info, "chr") == 0){
+            if(call.argslist->len != 1 ||
+               call.argslist->list[0].arg.type != NUMBER){
+                callError(ERR_SEM_ARGS);
+            }
+        }
     }
     //printf("%s|%s\n", func.name.info, call.name.info);
 }

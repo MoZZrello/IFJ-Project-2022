@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "errors.h"
-#include "ial_hash.h"
+#include "symtable.h"
 
 typedef struct allTokens{
     Token* list;
