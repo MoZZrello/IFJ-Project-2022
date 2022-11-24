@@ -185,7 +185,7 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_PHP_4:
             return ERROR;
         case S_PHP_END:
-            return ERROR;
+            callError(ERR_SYN);
         case ERROR:
             callError(ERR_LEX);
     }
