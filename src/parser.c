@@ -828,11 +828,11 @@ void semControl(ht_table_t *table, int key){
 }
 
 void check_sem_return(element func_e, element ret_e){
-    if(func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING ||
-       func_e.ret_type.kwt == VOID_K && ret_e.argslist->list[0].arg.type == SEMICOLON){
+    if((func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING) ||
+       (func_e.ret_type.kwt == VOID_K && ret_e.argslist->list[0].arg.type == SEMICOLON) ||
+       (func_e.ret_type.canBeNull && ret_e.argslist->list[0].arg.kwt == NULL_K)){
         return;
-    } else if (func_e.ret_type.kwt == INT_K &&
-                (ret_e.argslist->list[0].arg.type == NUMBER || ret_e.argslist->list[0].arg.type == EXPONENT_NUMBER)){
+    } else if (func_e.ret_type.kwt == INT_K && ret_e.argslist->list[0].arg.type == NUMBER){
         if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
             return;
         } else {
@@ -893,7 +893,9 @@ void see_call_arguments(element func, element call){
         int i = 0;
         while(i < func.argslist->len){
             if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i].arg.type == NUMBER) ||
-               (func.argslist->list[i].type.kwt == FLOAT_K && call.argslist->list[i].arg.type == DECIMAL_NUMBER) ||
+               (func.argslist->list[i].type.kwt == FLOAT_K &&
+                    (call.argslist->list[i].arg.type == DECIMAL_NUMBER ||
+                     call.argslist->list[i].arg.type == EXPONENT_NUMBER)) ||
                (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i].arg.type == STRING) ||
                (func.argslist->list[i].type.canBeNull && call.argslist->list[i].arg.kwt == NULL_K)){
                 i++;
