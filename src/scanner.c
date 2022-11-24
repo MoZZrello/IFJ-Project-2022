@@ -311,7 +311,7 @@ Token getToken(string str){
     while(1) {
         int c = getchar();
         if(c == EOF){
-            if(current_state == Start){
+            if(current_state == Start || current_state == S_Comment_ML || current_state == S_Comment_SL){
                 str.data = "EOF";
                 return returnTokenCreator(S_EOF, &str);
             }else{
