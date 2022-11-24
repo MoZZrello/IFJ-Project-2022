@@ -348,13 +348,13 @@ void expr_skip() {
         while (strcmp(token.info, ";") != 0) {
             //expression(getTypeName(token));
             //expression(token.type);
-            //token = getTokenFromList();
+            token = getTokenFromList();
         }
     } else if (brac_find) {
       while (strcmp(token.info, ")") != 0) {
             //expression(getTypeName(token));
-            //token = getTokenFromList();
-            expression(&token);
+            token = getTokenFromList();
+            //expression(&token);
         } 
         //while a if - vraciam ked koniec zatorky
         
