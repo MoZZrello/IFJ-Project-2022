@@ -46,6 +46,7 @@ typedef enum {
     S_Equal_0,
     S_Equal_1,
     S_Identifier,
+    S_Identifier_Q,
     S_Greater,
     S_Greater_Equal,
     S_Less,
@@ -107,6 +108,7 @@ typedef struct {
     char *info;
     bool isKeyword;
     KeywordType kwt;
+    bool canBeNull;
 } Token;
 
 AutomatStates nextState(AutomatStates input, char c);

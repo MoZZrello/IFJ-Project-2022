@@ -9,6 +9,7 @@ semControl zmenit elementList na hashtable data - by Riso
 
 INBETWEEN:
 syntakticka by mala vyhodit error ak ide $var $var, aktualne nevyhodi
+syntakticka by mala hodit chybu ked v args nejde type a po nej var, nevyhodi (skusane na hello.php kde som do funkcie pohlavni_pogram dal stringerius $var do args a preslo to)
 vsetky //todo  v syntaktickej
 
 NEXT:

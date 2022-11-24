@@ -31,5 +31,6 @@ int addChar(string *s, char c);
 void stringClear(string *s);
 void stringFree(string *s);
 KeywordType keywordCheck(string *s);
+int checkNull(string *s);
 
 #endif //IFJ_PROJECT_2022_STRINGS_H

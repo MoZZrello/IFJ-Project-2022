@@ -56,8 +56,12 @@ AutomatStates nextState(AutomatStates input, char c){
             return ERROR;
         case S_Minus:
             return ERROR;
+        case S_Identifier_Q:
+            if(isalpha(c)) return S_Identifier_Q;
+            return ERROR;
         case S_Question_Mark:
             if(c == '>') return S_PHP_END;
+            if(isalpha(c)) return S_Identifier_Q;
             return ERROR;
         case S_Number:
             if(isdigit(c)) return S_Number;
@@ -198,6 +202,7 @@ Token returnTokenCreator(AutomatStates final_state, string* str) {
     } else {
         tmp_token->isKeyword = false;
     }
+    tmp_token->canBeNull = (bool)checkNull(str);
     tmp_token->info = str->data;
 
     switch(final_state){
@@ -265,6 +270,12 @@ Token returnTokenCreator(AutomatStates final_state, string* str) {
             tmp_token->type = EQUAL;
             return *tmp_token;
         case S_Identifier:
+            tmp_token->type = IDENTIFIER;
+            return *tmp_token;
+        case S_Identifier_Q:
+            if(strcmp(tmp_token->info, "?string") != 0 && strcmp(tmp_token->info, "?int") != 0 && strcmp(tmp_token->info, "?float") != 0){
+                exit(ERR_LEX);
+            }
             tmp_token->type = IDENTIFIER;
             return *tmp_token;
         case  S_Greater:

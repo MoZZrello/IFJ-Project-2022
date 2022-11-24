@@ -54,17 +54,23 @@ KeywordType keywordCheck(string *s){
         return ELSE_K;
     } else if (strcmp(s->data, "float") == 0) {
         return FLOAT_K;
+    } else if (strcmp(s->data, "?float") == 0) {
+        return FLOAT_K;
     } else if (strcmp(s->data, "function") == 0) {
         return FUNCTION_K;
     } else if (strcmp(s->data, "if") == 0) {
         return IF_K;
     } else if (strcmp(s->data, "int") == 0) {
         return INT_K;
+    } else if (strcmp(s->data, "?int") == 0) {
+        return INT_K;
     } else if (strcmp(s->data, "null") == 0) {
         return NULL_K;
     } else if (strcmp(s->data, "return") == 0) {
         return RETURN_K;
     } else if (strcmp(s->data, "string") == 0) {
+        return STRING_K;
+    } else if (strcmp(s->data, "?string") == 0){
         return STRING_K;
     } else if (strcmp(s->data, "void") == 0) {
         return VOID_K;
@@ -75,3 +81,10 @@ KeywordType keywordCheck(string *s){
     }
 }
 
+int checkNull(string *s){
+    if (strstr(s->data, "?") == NULL){
+        return 0;
+    } else {
+        return 1;
+    }
+}
