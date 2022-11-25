@@ -5,13 +5,14 @@
 #define SIZE 17
 bool rdc = false;
 
+// TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
 				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
 	/* VALUE*/	  {X, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G},
-	/* PLUS*/		  {L, G, G, L, L, G, G, G, G, G, G, G, L, G, G, G},
-	/* MINUS*/	  {L, G, G, L, L, G, G, G, G, G, G, G, L, G, G, G},
-	/* MULTI*/	  {L, G, G, G, G, G, G, G, G, G, G, G, L, G, G, G},
-	/* DIV */		  {L, G, G, G, G, G, G, G, G, G, G, G, L, G, G, G},
+	/* PLUS*/		  {L, E, E, E, E, G, G, G, G, G, G, G, L, G, L, G},
+	/* MINUS*/	  {L, E, E, E, E, G, G, G, G, G, G, G, L, G, L, G},
+	/* MULTI*/	  {L, E, E, E, E, G, G, G, G, G, G, G, L, G, G, G},
+	/* DIV */		  {L, E, E, E, E, G, G, G, G, G, G, G, L, G, G, G},
 	/* EQ */		  {L, L, L, L, L, G, G, L, L, L, L, G, L, G, L, G},
 	/* NEQ */		  {L, L, L, L, L, G, G, L, L, L, L, G, L, G, L, G},
 	/* GTHE */	  {L, L, L, L, L, G, G, G, G, G, G, G, L, G, L, G},
@@ -21,7 +22,7 @@ int table [SIZE][SIZE] = {
 	/* COM */		  {L, L, L, L, L, L, L, L, L, L, L, E, L, E, L, X},
 	/* BRACE_L */	{L, L, L, L, L, L, L, L, L, L, L, E, L, E, L, X},
 	/* BRACE_R */	{X, G, G, G, G, G, G, G, G, G, G, G, X, G, G, G},
-	/* KONK */		{L, G, G, L, L, G, G, G, G, G, G, G, L, G, G, G},
+	/* KONK */		{L, G, G, L, L, G, G, G, G, G, G, G, L, G, E, G},
 	/* END */   	{L, L, L, L, L, L, L, L, L, L, L, X, L, X, L, X}
 };
 
@@ -176,7 +177,6 @@ void expression(Token *token, bool var) {
           rdc = false;
         }
       } 
-            //printf("vyskocim z podmienke\n");
     }
     else if(var == false) {
       while (token->type != RIGHT_BRACKET) {
@@ -203,7 +203,7 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-       // printf("b je %d a je %d\n", symb_b, symb_a);
+        //printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
@@ -211,7 +211,7 @@ void expression(Token *token, bool var) {
           callError(ERR_SYN);
         }
 
-        //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
+        printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
         switch (table[symb_b][symb_a]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -363,6 +363,7 @@ void greater(struct stack_t *stack) {
     }
     else {
       curr_ptr->head = curr_ptr->head->next;
+      //printf("%d top tmp\n", top(&tmp_stack));
       switch (top(&tmp_stack)) {
         //EXPR → literal 
         case VALUE: {
@@ -416,7 +417,7 @@ void greater(struct stack_t *stack) {
             break;
           //// E-> E op E
         case NONTERM: 
-            printf("tu som v grt\n");
+            //printf("tu som v grt\n");
             if(top(&tmp_stack) != NONTERM) {
               clear(&tmp_stack);
               clear(stack);
@@ -485,7 +486,7 @@ void greater(struct stack_t *stack) {
 
             Token token2 = tmp_stack.head->token;
             pop(&tmp_stack);
-
+          
             if(empty(&tmp_stack)) {
               clear(&tmp_stack);
               clear(stack);
@@ -496,6 +497,7 @@ void greater(struct stack_t *stack) {
 
             //???
             //printf("tu v E op E je %d %d\n", token.type, token2.type);
+            push(curr_ptr, NONTERM, token2);
             //printf("som aj tu?\n");
             break;
         default:
