@@ -55,7 +55,6 @@ void prolog() {
             }
         }
     }
-    printTokenList();
 }
 
 void body() {
@@ -558,6 +557,7 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
+
     return e;
 }
 
