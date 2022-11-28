@@ -144,6 +144,7 @@ AutomatStates nextState(AutomatStates input, char c){
             return S_String_0;
         case S_Escape_1:
             if(c == '"' || c == 39) return S_String_1;
+            if(c == '\\') return S_Escape_0;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_Octal_0:
