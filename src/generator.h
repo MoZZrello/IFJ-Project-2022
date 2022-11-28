@@ -30,7 +30,7 @@ void PRINT_LANE_THREE_ARG(char* name, char* arg1, char* arg2, char* arg3);
  * FLOAT2INT (var) (symb)
  * INT2CHAR  (var) (symb)
  * READ (var) (type)
- * STRELN (var) (symb)
+ * STRLEN (var) (symb)
  * TYPE (var) (symb)
  */
 void PRINT_LANE_TWO_ARG(char* name, char* arg1, char* arg2);
@@ -66,17 +66,12 @@ void func_reads();
 void func_readi();
 void func_readf();
 void func_write();
-void func_floatval(); //done
-void func_intval(); //done
+void func_floatval(); //done I guess
+void func_intval(); //done I guess
 void func_strval();
-void func_strlen(); //done
+void func_strlen(); //done I guess
 void func_substring();
-void func_ord();
-void func_chr();
-
-
-
-
-
+void func_ord();// done I guess (tymto si niesom vobec isty)
+void func_chr(); //done I guess
 
 #endif //SCANNER_C_GENERATOR_H
