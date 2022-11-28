@@ -66,10 +66,10 @@ void func_reads();
 void func_readi();
 void func_readf();
 void func_write();
-void func_floatval();
-void func_intval();
+void func_floatval(); //done
+void func_intval(); //done
 void func_strval();
-void func_strlen();
+void func_strlen(); //done
 void func_substring();
 void func_ord();
 void func_chr();
