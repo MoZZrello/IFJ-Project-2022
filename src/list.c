@@ -40,7 +40,6 @@ void printTokenList(){
 void createTokenList(){
     initTokenList();
     string str;
-    //Token before;
     while(1){
         stringInit(&str);
         Token t = getToken(str);
@@ -52,8 +51,6 @@ void createTokenList(){
             break;
         }
         tokenFree();
-        //before = t;
-        //printf("%s\n", t.info);
     }
     stringFree(&str);
 }

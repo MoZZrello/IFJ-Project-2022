@@ -669,6 +669,7 @@ element sem_identif(){
 void semControl(ht_table_t *table, int key){
     progdata data;
     char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+    bool functions_defined = false;
 
     data.returned = false;
     data.inIF = false;
@@ -708,10 +709,15 @@ void semControl(ht_table_t *table, int key){
             strcat(data.definedVars, ";");
 
         } else if(e->name.kwt == RETURN_K){ // if it's return
-            check_sem_return(*ht_get(table, lastFuncIndex), *e);
+            if(functions_defined == false){
+                check_global_return(*e);
+            } else {
+                check_sem_return(*ht_get(table, lastFuncIndex), *e);
+            }
             data.returned = true;
 
         } else if (e->ret_type.type != ERROR_T){ // if it's function
+            functions_defined = true;
             data.funcCounter++;
             // Syntax error if function definition isn't in main body of program
             if(data.inElse || data.inWhile || data.inIF){
@@ -801,8 +807,33 @@ void check_sem_return(element func_e, element ret_e){
     }
 }
 
+//todo expression return in global
+void check_global_return(element ret_e){
+    if(ret_e.argslist == NULL || ret_e.argslist->len == 1){
+        return;
+    } else {
+        callError(ERR_SEM_RETURN);
+    }
+}
+
 void check_defined_functions(progdata data, char* name){
-    if(strstr(data.definedFunctions, name) != NULL){
+    char* one_func;
+    one_func = malloc(sizeof(char) * (int) strlen(data.definedFunctions));
+    bool new = true;
+
+    for(int i = 0; i < strlen(data.definedFunctions); i++){
+        int one_func_index = 0;
+        while(data.definedFunctions[i] != ';'){
+            one_func[one_func_index++] = data.definedFunctions[i];
+            i++;
+        }
+        one_func[one_func_index] = '\0';
+        if(strcmp(one_func, name) == 0){
+            new = false;
+        }
+    }
+    free(one_func);
+    if(new == false){
         callError(ERR_SEM_FUNC);
     }
 }
