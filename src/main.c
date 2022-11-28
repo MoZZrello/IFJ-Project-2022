@@ -5,10 +5,8 @@
 #include "parser.h"
 #include "generator.h"
 
-
-
 int main(){
-    //printf("Starting program...\n");
+    printf("Starting program...\n");
 
     ht_table_t *table;
     table = malloc(sizeof(ht_table_t));
@@ -18,11 +16,11 @@ int main(){
 
     ht_init(table);
 
+    createTokenList();
 
-    //prolog();
-    //antilog(table);
-
-    //createTokenList();
+    prolog();
+    antilog(table);
+    //neulog();
 
     start_program();
     func_strlen();
@@ -30,11 +28,6 @@ int main(){
     func_floatval();
     printf("\n");
     func_intval();
-
-    //prolog();
-   // antilog(table);
-
-    //neulog();
 
     int i = 0;
     while(!0){
@@ -51,9 +44,11 @@ int main(){
         }
     }
 
+
+
     ht_delete_all(table);
 
     free(table);
-    //printf("Program done...\n");
+    printf("Program done...\n");
     return PROG_OK;
 }

@@ -31,6 +31,7 @@ typedef enum {
     S_Number,
     S_Exponent_0,
     S_Exponent_1,
+    S_Exponent_Sign,
     S_Decimal_0,
     S_Decimal_1,
     S_Divide,
@@ -111,7 +112,7 @@ typedef struct {
     bool canBeNull;
 } Token;
 
-AutomatStates nextState(AutomatStates input, char c);
+AutomatStates nextState(AutomatStates input, char c, bool *php_comment);
 
 Token returnTokenCreator(AutomatStates final_state, string* str);
 
