@@ -88,7 +88,6 @@ AutomatStates nextState(AutomatStates input, char c, bool *php_comment){
         case S_Divide:
             if(c == '/') return S_Comment_SL;
             if(c == '*') return S_Comment_ML;
-            if(*php_comment == true) callError(ERR_LEX);
             return ERROR;
         case S_Comment_SL:
             if(c == '\n'){
@@ -197,9 +196,12 @@ AutomatStates nextState(AutomatStates input, char c, bool *php_comment){
             if(isspace(c)) return S_PHP_4;
             if(c == '/'){
                 *php_comment = true;
-                return S_Divide;
+                return S_PHP_Comment;
             }
             return ERROR;
+        case S_PHP_Comment:
+            if(c == '/') return S_Comment_SL;
+            callError(ERR_LEX);
         case S_PHP_4:
             return ERROR;
         case S_PHP_END:
