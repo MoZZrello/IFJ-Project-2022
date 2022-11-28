@@ -354,7 +354,7 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
                 case FUNCTION_K:
                     data = realloc(data, sizeof(element)*(key+1));
                     sprintf( func,"%d", key);
-                    data[key] = sem_func();
+                    data[key] = sem_func(&table);
                     ht_insert(table, func, &data[key]);
                     key++;
                     break;
@@ -628,9 +628,10 @@ element sem_var(){
             e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
             e.argslist->list[argsCount].arg = t;
             e.argslist->len = argsCount;
-            argsCount++;
+            argsCount++;           
         }
     }
+    exp_sem_var(&e);  
     return e;
 }
 

@@ -5,6 +5,7 @@
 #include "scanner.h"
 #include "list.h"
 #include "error.h"
+#include "symtable.h"
 
 typedef enum{
 	VALUE, // promena 0
@@ -59,6 +60,20 @@ struct stack_t {
 	size_t stack_size;
 };
 
+///linked list pre premenne
+typedef enum{
+	D_NUM, //0
+	D_DECM_NUM, //1 
+	D_EXP_NUMB, //2
+	D_STRING //3
+} d_list_types;
+
+struct variables {
+   char *data;
+   d_list_types type;
+   struct variables *next;
+};
+
 void newStack(struct stack_t *theStack);
 void push(struct stack_t *theStack, expr_symb symb, Token value);
 void pop(struct stack_t *theStack);
@@ -72,3 +87,17 @@ expr_symb skip_term(struct stack_t *stack);
 void equal(struct stack_t *stack, expr_symb symb, Token *token);
 void less(struct stack_t *stack, expr_symb symb, Token *token);
 void greater(struct stack_t *stack);
+
+void printstack(struct stack_t *stack);
+
+void exp_sem_var(element *e);
+
+void insert_first(char *data, d_list_types d_type);
+struct variables* deleteFirst();
+bool isEmpty();
+int length();
+struct variables* find(char *key);
+struct variables* delete(char *key);
+void printList(); 
+d_list_types token_to_d_type(int d_type);
+
