@@ -66,6 +66,7 @@ typedef enum {
     S_PHP_1,
     S_PHP_2,
     S_PHP_3,
+    S_PHP_Comment,
     S_PHP_4,
     S_PHP_END,
     ERROR
