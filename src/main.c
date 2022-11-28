@@ -20,7 +20,6 @@ int main(){
 
     prolog();
     antilog(table);
-    //neulog();
 
     start_program();
     func_strlen();
