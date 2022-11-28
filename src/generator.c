@@ -22,17 +22,43 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 
 //Vstavane funkcie
 
+void func_reads(){
+
+}
+
+    //do @strlen_ret_val string a potom tam vratime int hodnotu
 void func_strlen(){
     PRINT_LANE_ONE_ARG("LABEL", "$func_streln");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    char* return_val = "LF@return_val";
-    PRINT_LANE_ONE_ARG("DEFVAR", return_val);
-    PRINT_LANE_ONE_ARG("POPS", return_val);
-    PRINT_LANE_TWO_ARG("STRLEN", return_val, return_val);
-    PRINT_LANE_ONE_ARG("PUSHS", return_val);
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
+    PRINT_LANE_ONE_ARG("POPS", "LF@return_val");
+    PRINT_LANE_TWO_ARG("STRLEN", "LF@return_val", "LF@return_val");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_val");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
 
+void func_floatval(){
+    PRINT_LANE_ONE_ARG("LABEL", "int2float");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
+    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@return_int", "LF@number");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
+
+void func_intval(){
+    PRINT_LANE_ONE_ARG("LABEL", "float2int");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
+    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
 
 
