@@ -20,6 +20,7 @@ void PRINT_LANE_ZERO_ARG(char* name) {
     printf("%s \n", name);
 }
 
+// Instructions generator
 
 
 
@@ -84,7 +85,7 @@ void func_chr(){
     PRINT_LANE_ZERO_ARG("RETURN");
 }
 
-    //najrpv treba pushnut
+    //najrpv treba pushnut string
 void func_ord(){
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
@@ -106,5 +107,47 @@ void func_ord(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
+
+void func_reads(){
+    PRINT_LANE_ONE_ARG("LABEL", "$reads");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+
+    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+
+    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "string");
+
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
+
+void func_readi(){
+    PRINT_LANE_ONE_ARG("LABEL", "$readi");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+
+    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+
+    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "int");
+
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
+
+void func_readf(){
+    PRINT_LANE_ONE_ARG("LABEL", "$readf");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+
+    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+
+    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "float");
+
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
+
+
+
 
 

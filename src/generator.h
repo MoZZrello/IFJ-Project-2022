@@ -62,9 +62,9 @@ void PRINT_LANE_ZERO_ARG(char* name);
 void start_program();
 
 //Vstavane funckie
-void func_reads();
-void func_readi();
-void func_readf();
+void func_reads(); //done I guess
+void func_readi(); //done I guess
+void func_readf(); //done I guess
 void func_write();
 void func_floatval(); //done I guess
 void func_intval(); //done I guess
