@@ -29,7 +29,6 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 void func_strlen(){
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
     PRINT_LANE_ONE_ARG("POPS", "LF@return_val");
     PRINT_LANE_TWO_ARG("STRLEN", "LF@return_val", "LF@return_val");
@@ -39,9 +38,8 @@ void func_strlen(){
 }
     //na stack treba dat jednu hodnotu ktoru menime
 void func_intval(){
-    PRINT_LANE_ONE_ARG("LABEL", "$float2int");
+    PRINT_LANE_ONE_ARG("LABEL", "$intval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
@@ -55,9 +53,8 @@ void func_intval(){
 
     //na stack treba dat jednu hodnotu ktoru menime
 void func_floatval(){
-    PRINT_LANE_ONE_ARG("LABEL", "$int2float");
+    PRINT_LANE_ONE_ARG("LABEL", "$floatval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_float");
@@ -73,7 +70,6 @@ void func_floatval(){
 void func_chr(){
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@result");
@@ -96,7 +92,6 @@ void func_chr(){
 void func_ord(){
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
     PRINT_LANE_ONE_ARG("POPS", "LF@string");
@@ -118,7 +113,7 @@ void func_ord(){
 
 void func_reads(){
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
     PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
@@ -131,7 +126,7 @@ void func_reads(){
 
 void func_readi(){
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
     PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
@@ -144,7 +139,7 @@ void func_readi(){
 
 void func_readf(){
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
     PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
