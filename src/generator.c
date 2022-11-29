@@ -134,7 +134,7 @@ void func_strval(){
 
 //do @strlen_ret_val string a potom tam vratime int hodnotu
 void func_strlen(){
-    PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
+    PRINT_LANE_ONE_ARG("LABEL", "$strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
     PRINT_LANE_ONE_ARG("POPS", "LF@return_val");
@@ -143,6 +143,60 @@ void func_strlen(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
+
+void func_substring(){
+    PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
+    PRINT_LANE_ONE_ARG("POPS", "LF@end_index");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@start_index");
+    PRINT_LANE_ONE_ARG("POPS", "LF@start_index");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
+    PRINT_LANE_ONE_ARG("POPS", "LF@string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@strlen_string");
+    PRINT_LANE_TWO_ARG("STRLEN", "LF@strlen_string", "LF@string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return", "bool@false");
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "int@0"); //j<0
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
+
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@start_index", "int@0"); //i<0
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
+
+    PRINT_LANE_THREE_ARG("GT", "LF@return", "LF@start_index", "LF@strlen_string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
+
+    //to do kontrola ci j > strlen
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp_string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "string@");
+
+    PRINT_LANE_THREE_ARG("SUB", "LF@end_index" , "LF@end_index", "int@1"); //j-1
+
+    PRINT_LANE_ONE_ARG("LABEL", "$start_while");
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "LF@start_index"); //j<i
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end_while", "LF@return", "bool@true");
+
+
+    PRINT_LANE_THREE_ARG("GETCHAR", "LF@tmp_string", "LF@string", "LF@start_index");
+    PRINT_LANE_THREE_ARG("CONCAT", "LF@return_string","LF@return_string", "LF@tmp_string");
+
+    PRINT_LANE_THREE_ARG("ADD", "LF@start_index", "LF@start_index", "int@1");
+    PRINT_LANE_ONE_ARG("JUMP", "$start_while");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$end_while");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_string");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$end");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+}
+
     //najrpv treba pushnut string
 void func_ord(){
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
