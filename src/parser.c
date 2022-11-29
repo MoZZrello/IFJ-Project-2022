@@ -688,10 +688,10 @@ void semControl(ht_table_t *table, int key){
     bool functions_defined = false;
 
     data.returned = false;
-    data.inIF = false;
+    data.inIF = 0;
     data.inFunction = false;
-    data.inElse = false;
-    data.inWhile = false;
+    data.inElse = 0;
+    data.inWhile = 0;
     data.lastFuncKey = 0;
     data.funcCounter = 0;
     data.varCounter = 0;
@@ -725,7 +725,7 @@ void semControl(ht_table_t *table, int key){
             strcat(data.definedVars, ";");
 
         } else if(e->name.kwt == RETURN_K){ // if it's return
-            if(functions_defined == false){
+            if(data.inFunction == false){
                 check_global_return(*e);
             } else {
                 check_sem_return(*ht_get(table, lastFuncIndex), *e);
@@ -756,23 +756,25 @@ void semControl(ht_table_t *table, int key){
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
-                data.inIF = true;
+                data.inIF++;
             } else if(strcmp(e->name.info, "while") == 0){
-                data.inWhile = true;
+                data.inWhile++;
             } else if(strcmp(e->name.info, "else") == 0){
-                data.inElse = true;
+                data.inElse++;
             } else { // function calls
                 see_call_defined(table, *e);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
-                if(data.inIF){
-                    data.inIF = false;
+                if(data.inIF > 0){
+                    data.inIF--;
                     continue;
-                } else if (data.inWhile){
-                    data.inWhile = false;
-                } else if (data.inElse){
-                    data.inElse = false;
+                } else if (data.inWhile > 0){
+                    data.inWhile--;
+                    continue;
+                } else if (data.inElse > 0){
+                    data.inElse--;
+                    continue;
                 } else {
                     if(data.returned){
                         data.returned = false;
@@ -783,12 +785,12 @@ void semControl(ht_table_t *table, int key){
                         data.inFunction = false;
                     }
                 }
-            } else if (data.inIF){
-                data.inIF = false;
-            } else if (data.inWhile){
-                data.inWhile = false;
-            } else if (data.inElse){
-                data.inElse = false;
+            } else if (data.inIF > 0){
+                data.inIF--;
+            } else if (data.inWhile > 0){
+                data.inWhile--;
+            } else if (data.inElse > 0){
+                data.inElse--;
             } else {
                 callError(ERR_SEM_RETURN);
             }

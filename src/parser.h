@@ -18,9 +18,9 @@ static bool end_file = false;
 typedef struct progdata{
     int lastFuncKey;
     bool inFunction;
-    bool inIF;
-    bool inWhile;
-    bool inElse;
+    int inIF;
+    int inWhile;
+    int inElse;
     bool returned;
     char* definedFunctions;
     int funcCounter;
