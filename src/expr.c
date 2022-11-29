@@ -4,6 +4,8 @@
 
 #define SIZE 17
 bool rdc = false;
+struct variables *head_var = NULL;
+struct variables *current = NULL;
 
 // TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
@@ -246,10 +248,12 @@ void expression(Token *token, bool var) {
         }
       } 
     }
+  printstack(&stack); 
   clear(&stack);
   clear(&tmp_stack);  
   //destroyStack(*(*stack));
   //destroyStack(*(&tmp_stack));
+  
 }
 
 expr_symb token_to_index(int token) {
@@ -515,4 +519,248 @@ void greater(struct stack_t *stack) {
    clear(&tmp_stack);
    clear(stack);
    callError(ERR_SYN);
+}
+
+void printstack(struct stack_t *stack){
+	expr_symb temp = top(stack);
+	while(temp != ENDSTACK){
+		switch(temp){
+			case NONTERM:
+				printf("E\n");
+				break;
+			case BRACE_L:
+				printf("(\n");
+				break;
+			case L:
+				printf("<\n");
+				break;
+			case MUL:
+				printf("*\n");
+				break;
+			case BRACE_R:
+				printf(")\n");
+				break;
+			case VALUE:
+				printf("i\n");
+				break;
+			default:
+				break;
+			// case FUNC:
+			// 	printf("FUNC\n");
+			// 	break;
+		}
+		pop(stack);
+		temp = top(stack);
+	}
+	printf("$\n");
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//semantika
+void insert_first(char *data, d_list_types d_type) {
+   //create a link
+   struct variables *link = (struct variables*) malloc(sizeof(struct variables));
+	
+   //link->key = key;
+   link->data = data;
+   link->type = d_type;
+	
+   //point it to old first variables
+   link->next = head_var;
+	
+   //point first to new first variables
+   head_var = link;
+}
+
+//delete first item
+struct variables* deleteFirst() {
+
+   //save reference to first link
+   struct variables *tempLink = head_var;
+	
+   //mark next to first link as first 
+   head_var = head_var->next;
+	
+   //return the deleted link
+   return tempLink;
+}
+
+//is list empty
+bool isEmpty() {
+   return head_var == NULL;
+}
+
+int length() {
+   int length = 0;
+   struct variables *current;
+	
+   for(current = head_var; current != NULL; current = current->next) {
+      length++;
+   }
+	
+   return length;
+}
+
+//find a link with given key
+struct variables* find(char *key) {
+   //start from the first link
+   struct variables* current = head_var;
+
+   //if list is empty
+   if(head_var == NULL) {
+      return NULL;
+   }
+
+   //navigate through list
+   while(strcmp(current->data, key)) {
+	
+      //if it is last variables
+      if(current->next == NULL) {
+         return NULL;
+      } else {
+         //go to next link
+         current = current->next;
+      }
+   }      
+	
+   //if data found, return the current Link
+   return current;
+}
+
+//delete a link with given key
+struct variables* delete(char *key) {
+
+   //start from the first link
+   struct variables* current = head_var;
+   struct variables* previous = NULL;
+	
+   //if list is empty
+   if(head_var == NULL) {
+      return NULL;
+   }
+
+   //navigate through list
+   while(strcmp(current->data, key)) {
+
+      //if it is last variables
+      if(current->next == NULL) {
+         return NULL;
+      } else {
+         //store reference to current link
+         previous = current;
+         //move to next link
+         current = current->next;
+      }
+   }
+
+   //found a match, update the link
+   if(current == head_var) {
+      //change first to point to next link
+      head_var = head_var->next;
+   } else {
+      //bypass the current link
+      previous->next = current->next;
+   }    
+	
+   return current;
+}
+
+void printList() {
+   struct variables *ptr = head_var;
+	
+   //start from the beginning
+   while(ptr != NULL) {
+      printf("v liste je %s %d\n", ptr->data, ptr->type);
+      ptr = ptr->next;
+   }
+}
+
+d_list_types token_to_d_type(int d_type) {
+  switch (d_type) {
+  case STRING:
+    return D_STRING;
+  case NUMBER:
+    return D_NUM;
+  case DECIMAL_NUMBER:
+    return D_DECM_NUM;
+  case EXPONENT_NUMBER:
+    return D_EXP_NUMB;
+  //riesit tu aj error ak neexistujuci typ?
+  //add null ako mozny typ
+  }
+}
+
+void exp_sem_var(element *e) {
+  printf("dlzka je %d\n", e->argslist->len);
+  struct variables* curr;
+  struct variables* tmp_var;
+  //ak je premenna uz deklarovana netreba ju znovu ukladat (zaial kym neriesim vysledok)
+  if(find(e->name.info) == NULL) {
+    insert_first(e->name.info, token_to_d_type(e->argslist->list[1].arg.type));
+  }
+  else {
+    //skontrolovat ci nie je premennej priradeny iny typ nez predtym, ak ano, ulozim novy
+    curr = find(e->name.info);
+    //arglist vacsi ako 1 -> vtedy nic nemenim lebo vacsi vyraz -> kontrolujem dalej a vysledok ulozim neskor
+    if(e->argslist->len == 1) {
+      //kotrola ci idem priradzovat $y = $a alebo $y = "abcd"
+      if(e->argslist->list[1].arg.type == VAR_ID) {
+        if(find(e->argslist->list[1].arg.info) == NULL) {
+          printf("error, nedeklarovana premenna\n");
+        }
+        else {
+          tmp_var = find(e->argslist->list[1].arg.info);
+          delete(e->name.info); //povodny zmazem
+          insert_first(e->name.info, tmp_var->type); //ulozim novy
+        }
+      }
+
+      if (curr->type != token_to_d_type(e->argslist->list[1].arg.type)) {
+        delete(e->name.info); //povodny zmazem
+        insert_first(e->name.info, token_to_d_type(e->argslist->list[1].arg.type)); //ulozim novy
+      }
+    }
+  }
+  
+  printList();
+  printf("stmt je %d\n", e->argslist->list[1].arg.type);
+
+  for(int i = 1; i < e->argslist->len + 1; i++) {
+    //printf("%s %s\n", e->name.info, e->argslist->list[i].arg.info);
+    curr = find(e->name.info);
+    printf("info je %s %d\n", e->argslist->list[i].arg.info, e->argslist->list[i].arg.type);
+    if(e->argslist->list[i].arg.type == VAR_ID) {
+      if(find(e->argslist->list[i].arg.info) == NULL) {
+        printf("error, nedeklarovana premenna\n");
+      }
+      else {
+        tmp_var = find(e->argslist->list[i].arg.info);
+        if(curr->type != tmp_var->type) {
+          printf("error nekompatibilne datove typy\n");
+        }
+        
+      }
+    }
+    else if(e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) {
+      if (token_to_d_type(e->argslist->list[i].arg.type) != curr->type) {
+        printf("error nekompatibilna hodnota s datovym typom\n");
+      }
+    }
+    else if((e->argslist->list[i].arg.type == DOT) && (curr->type != D_STRING)) {
+      printf("error, zle pouzitie operatora konk\n");
+    }
+    else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS) && (curr->type == D_STRING)) {
+      printf("error, zle pouzitie operatora plus, minus\n");
+    }
+    else if((e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (curr->type == D_STRING)) {
+      //todo priradit a ocislovat prioritu, ze pojde prve
+      printf("error, zle pouzitie operatora mul, div\n");
+    }
+    //todo
+    //ak je < ==! == > atd =>error
+    //zatvorky + ich priorita
+
+  }
+  //printf("%s %d\n", e->name.info, e->argslist->list->arg.type);
+
 }
