@@ -440,6 +440,21 @@ ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey){
     sprintf(func, "%d", key++);
     ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
+    name_t = (Token){.info="floatval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="float", .type=IDENTIFIER, .isKeyword=true, .kwt=FLOAT_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
+    name_t = (Token){.info="intval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
+    name_t = (Token){.info="strval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
     name_t = (Token){.info="strlen", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
     sprintf(func, "%d", key++);
