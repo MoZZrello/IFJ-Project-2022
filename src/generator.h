@@ -66,12 +66,12 @@ void func_reads(); //done I guess
 void func_readi(); //done I guess
 void func_readf(); //done I guess
 void func_write();
-void func_floatval(); //done I guess
-void func_intval(); //done I guess
+void func_floatval();   //funguje--- lepsie skontrolovat !
+void func_intval();     //funguje--- lepsie skontrolovat !
 void func_strval();
-void func_strlen(); //done I guess
+void func_strlen();     //funguje--- lepsie skontrolovat !
 void func_substring();
-void func_ord();// done I guess (tymto si niesom vobec isty)
-void func_chr(); //done I guess
+void func_ord();        //funguje--- lepsie skontrolovat !
+void func_chr();        //funguje--- lepsie skontrolovat !
 
 #endif //SCANNER_C_GENERATOR_H
