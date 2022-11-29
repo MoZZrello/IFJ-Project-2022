@@ -696,6 +696,7 @@ void semControl(ht_table_t *table, int key){
     data.funcCounter = 0;
     data.varCounter = 0;
     data.definedFunctions = malloc(sizeof(char) * (strlen(funcChar)+1));
+    lastCalled lc;
     if(data.definedFunctions == NULL){
         callError(ERR_INTERNAL);
     }
@@ -756,23 +757,26 @@ void semControl(ht_table_t *table, int key){
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
+                lc = IF;
                 data.inIF++;
             } else if(strcmp(e->name.info, "while") == 0){
+                lc = WHILE;
                 data.inWhile++;
             } else if(strcmp(e->name.info, "else") == 0){
+                lc = ELSE;
                 data.inElse++;
             } else { // function calls
                 see_call_defined(table, *e);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
-                if(data.inIF > 0){
+                if(data.inIF > 0 && lc == IF){
                     data.inIF--;
                     continue;
-                } else if (data.inWhile > 0){
+                } else if (data.inWhile > 0 && lc == WHILE){
                     data.inWhile--;
                     continue;
-                } else if (data.inElse > 0){
+                } else if (data.inElse > 0 && lc == ELSE){
                     data.inElse--;
                     continue;
                 } else {
@@ -785,11 +789,11 @@ void semControl(ht_table_t *table, int key){
                         data.inFunction = false;
                     }
                 }
-            } else if (data.inIF > 0){
+            } else if (data.inIF > 0 && lc == IF){
                 data.inIF--;
-            } else if (data.inWhile > 0){
+            } else if (data.inWhile > 0 && lc == WHILE){
                 data.inWhile--;
-            } else if (data.inElse > 0){
+            } else if (data.inElse > 0 && lc == ELSE){
                 data.inElse--;
             } else {
                 callError(ERR_SEM_RETURN);

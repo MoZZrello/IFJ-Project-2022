@@ -28,6 +28,12 @@ typedef struct progdata{
     int varCounter;
 } progdata;
 
+typedef enum{
+    IF,
+    WHILE,
+    ELSE,
+} lastCalled;
+
 void prolog();
 void body();
 void stmt();
