@@ -18,9 +18,9 @@ static bool end_file = false;
 typedef struct progdata{
     int lastFuncKey;
     bool inFunction;
-    bool inIF;
-    bool inWhile;
-    bool inElse;
+    int inIF;
+    int inWhile;
+    int inElse;
     bool returned;
     char* definedFunctions;
     int funcCounter;
@@ -28,11 +28,16 @@ typedef struct progdata{
     int varCounter;
 } progdata;
 
+typedef enum{
+    IF,
+    WHILE,
+    ELSE,
+} lastCalled;
+
 void prolog();
 void body();
 void stmt();
 void end();
-void expr_skip();
 void else_stmt();
 void stmt_list();
 void func();
@@ -53,6 +58,7 @@ element sem_var();
 element sem_identif();
 void semControl(ht_table_t *table, int key);
 void check_sem_return(element func_e, element ret_e);
+void check_global_return(element ret_e);
 void check_defined_functions(progdata data, char* name);
 void see_call_defined(ht_table_t *table, element call);
 void see_call_arguments(element func, element call);

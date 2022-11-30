@@ -28,6 +28,7 @@ typedef struct element{
     Token name;
     argList* argslist;
     Token ret_type;
+    Token expr;
     bool nullRet;
 } element;
 

@@ -6,7 +6,7 @@
 
 Token *tmp_token;
 
-AutomatStates nextState(AutomatStates input, char c){
+AutomatStates nextState(AutomatStates input, char c, bool *php_comment){
     switch(input){
         case Start:
             if(isspace(c)) return Start;
@@ -70,9 +70,13 @@ AutomatStates nextState(AutomatStates input, char c){
             return ERROR;
         case S_Exponent_0:
             if(isdigit(c)) return S_Exponent_1;
+            if(c == '+' || c == '-') return S_Exponent_Sign;
             return ERROR;
         case S_Exponent_1:
             if(isdigit(c)) return S_Exponent_1;
+            return ERROR;
+        case S_Exponent_Sign:
+            if(isdigit(c))return S_Exponent_1;
             return ERROR;
         case S_Decimal_0:
             if(isdigit(c)) return S_Decimal_1;
@@ -86,11 +90,19 @@ AutomatStates nextState(AutomatStates input, char c){
             if(c == '*') return S_Comment_ML;
             return ERROR;
         case S_Comment_SL:
-            if(c == '\n') return Start;
-            if(c != '\n') return S_Comment_SL;
+            if(c == '\n'){
+                if(*php_comment == true){
+                    *php_comment = false;
+                    return S_PHP_4;
+                } else {
+                    return Start;
+                }
+            }
+            if(c != EOF) return S_Comment_SL;
         case S_Comment_ML:
             if(c == '*') return S_Comment_ML_End;
-            if(c != '*') return S_Comment_ML;
+            if(c != EOF) return S_Comment_ML;
+            return ERROR;
         case S_Comment_ML_End:
             if(c == '/') return Start;
             return S_Comment_ML;
@@ -131,43 +143,44 @@ AutomatStates nextState(AutomatStates input, char c){
         case S_Less_Equal:
             return ERROR;
         case S_String_0:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(c == '\\') return S_Escape_0;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_String_1:
             return ERROR;
         case S_Escape_0:
-            if(c == '\\' || c == '"' || c == 'n' || c == 't' || c == '$' || c == 39) return S_Escape_1;
+            if(c == '\\' || c == '"' || c == 'n' || c == 't' || c == '$') return S_Escape_1;
             if(c == 'x') return S_Hex_0;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 3)) return S_Octal_0;
             return S_String_0;
         case S_Escape_1:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
+            if(c == '\\') return S_Escape_0;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_Octal_0:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             return ERROR;
         case S_Octal_1:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(isdigit(c) && ((c - '0') >= 0 && (c - '0') <= 7)) return S_Octal_0;
             return ERROR;
         case S_Octal_2:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if((c > 31 && c != '$') || isspace(c)) return S_String_0;
             return ERROR;
         case S_Hex_0:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(isalnum(c)) return S_Hex_1;
             return ERROR;
         case S_Hex_1:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(isalnum(c)) return S_Hex_2;
             return ERROR;
         case S_Hex_2:
-            if(c == '"' || c == 39) return S_String_1;
+            if(c == '"') return S_String_1;
             if(c > 31 && c != '$') return S_String_0;
             return ERROR;
         case S_PHP_0:
@@ -181,11 +194,18 @@ AutomatStates nextState(AutomatStates input, char c){
             return ERROR;
         case S_PHP_3:
             if(isspace(c)) return S_PHP_4;
+            if(c == '/'){
+                *php_comment = true;
+                return S_PHP_Comment;
+            }
             return ERROR;
+        case S_PHP_Comment:
+            if(c == '/') return S_Comment_SL;
+            callError(ERR_LEX);
         case S_PHP_4:
             return ERROR;
         case S_PHP_END:
-            return ERROR;
+            callError(ERR_SYN);
         case ERROR:
             callError(ERR_LEX);
     }
@@ -308,10 +328,11 @@ Token returnTokenCreator(AutomatStates final_state, string* str) {
 Token getToken(string str){
     Token return_token;
     AutomatStates current_state = Start;
+    bool php_comment = false;
     while(1) {
         int c = getchar();
         if(c == EOF){
-            if(current_state == Start){
+            if(current_state == Start || current_state == S_Comment_SL){
                 str.data = "EOF";
                 return returnTokenCreator(S_EOF, &str);
             }else{
@@ -320,7 +341,7 @@ Token getToken(string str){
             }
         }
 
-        AutomatStates next_state = nextState(current_state, (char)c);
+        AutomatStates next_state = nextState(current_state, (char)c, &php_comment);
         if(next_state == ERROR){
             ungetc(c, stdin);
             return_token = returnTokenCreator(current_state, &str);

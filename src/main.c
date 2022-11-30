@@ -3,6 +3,7 @@
 //
 
 #include "parser.h"
+#include "generator.h"
 
 int main(){
     printf("Starting program...\n");
@@ -17,9 +18,15 @@ int main(){
 
     createTokenList();
 
-    //prolog();
+    prolog();
     antilog(table);
-    //neulog();
+
+    start_program();
+    func_strlen();
+    printf("\n");
+    func_floatval();
+    printf("\n");
+    func_intval();
 
     int i = 0;
     while(!0){
@@ -35,6 +42,8 @@ int main(){
             free(e->argslist);
         }
     }
+
+
 
     ht_delete_all(table);
 

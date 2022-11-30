@@ -55,7 +55,6 @@ void prolog() {
             }
         }
     }
-    printTokenList();
 }
 
 void body() {
@@ -441,6 +440,21 @@ ht_table_t* addBuiltInFuncs(ht_table_t *table, int *retKey){
     sprintf(func, "%d", key++);
     ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
 
+    name_t = (Token){.info="floatval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="float", .type=IDENTIFIER, .isKeyword=true, .kwt=FLOAT_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
+    name_t = (Token){.info="intval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
+    name_t = (Token){.info="strval", .type=IDENTIFIER, .isKeyword=false};
+    rettype_t = (Token){.info="string", .type=IDENTIFIER, .isKeyword=true, .kwt=STRING_K};
+    sprintf(func, "%d", key++);
+    ht_insert(table, func, &(element){.name=name_t, .ret_type=rettype_t, .argslist=NULL, .nullRet=false});
+
     name_t = (Token){.info="strlen", .type=IDENTIFIER, .isKeyword=false};
     rettype_t = (Token){.info="int", .type=IDENTIFIER, .isKeyword=true, .kwt=INT_K};
     sprintf(func, "%d", key++);
@@ -558,6 +572,7 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
+
     return e;
 }
 
@@ -670,16 +685,20 @@ element sem_identif(){
 void semControl(ht_table_t *table, int key){
     progdata data;
     char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+    bool functions_defined = false;
 
     data.returned = false;
-    data.inIF = false;
+    data.inIF = 0;
     data.inFunction = false;
-    data.inElse = false;
-    data.inWhile = false;
+    data.inElse = 0;
+    data.inWhile = 0;
     data.lastFuncKey = 0;
     data.funcCounter = 0;
     data.varCounter = 0;
     data.definedFunctions = malloc(sizeof(char) * (strlen(funcChar)+1));
+    lastCalled *lc;
+    int lcIndex = 0;
+    lc = malloc(sizeof(lastCalled) * (lcIndex+1));
     if(data.definedFunctions == NULL){
         callError(ERR_INTERNAL);
     }
@@ -709,10 +728,15 @@ void semControl(ht_table_t *table, int key){
             strcat(data.definedVars, ";");
 
         } else if(e->name.kwt == RETURN_K){ // if it's return
-            check_sem_return(*ht_get(table, lastFuncIndex), *e);
+            if(data.inFunction == false){
+                check_global_return(*e);
+            } else {
+                check_sem_return(*ht_get(table, lastFuncIndex), *e);
+            }
             data.returned = true;
 
         } else if (e->ret_type.type != ERROR_T){ // if it's function
+            functions_defined = true;
             data.funcCounter++;
             // Syntax error if function definition isn't in main body of program
             if(data.inElse || data.inWhile || data.inIF){
@@ -735,23 +759,31 @@ void semControl(ht_table_t *table, int key){
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
-                data.inIF = true;
+                lc[lcIndex++] = IF;
+                data.inIF++;
             } else if(strcmp(e->name.info, "while") == 0){
-                data.inWhile = true;
+                lc[lcIndex++] = WHILE;
+                data.inWhile++;
             } else if(strcmp(e->name.info, "else") == 0){
-                data.inElse = true;
+                lc[lcIndex++] = ELSE;
+                data.inElse++;
             } else { // function calls
                 see_call_defined(table, *e);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
-                if(data.inIF){
-                    data.inIF = false;
+                if(data.inIF > 0 && lc[lcIndex-1] == IF){
+                    data.inIF--;
+                    lcIndex--;
                     continue;
-                } else if (data.inWhile){
-                    data.inWhile = false;
-                } else if (data.inElse){
-                    data.inElse = false;
+                } else if (data.inWhile > 0 && lc[lcIndex-1] == WHILE){
+                    data.inWhile--;
+                    lcIndex--;
+                    continue;
+                } else if (data.inElse > 0 && lc[lcIndex-1] == ELSE){
+                    data.inElse--;
+                    lcIndex--;
+                    continue;
                 } else {
                     if(data.returned){
                         data.returned = false;
@@ -762,12 +794,15 @@ void semControl(ht_table_t *table, int key){
                         data.inFunction = false;
                     }
                 }
-            } else if (data.inIF){
-                data.inIF = false;
-            } else if (data.inWhile){
-                data.inWhile = false;
-            } else if (data.inElse){
-                data.inElse = false;
+            } else if (data.inIF > 0 && lc[lcIndex-1] == IF){
+                data.inIF--;
+                lcIndex--;
+            } else if (data.inWhile > 0 && lc[lcIndex-1] == WHILE){
+                data.inWhile--;
+                lcIndex--;
+            } else if (data.inElse > 0 && lc[lcIndex-1] == ELSE){
+                data.inElse--;
+                lcIndex--;
             } else {
                 callError(ERR_SEM_RETURN);
             }
@@ -802,8 +837,33 @@ void check_sem_return(element func_e, element ret_e){
     }
 }
 
+//todo expression return in global
+void check_global_return(element ret_e){
+    if(ret_e.argslist == NULL || ret_e.argslist->len == 1){
+        return;
+    } else {
+        callError(ERR_SEM_RETURN);
+    }
+}
+
 void check_defined_functions(progdata data, char* name){
-    if(strstr(data.definedFunctions, name) != NULL){
+    char* one_func;
+    one_func = malloc(sizeof(char) * (int) strlen(data.definedFunctions));
+    bool new = true;
+
+    for(int i = 0; i < strlen(data.definedFunctions); i++){
+        int one_func_index = 0;
+        while(data.definedFunctions[i] != ';'){
+            one_func[one_func_index++] = data.definedFunctions[i];
+            i++;
+        }
+        one_func[one_func_index] = '\0';
+        if(strcmp(one_func, name) == 0){
+            new = false;
+        }
+    }
+    free(one_func);
+    if(new == false){
         callError(ERR_SEM_FUNC);
     }
 }

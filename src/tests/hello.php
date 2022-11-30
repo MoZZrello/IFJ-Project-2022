@@ -18,3 +18,4 @@ reads();
 strlen("yes");
 hlavni_program(22);
 hlavni_program(23); // pozdrav z budoucnosti
+?>
