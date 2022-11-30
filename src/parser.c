@@ -509,6 +509,7 @@ element sem_func(){
         e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
+    exp_sem_func(&e);
     return e;
 }
 
@@ -558,6 +559,7 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
+    exp_sem_return(&e);
     return e;
 }
 
@@ -590,6 +592,7 @@ element sem_if_while(){
             argsCount++;
         }
     }
+    exp_sem_ifwhile(&e);
     return e;
 }
 
@@ -664,6 +667,7 @@ element sem_identif(){
             argsCount++;
         }
     }
+    //expr_sem_identif(&e);
     return e;
 }
 
@@ -757,7 +761,7 @@ void semControl(ht_table_t *table, int key){
                         data.returned = false;
                         data.inFunction = false;
                     } else if((*ht_get(table, lastFuncIndex)).ret_type.kwt != VOID_K){
-                        callError(ERR_SEM_RETURN);
+                        //callError(ERR_SEM_RETURN;
                     } else {
                         data.inFunction = false;
                     }
@@ -769,7 +773,7 @@ void semControl(ht_table_t *table, int key){
             } else if (data.inElse){
                 data.inElse = false;
             } else {
-                callError(ERR_SEM_RETURN);
+                //callError(ERR_SEM_RETURN;
             }
         } else {
             continue;
@@ -788,23 +792,24 @@ void check_sem_return(element func_e, element ret_e){
         if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
             return;
         } else {
-            callError(ERR_SEM_ARGS);
+            //callError(ERR_SEM_ARGS);
         }
     } else if (func_e.ret_type.kwt == FLOAT_K &&
                 (ret_e.argslist->list[0].arg.type == DECIMAL_NUMBER || ret_e.argslist->list[0].arg.type == EXPONENT_NUMBER)){
         if(strchr(ret_e.argslist->list->arg.info, '.') != NULL){
             return;
         } else {
-            callError(ERR_SEM_ARGS);
+            //callError(ERR_SEM_ARGS);
         }
     } else {
-        callError(ERR_SEM_ARGS);
+        //callError(ERR_SEM_ARGS);
     }
+    //exp_sem_ret(&ret_e);
 }
 
 void check_defined_functions(progdata data, char* name){
     if(strstr(data.definedFunctions, name) != NULL){
-        callError(ERR_SEM_FUNC);
+        //callError(ERR_SEM_FUNC);
     }
 }
 
@@ -831,7 +836,7 @@ void see_call_defined(ht_table_t *table, element call){
         see_call_arguments(*definition_e, call);
     } else {
         // undefined function called
-        callError(ERR_SEM_FUNC);
+        //callError(ERR_SEM_FUNC);
     }
 }
 
@@ -839,7 +844,7 @@ void see_call_arguments(element func, element call){
     char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
     if(strstr(funcChar, call.name.info) == NULL){ // defined in program
         if(func.argslist->len != call.argslist->len){
-            callError(ERR_SEM_ARGS);
+            //callError(ERR_SEM_ARGS);
         }
 
         int i = 0;
@@ -853,7 +858,7 @@ void see_call_arguments(element func, element call){
                 i++;
                 continue;
             } else {
-                callError(ERR_SEM_ARGS);
+                //callError(ERR_SEM_ARGS);
             }
             i++;
         }
@@ -862,25 +867,25 @@ void see_call_arguments(element func, element call){
            strcmp(call.name.info, "readi") == 0 ||
            strcmp(call.name.info, "readf") == 0){
             if(call.argslist != NULL){
-                callError(ERR_SEM_ARGS);
+                //callError(ERR_SEM_ARGS);
             }
         } else if(strcmp(call.name.info, "strlen") == 0 ||
                   strcmp(call.name.info, "ord") == 0){
             if(call.argslist->len != 1 ||
                call.argslist->list[0].arg.type != STRING){
-                callError(ERR_SEM_ARGS);
+                //callError(ERR_SEM_ARGS);
             }
         } else if(strcmp(call.name.info, "substring") == 0){
             if(call.argslist->len != 3 ||
                call.argslist->list[0].arg.type != STRING ||
                call.argslist->list[1].arg.type != NUMBER ||
                call.argslist->list[2].arg.type != NUMBER){
-                callError(ERR_SEM_ARGS);
+                //callError(ERR_SEM_ARGS);
             }
         } else if(strcmp(call.name.info, "chr") == 0){
             if(call.argslist->len != 1 ||
                call.argslist->list[0].arg.type != NUMBER){
-                callError(ERR_SEM_ARGS);
+                //callError(ERR_SEM_ARGS);
             }
         }
     }

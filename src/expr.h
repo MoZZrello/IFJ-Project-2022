@@ -91,6 +91,10 @@ void greater(struct stack_t *stack);
 void printstack(struct stack_t *stack);
 
 void exp_sem_var(element *e);
+void exp_sem_ifwhile(element *e);
+void exp_sem_return(element *e);
+void  expr_sem_identif(element *e);
+void exp_sem_func(element *e);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
@@ -100,4 +104,5 @@ struct variables* find(char *key);
 struct variables* delete(char *key);
 void printList(); 
 d_list_types token_to_d_type(int d_type);
+d_list_types kw_to_d_type(int kw_type);
 
