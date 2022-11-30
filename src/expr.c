@@ -6,8 +6,6 @@
 bool rdc = false;
 struct variables *head_var = NULL;
 struct variables *current = NULL;
-bool in_fce = false;
-d_list_types return_type;
 
 // TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
@@ -693,7 +691,7 @@ d_list_types token_to_d_type(int d_type) {
 }
 
 void exp_sem_var(element *e) {
-  //printf("dlzka je %d\n", e->argslist->len);
+  printf("dlzka je %d\n", e->argslist->len);
   struct variables* curr;
   struct variables* tmp_var;
   //ak je premenna uz deklarovana netreba ju znovu ukladat (zaial kym neriesim vysledok)
@@ -724,13 +722,13 @@ void exp_sem_var(element *e) {
     }
   }
   
- // printList();
-  //printf("stmt je %d\n", e->argslist->list[1].arg.type);
+  printList();
+  printf("stmt je %d\n", e->argslist->list[1].arg.type);
 
   for(int i = 1; i < e->argslist->len + 1; i++) {
     //printf("%s %s\n", e->name.info, e->argslist->list[i].arg.info);
     curr = find(e->name.info);
-    //printf("info je %s %d\n", e->argslist->list[i].arg.info, e->argslist->list[i].arg.type);
+    printf("info je %s %d\n", e->argslist->list[i].arg.info, e->argslist->list[i].arg.type);
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
         printf("error, nedeklarovana premenna\n");
@@ -766,81 +764,3 @@ void exp_sem_var(element *e) {
   //printf("%s %d\n", e->name.info, e->argslist->list->arg.type);
 
 }
-
-void exp_sem_ifwhile(element *e) {
-  struct variables* curr;
-  struct variables* tmp_var;
-  
-  for(int i = 0; i < e->argslist->len + 1; i++) {
-    printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
-    if(e->argslist->list[i].arg.type == VAR_ID) {
-      if(find(e->argslist->list[i].arg.info) == NULL) {
-        printf("error, nedeklarovana premenna\n");
-      }
-      else {
-        curr = find(e->argslist->list[i].arg.info);
-      }
-    }
-    else if(e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) {
-      if (token_to_d_type(e->argslist->list[i].arg.type) != curr->type) {
-        printf("error nekompatibilna hodnota s datovym typom\n");
-      }
-    }
-  }
-}
-
-void exp_sem_return(element *e) {
-  struct variables* curr;
-  for(int i = 0; i < e->argslist->len; i++) {
-    printf("som tuuu %s %s\n", e->name.info, e->argslist->list[i].arg.info);
-    //if(e->argslist->list[i].arg.type == VAR_ID) {
-      /*if(find(e->argslist->list[i].arg.info) == NULL) {
-        printf("error, nedeklarovana premenna pri return\n");
-      }*/
-      /*else {
-        //skontrolujem ci vraciam dobry typ
-         curr = find(e->argslist->list[i].arg.info);
-         if(curr->type != return_type) {
-          printf("error, zly navratovy typ\n");
-         }
-
-      }*/
-    /*}
-    else if(e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) {
-      if (token_to_d_type(e->argslist->list[i].arg.type) != return_type) {
-        printf("error nekompatibilna hodnota s datovym typom v return\n");
-      }
-    }*/
-  }
-}
-
-/*void  expr_sem_identif(element *e) {
-  printf("tu som\n");
-
-}*/
-
-void exp_sem_func(element *e) {
-  in_fce = true;
-  d_list_types fce_param_type;
-  return_type = kw_to_d_type(e->ret_type.kwt);
-  for(int i = 0; i < e->argslist->len; i++) {
-    printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
-    if(e->argslist->list[i].type.isKeyword) {
-      fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
-    }
-    insert_first(e->argslist->list[i].arg.info, fce_param_type);
-  }
-  printList();
-}
-
-d_list_types kw_to_d_type(int kw_type) {
-  switch (kw_type) {
-      case FLOAT_K:
-        return D_DECM_NUM;
-      case STRING_K:
-        return D_STRING;
-      case INT_K:
-        return D_NUM;
-      }
-}
-
