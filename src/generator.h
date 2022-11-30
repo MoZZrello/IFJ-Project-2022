@@ -62,16 +62,16 @@ void PRINT_LANE_ZERO_ARG(char* name);
 void start_program();
 
 //Vstavane funckie
-void func_reads(); //done I guess
-void func_readi(); //done I guess
-void func_readf(); //done I guess
-void func_write(); //done I guess
-void func_floatval();   //funguje--- lepsie skontrolovat !
-void func_intval();     //funguje--- lepsie skontrolovat !
-void func_strval();
-void func_strlen();     //funguje--- lepsie skontrolovat !
-void func_substring();
-void func_ord();        //funguje--- lepsie skontrolovat !
-void func_chr();        //funguje--- lepsie skontrolovat !
+void func_reads();      //done I guess
+void func_readi();      //done I guess
+void func_readf();      //done I guess
+void func_write();      //funguje- skontrolovane (este skontrolovat)
+void func_floatval();   //funguje--- skontrolovane
+void func_intval();     //funguje--- skontrolovane
+void func_strval();     //funguje--- skontrolovane (ide len string->string a null->string@)
+void func_strlen();     //funguje--- skontrolovane
+void func_substring();  //funguje--- skontrolovane
+void func_ord();        //funguje--- skontrolovane
+void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
 
 #endif //SCANNER_C_GENERATOR_H

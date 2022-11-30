@@ -25,45 +25,46 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 
 
 //Vstavane funkcie
+
 void func_reads(){
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "string");
-
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "string");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
 void func_readi(){
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "int");
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
 void func_readf(){
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "float");
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "float");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
+//na stack to co chceme precitat
 void func_write(){
     PRINT_LANE_ONE_ARG("LABEL", "$write");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -81,14 +82,11 @@ void func_write(){
     PRINT_LANE_ZERO_ARG("RETURN");
 
     PRINT_LANE_ONE_ARG("LABEL", "$writenull");
-    PRINT_LANE_ONE_ARG("WRITE", "string@nil");
+    PRINT_LANE_ONE_ARG("WRITE", "nil@nil");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
-
-
 }
-
-//na stack treba dat jednu hodnotu ktoru menime
+//na stack treba dat INT a funkcia vrati FLOAT
 void func_floatval(){
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -102,8 +100,7 @@ void func_floatval(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-    //na stack treba dat jednu hodnotu ktoru menime
+//na stack treba dat FLOAT a funckia vrati INT
 void func_intval(){
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -117,22 +114,25 @@ void func_intval(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
+//na stack string a ona vrati bud string alebo null string
 void func_strval(){
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
-    PRINT_LANE_ONE_ARG("POPS", "LF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
+    PRINT_LANE_ONE_ARG("POPS", "LF@string");
 
-    PRINT_LANE_TWO_ARG("INT2CHAR","LF@return_string", "LF@number");
-
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@string", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@string");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
-}
 
-//do @strlen_ret_val string a potom tam vratime int hodnotu
+    PRINT_LANE_ONE_ARG("LABEL", "$end");
+    PRINT_LANE_ONE_ARG("PUSHS", "string@");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+
+}
+//na stack treba dat string a funckia vrati jeho dlzku
 void func_strlen(){
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -143,7 +143,7 @@ void func_strlen(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
+//na stack v poradi treba dat ->string, start_index (i), end_index (j) ... funkcia vrati string medzi tymito indexami
 void func_substring(){
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -179,7 +179,6 @@ void func_substring(){
     PRINT_LANE_THREE_ARG("GT", "LF@return", "LF@start_index", "LF@end_index");
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
-
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp_string");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
     PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "string@");
@@ -187,7 +186,6 @@ void func_substring(){
     PRINT_LANE_ONE_ARG("LABEL", "$start_while");
     PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "LF@start_index"); //j<i
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end_while", "LF@return", "bool@true");
-
 
     PRINT_LANE_THREE_ARG("GETCHAR", "LF@tmp_string", "LF@string", "LF@start_index");
     PRINT_LANE_THREE_ARG("CONCAT", "LF@return_string","LF@return_string", "LF@tmp_string");
@@ -206,8 +204,7 @@ void func_substring(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-    //najrpv treba pushnut string
+//na stack string a funkia vracia INT hodnotu prveho znaku stringu
 void func_ord(){
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
@@ -229,8 +226,7 @@ void func_ord(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//do number sa nacita zo stacku cislo, ktore dame do char
+//na stack treba dat INT a funkcia vrati charakter v prislunom indexe ASCII
 void func_chr(){
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
