@@ -696,7 +696,9 @@ void semControl(ht_table_t *table, int key){
     data.funcCounter = 0;
     data.varCounter = 0;
     data.definedFunctions = malloc(sizeof(char) * (strlen(funcChar)+1));
-    lastCalled lc;
+    lastCalled *lc;
+    int lcIndex = 0;
+    lc = malloc(sizeof(lastCalled) * (lcIndex+1));
     if(data.definedFunctions == NULL){
         callError(ERR_INTERNAL);
     }
@@ -757,27 +759,30 @@ void semControl(ht_table_t *table, int key){
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
-                lc = IF;
+                lc[lcIndex++] = IF;
                 data.inIF++;
             } else if(strcmp(e->name.info, "while") == 0){
-                lc = WHILE;
+                lc[lcIndex++] = WHILE;
                 data.inWhile++;
             } else if(strcmp(e->name.info, "else") == 0){
-                lc = ELSE;
+                lc[lcIndex++] = ELSE;
                 data.inElse++;
             } else { // function calls
                 see_call_defined(table, *e);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
-                if(data.inIF > 0 && lc == IF){
+                if(data.inIF > 0 && lc[lcIndex-1] == IF){
                     data.inIF--;
+                    lcIndex--;
                     continue;
-                } else if (data.inWhile > 0 && lc == WHILE){
+                } else if (data.inWhile > 0 && lc[lcIndex-1] == WHILE){
                     data.inWhile--;
+                    lcIndex--;
                     continue;
-                } else if (data.inElse > 0 && lc == ELSE){
+                } else if (data.inElse > 0 && lc[lcIndex-1] == ELSE){
                     data.inElse--;
+                    lcIndex--;
                     continue;
                 } else {
                     if(data.returned){
@@ -789,12 +794,15 @@ void semControl(ht_table_t *table, int key){
                         data.inFunction = false;
                     }
                 }
-            } else if (data.inIF > 0 && lc == IF){
+            } else if (data.inIF > 0 && lc[lcIndex-1] == IF){
                 data.inIF--;
-            } else if (data.inWhile > 0 && lc == WHILE){
+                lcIndex--;
+            } else if (data.inWhile > 0 && lc[lcIndex-1] == WHILE){
                 data.inWhile--;
-            } else if (data.inElse > 0 && lc == ELSE){
+                lcIndex--;
+            } else if (data.inElse > 0 && lc[lcIndex-1] == ELSE){
                 data.inElse--;
+                lcIndex--;
             } else {
                 callError(ERR_SEM_RETURN);
             }
