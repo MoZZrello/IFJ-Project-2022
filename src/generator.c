@@ -182,7 +182,7 @@ void func_substring(){
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp_string");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
-    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "string@a");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "string@");
 
     PRINT_LANE_ONE_ARG("LABEL", "$start_while");
     PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "LF@start_index"); //j<i
