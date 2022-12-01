@@ -523,6 +523,7 @@ element sem_func(){
         e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
+    exp_sem_func(&e); 
     return e;
 }
 
@@ -572,7 +573,7 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
-
+    exp_sem_return(&e); 
     return e;
 }
 
@@ -605,6 +606,7 @@ element sem_if_while(){
             argsCount++;
         }
     }
+    exp_sem_ifwhile(&e); 
     return e;
 }
 
@@ -679,6 +681,7 @@ element sem_identif(){
             argsCount++;
         }
     }
+    //expr_sem_identif(&e); 
     return e;
 }
 

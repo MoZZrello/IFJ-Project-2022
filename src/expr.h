@@ -100,4 +100,4 @@ struct variables* find(char *key);
 struct variables* delete(char *key);
 void printList(); 
 d_list_types token_to_d_type(int d_type);
-
+d_list_types kw_to_d_type(int kw_type);
