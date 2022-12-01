@@ -65,13 +65,21 @@ typedef enum{
 	D_NUM, //0
 	D_DECM_NUM, //1 
 	D_EXP_NUMB, //2
-	D_STRING //3
+	D_STRING, //3
+	D_NON
 } d_list_types;
 
 struct variables {
    char *data;
    d_list_types type;
    struct variables *next;
+};
+
+//linked list pre funkciu
+struct functions {
+   char *fce_name;
+   d_list_types return_type;
+   struct functions *next;
 };
 
 void newStack(struct stack_t *theStack);
@@ -97,10 +105,13 @@ void exp_sem_ifwhile(element *e);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
-bool isEmpty();
-int length();
 struct variables* find(char *key);
 struct variables* delete(char *key);
 void printList(); 
 d_list_types token_to_d_type(int d_type);
 d_list_types kw_to_d_type(int kw_type);
+
+void insert_first_fce(char *data, d_list_types d_type);
+struct functions* delete_fce(char *key);
+struct functions* find_fce(char *key);
+void print_list_fce();
