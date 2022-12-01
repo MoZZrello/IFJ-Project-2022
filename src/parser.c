@@ -551,6 +551,7 @@ element sem_return(){
         e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
+        argsCount++;
         while((t=getTokenFromList()).type != SEMICOLON){
             e.argslist->list = realloc(e.argslist->list, sizeof(arg)*(argsCount+1));
             e.argslist->list[argsCount].arg = t;
@@ -899,7 +900,7 @@ void see_call_defined(ht_table_t *table, element call){
 }
 
 void see_call_arguments(element func, element call){
-    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;chr;";
     if(strstr(funcChar, call.name.info) == NULL){ // defined in program
         if(func.argslist->len != call.argslist->len){
             callError(ERR_SEM_ARGS);

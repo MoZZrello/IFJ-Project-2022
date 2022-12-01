@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 function hlavni_program(?int $year) : float {
   write("Hello from IFJ", $year, "\n");
-  return 1.1;
+  return 1.1 + 1;
 }
 
 function pohlavni_program(string $month) : void {
-  $var = "ffff";
+  $var = $month + 1;
   write("Hello from IFJ", $year, "\n");
   return;
 }
