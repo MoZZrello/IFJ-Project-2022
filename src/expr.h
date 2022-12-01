@@ -91,6 +91,9 @@ void greater(struct stack_t *stack);
 void printstack(struct stack_t *stack);
 
 void exp_sem_var(element *e);
+void exp_sem_func(element *e);
+void exp_sem_return(element *e);
+void exp_sem_ifwhile(element *e);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
