@@ -190,7 +190,7 @@ void else_stmt() {
 
 void func() {
     token = getTokenFromList();
-    if(token.type != IDENTIFIER) {
+    if(token.type != IDENTIFIER || token.isKeyword == true) {
         //printf("chyba func id\n");
         callError(ERR_SYN);
     } else {
