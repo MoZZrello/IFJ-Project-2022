@@ -59,6 +59,10 @@ void changeTokenListIndex(int index){
     prog_list->index = index;
 }
 
+int getListIndex(){
+    return prog_list->index;
+}
+
 Token getTokenFromList(){
     return prog_list->list[prog_list->index++];
 }

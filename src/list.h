@@ -22,6 +22,7 @@ void addTokenToList(Token t);
 void deleteLastTokenFromList();
 void emptyTokenList();
 void printTokenList();
+int getListIndex();
 void changeTokenListIndex(int index);
 void previousTokenListIndex();
 Token getTokenFromList();

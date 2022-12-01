@@ -862,6 +862,7 @@ void exp_sem_var(element *e) {
           printf("Error, neexistujuca funkcia\n");
         }
         else {
+
           curr_fce = find_fce(e->argslist->list[i].arg.info);
           arg_type = curr_fce->return_type;
         }
