@@ -6,8 +6,6 @@
 #include "generator.h"
 
 int main(){
-    printf("Starting program...\n");
-
     ht_table_t *table;
     table = malloc(sizeof(ht_table_t));
     if(table == NULL){
@@ -48,6 +46,5 @@ int main(){
     ht_delete_all(table);
 
     free(table);
-    printf("Program done...\n");
     return PROG_OK;
 }

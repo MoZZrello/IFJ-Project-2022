@@ -528,22 +528,22 @@ void printstack(struct stack_t *stack){
 	while(temp != ENDSTACK){
 		switch(temp){
 			case NONTERM:
-				printf("E\n");
+				//printf("E\n");
 				break;
 			case BRACE_L:
-				printf("(\n");
+				//printf("(\n");
 				break;
 			case L:
-				printf("<\n");
+				//printf("<\n");
 				break;
 			case MUL:
-				printf("*\n");
+				//printf("*\n");
 				break;
 			case BRACE_R:
-				printf(")\n");
+				//printf(")\n");
 				break;
 			case VALUE:
-				printf("i\n");
+				//printf("i\n");
 				break;
 			default:
 				break;
@@ -554,7 +554,7 @@ void printstack(struct stack_t *stack){
 		pop(stack);
 		temp = top(stack);
 	}
-	printf("$\n");
+	//printf("$\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -672,7 +672,7 @@ void printList() {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("v liste je %s %d\n", ptr->data, ptr->type);
+      //printf("v liste je %s %d\n", ptr->data, ptr->type);
       ptr = ptr->next;
    }
 }
@@ -772,10 +772,10 @@ void exp_sem_ifwhile(element *e) {
   struct variables* tmp_var;
   
   for(int i = 0; i < e->argslist->len + 1; i++) {
-    printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
+    //printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
-        printf("error, nedeklarovana premenna\n");
+        //printf("error, nedeklarovana premenna\n");
       }
       else {
         curr = find(e->argslist->list[i].arg.info);
@@ -792,7 +792,7 @@ void exp_sem_ifwhile(element *e) {
 void exp_sem_return(element *e) {
   struct variables* curr;
   for(int i = 0; i < e->argslist->len; i++) {
-    printf("som tuuu %s %s\n", e->name.info, e->argslist->list[i].arg.info);
+    //printf("som tuuu %s %s\n", e->name.info, e->argslist->list[i].arg.info);
     //if(e->argslist->list[i].arg.type == VAR_ID) {
       /*if(find(e->argslist->list[i].arg.info) == NULL) {
         printf("error, nedeklarovana premenna pri return\n");
@@ -824,7 +824,7 @@ void exp_sem_func(element *e) {
   d_list_types fce_param_type;
   return_type = kw_to_d_type(e->ret_type.kwt);
   for(int i = 0; i < e->argslist->len; i++) {
-    printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
+    //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
     if(e->argslist->list[i].type.isKeyword) {
       fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
     }
