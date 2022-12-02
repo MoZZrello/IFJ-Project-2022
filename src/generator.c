@@ -3,11 +3,6 @@
 //
 #include "generator.h"
 
-void start_program(){
-    PRINT_LANE_ZERO_ARG(".IFJcode22");
-    PRINT_LANE_ONE_ARG("JUMP", "$main");
-}
-
 void PRINT_LANE_THREE_ARG(char* name, char* arg1, char* arg2, char* arg3) {
     printf("%s %s %s %s \n", name, arg1, arg2, arg3);
 }
@@ -28,6 +23,11 @@ void gen_program(ht_table_t *table, int key){
     gen_main(table, key);
 }
 
+void start_program(){
+    PRINT_LANE_ZERO_ARG(".IFJcode22");
+    PRINT_LANE_ONE_ARG("JUMP", "$main");
+}
+
 //funckia na generovanie celej funkcii
 void gen_function(ht_table_t *table, int key){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
@@ -39,18 +39,19 @@ void gen_function(ht_table_t *table, int key){
         element* e = ht_get(table, func);
 
         if(e->ret_type.type != ERROR_T){
-                def_func_arg_print(e);
+                def_func_arg_print(e);//print arg of functions
                 is_function = true;
                 is_end = false;
             continue;
         }
-
+        //telo funkcie zacina { --preskocim
         if (e->name.type == LEFT_CURLY_BRACKET){
             continue;
+        //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
             is_end = true;
         }
-
+        //printujem telo funkcie
         if(is_function && is_end == false){
                 def_func_main_print(e);
         }
@@ -73,10 +74,10 @@ void def_func_arg_print(element* e){
         PRINT_LANE_ONE_ARG("POPS", final_var );
     }
 }
-
+//printujem telo medzi { a }
 void def_func_main_print(element* e){
-    /*char idk [10] = "write";
-        if(strcmp(e->name.info , idk) == 0){
+    /*
+        if(strcmp(e->name.info , "write") == 0){
             func_write();
         }*/
     printf("%s\n", e->name.info);
@@ -88,12 +89,79 @@ void gen_main(ht_table_t *table, int key){
     char index[MAX_HT_SIZE];
     for(int i=0; i < key; i++){
         element* e = NULL;
-        sprintf(index, "%d", i++);
+        sprintf(index, "%d", i);
         e = ht_get(table, index);
+
+        if(e->name.type == IDENTIFIER){
+            if(strcmp(e->name.info, "if") == 0){
+
+            } else if(strcmp(e->name.info, "while") == 0){
+
+            } else if(strcmp(e->name.info, "else") == 0){
+
+            } else if(e->ret_type.type == ERROR_T) { // function calls
+                gen_call_arg(table, *e, key);
+            }
         }
+    }
 }
 
+void gen_call_arg(ht_table_t *table, element call, int key){
+    char index[MAX_HT_SIZE];
+    element* compare_e = NULL;
+    char* print = NULL;
+
+    for(int i=0; i < key; i++){
+        sprintf(index, "%d", i);
+        compare_e = ht_get(table, index);
+        if(compare_e == NULL) break;
+        if (compare_e->ret_type.type != ERROR_T){
+            if(strcmp(compare_e->name.info, call.name.info) == 0){
+                for (int j = 0; j < call.argslist->len ; ++j) {
+                    if(strcmp(call.argslist->list[j].arg.info , ",") != 0) {
+                        print = retype_arg_for_func(call.argslist->list[j]);
+                        PRINT_LANE_ONE_ARG("PUSHS", print );
+                    }
+                }
+                char final [500];
+                snprintf(final,sizeof final, "$%s", call.name.info );
+                PRINT_LANE_ONE_ARG("CALL", final );
+            }
+        }
+    }
+}
 //Vstavane funkcie
+
+char *retype_arg_for_func(arg arg){
+    char *final_arg = NULL;
+    char tmpC[MAX_HT_SIZE];
+    if(arg.arg.type == NUMBER){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+        if(final_arg == NULL){
+            callError(ERR_INTERNAL);
+        }
+        strcpy(final_arg, "int@");
+        strcat(final_arg, arg.arg.info);
+
+    }else if(arg.arg.type == DECIMAL_NUMBER){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+        if(final_arg == NULL){
+            callError(ERR_INTERNAL);
+        }
+        strcpy(final_arg, "float@");
+        strcat(final_arg, arg.arg.info);
+    }else if(arg.arg.type == STRING){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+        if(final_arg == NULL){
+            callError(ERR_INTERNAL);
+        }
+        strcpy(final_arg, "string@");
+        memmove(arg.arg.info, arg.arg.info-1, strlen(arg.arg.info));
+        memmove(arg.arg.info, arg.arg.info+2, strlen(arg.arg.info));
+        strcat(final_arg, arg.arg.info);
+    }
+    return final_arg;
+}
 
 void func_reads(){
     printf("#ZACALA NOVA FUNKCIA !!!!!\n");

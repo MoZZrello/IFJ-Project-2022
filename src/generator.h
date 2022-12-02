@@ -63,10 +63,16 @@ void PRINT_LANE_ZERO_ARG(char* name);
 void gen_program(ht_table_t *table, int key);
 
 void start_program();
+
+//function
 void gen_function(ht_table_t *table, int key);
 void def_func_arg_print(element* e);
 void def_func_main_print(element* e);
+
+//main
 void gen_main(ht_table_t *table, int key);
+void gen_call_arg(ht_table_t *table, element call, int key);
+char *retype_arg_for_func(arg arg);
 
 //Vstavane funckie
 void func_reads();      //done I guess
