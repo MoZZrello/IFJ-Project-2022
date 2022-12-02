@@ -12,6 +12,7 @@
 #include "expr.h"
 #include "errors.h"
 #include "list.h"
+#include "generator.h"
 
 static bool end_file = false;
 

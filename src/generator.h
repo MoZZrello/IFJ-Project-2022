@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "symtable.h"
 
 /*
  * ADD (var) (symb1) (symb2)
@@ -59,7 +60,12 @@ void PRINT_LANE_ONE_ARG(char* name, char* arg1);
  */
 void PRINT_LANE_ZERO_ARG(char* name);
 
+void gen_program(ht_table_t *table, int key);
+
+void gen_function(ht_table_t *table, int key);
 void start_program();
+void func_def_print(element* e);
+void gen_main(ht_table_t *table, int key);
 
 //Vstavane funckie
 void func_reads();      //done I guess

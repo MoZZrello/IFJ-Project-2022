@@ -229,7 +229,7 @@ void func() {
 void args() {
     token = getTokenFromList();
     if (token.type == RIGHT_BRACKET){
-        printf("dalej nic nie je\n");
+       // printf("dalej nic nie je\n");
     } else if (token.type == IDENTIFIER) {
         data_type();
         token = getTokenFromList();
@@ -325,7 +325,7 @@ void antilog(ht_table_t *table){
     addBuiltInFuncs(table, key);
 
     semControl(table, freeEnd);
-
+    gen_program(table, freeEnd);
     free(key);
 }
 
@@ -740,7 +740,7 @@ void semControl(ht_table_t *table, int key){
             }
             data.returned = true;
 
-        } else if (e->ret_type.type != ERROR_T){ // if it's function
+        } else if (e->ret_type.type != ERROR_T){ // if it's function definition
             functions_defined = true;
             data.funcCounter++;
             // Syntax error if function definition isn't in main body of program
