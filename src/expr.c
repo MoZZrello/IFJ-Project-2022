@@ -999,7 +999,7 @@ Token exp_sem_return(element *e) {
   return t;
 }
 
-Token expr_sem_identif(element *e) {
+/*Token expr_sem_identif(element *e) {
   struct functions* curr;
   d_list_types arg_type = D_NON;
   if(find_fce(e->name.info) != NULL) {
@@ -1024,7 +1024,7 @@ Token expr_sem_identif(element *e) {
   t.info = d_type_to_info(arg_type);
   //printf("%s\n", e->name.info);
   
-}
+}*/
 
 void exp_sem_func(element *e) {
   in_fce = true;

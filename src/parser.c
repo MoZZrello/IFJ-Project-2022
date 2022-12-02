@@ -683,7 +683,7 @@ element sem_identif(){
             argsCount++;
         }
     }
-    e.expr = expr_sem_identif(&e);
+    //e.expr = expr_sem_identif(&e);
     return e;
 }
 
