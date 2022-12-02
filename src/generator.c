@@ -30,18 +30,36 @@ void gen_program(ht_table_t *table, int key){
 
 //funckia na generovanie celej funkcii
 void gen_function(ht_table_t *table, int key){
+    bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
+    bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
+
     for(int i = 0; i < key; i++){
         char func[MAX_HT_SIZE];
         sprintf(func, "%d", i);
         element* e = ht_get(table, func);
 
         if(e->ret_type.type != ERROR_T){
-            func_def_print(e);
+                def_func_arg_print(e);
+                is_function = true;
+                is_end = false;
+            continue;
+        }
+
+        if (e->name.type == LEFT_CURLY_BRACKET){
+            continue;
+        }else if (e->name.type == RIGHT_CURLY_BRACKET){
+            is_end = true;
+        }
+
+        if(is_function && is_end == false){
+                def_func_main_print(e);
         }
     }
 }
+
 //funckia na printenie zaciatku funkcie
-void func_def_print(element* e){
+void def_func_arg_print(element* e){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     char final [500];
     snprintf(final,sizeof final, "$%s", e->name.info );
     PRINT_LANE_ONE_ARG("LABEL", final );
@@ -54,6 +72,14 @@ void func_def_print(element* e){
         PRINT_LANE_ONE_ARG("DEFVAR", final_var );
         PRINT_LANE_ONE_ARG("POPS", final_var );
     }
+}
+
+void def_func_main_print(element* e){
+    /*char idk [10] = "write";
+        if(strcmp(e->name.info , idk) == 0){
+            func_write();
+        }*/
+    printf("%s\n", e->name.info);
 }
 
 void gen_main(ht_table_t *table, int key){
@@ -70,6 +96,7 @@ void gen_main(ht_table_t *table, int key){
 //Vstavane funkcie
 
 void func_reads(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -83,6 +110,7 @@ void func_reads(){
 }
 
 void func_readi(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -97,6 +125,7 @@ void func_readi(){
 }
 
 void func_readf(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -112,6 +141,7 @@ void func_readf(){
 
 //na stack to co chceme precitat
 void func_write(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$write");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -123,7 +153,7 @@ void func_write(){
 
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$writenull", "LF@type_of_tmp", "string@nil" );
 
-    PRINT_LANE_ONE_ARG("WRITE", "LF@'%a'tmp");
+    PRINT_LANE_ONE_ARG("WRITE", "LF@tmp");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 
@@ -135,6 +165,7 @@ void func_write(){
 
 //na stack treba dat INT a funkcia vrati FLOAT
 void func_floatval(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
@@ -150,6 +181,7 @@ void func_floatval(){
 
 //na stack treba dat FLOAT a funckia vrati INT
 void func_intval(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
@@ -165,6 +197,7 @@ void func_intval(){
 
 //na stack string a ona vrati bud string alebo null string
 void func_strval(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
@@ -184,6 +217,7 @@ void func_strval(){
 
 //na stack treba dat string a funckia vrati jeho dlzku
 void func_strlen(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
@@ -196,6 +230,7 @@ void func_strlen(){
 
 //na stack v poradi treba dat ->string, start_index (i), end_index (j) ... funkcia vrati string medzi tymito indexami
 void func_substring(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
@@ -258,6 +293,7 @@ void func_substring(){
 
 //na stack string a funkia vracia INT hodnotu prveho znaku stringu
 void func_ord(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -281,6 +317,7 @@ void func_ord(){
 
 //na stack treba dat INT a funkcia vrati charakter v prislunom indexe ASCII
 void func_chr(){
+    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");

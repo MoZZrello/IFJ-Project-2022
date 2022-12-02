@@ -62,9 +62,10 @@ void PRINT_LANE_ZERO_ARG(char* name);
 
 void gen_program(ht_table_t *table, int key);
 
-void gen_function(ht_table_t *table, int key);
 void start_program();
-void func_def_print(element* e);
+void gen_function(ht_table_t *table, int key);
+void def_func_arg_print(element* e);
+void def_func_main_print(element* e);
 void gen_main(ht_table_t *table, int key);
 
 //Vstavane funckie
