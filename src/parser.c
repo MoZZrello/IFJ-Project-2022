@@ -331,8 +331,9 @@ void antilog(ht_table_t *table){
 
 ht_table_t* sortSem(ht_table_t *table, int *retKey){
     Token t;
-    int index = 8, key = *retKey; char func[MAX_HT_SIZE];
+    int index = 8, key = *retKey; char func[MAX_HT_SIZE], leftCount = 0;
     changeTokenListIndex(index);
+    bool inFunction = false;
     element* data;
     data = malloc(sizeof(element));
     //check malloc
@@ -351,6 +352,7 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
                     key++;
                     break;
                 case FUNCTION_K:
+                    inFunction = true;
                     data = realloc(data, sizeof(element)*(key+1));
                     sprintf( func,"%d", key);
                     data[key] = sem_func(&table);
@@ -400,6 +402,16 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
             ht_insert(table, func, &data[key]);
             key++;
         } else if(t.type != SEMICOLON){
+            if(inFunction){
+                if(t.type == LEFT_CURLY_BRACKET){
+                    leftCount++;
+                } else if(t.type == RIGHT_CURLY_BRACKET){
+                    leftCount--;
+                }
+                if(leftCount == 0){ // FUNCTION END
+                    inFunction = false;
+                }
+            }
             data = realloc(data, sizeof(element)*(key+1));
             sprintf( func,"%d", key);
             data[key] = sem_else();
