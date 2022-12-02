@@ -530,22 +530,22 @@ void printstack(struct stack_t *stack){
 	while(temp != ENDSTACK){
 		switch(temp){
 			case NONTERM:
-				//printf("E\n");
+				printf("E\n");
 				break;
 			case BRACE_L:
-				//printf("(\n");
+				printf("(\n");
 				break;
 			case L:
-				//printf("<\n");
+				printf("<\n");
 				break;
 			case MUL:
-				//printf("*\n");
+				printf("*\n");
 				break;
 			case BRACE_R:
-				//printf(")\n");
+				printf(")\n");
 				break;
 			case VALUE:
-				//printf("i\n");
+				printf("i\n");
 				break;
 			default:
 				break;
@@ -556,7 +556,7 @@ void printstack(struct stack_t *stack){
 		pop(stack);
 		temp = top(stack);
 	}
-	//printf("$\n");
+	printf("$\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -727,7 +727,7 @@ void printList() {
 	
    //start from the beginning
    while(ptr != NULL) {
-      //printf("v liste je %s %d\n", ptr->data, ptr->type);
+      printf("v liste je %s %d\n", ptr->data, ptr->type);
       ptr = ptr->next;
    }
 }
@@ -757,11 +757,12 @@ d_list_types token_to_d_type(int d_type) {
   }
 }
 
-void exp_sem_var(element *e) {
+Token exp_sem_var(element *e) {
   struct variables* curr;
   struct functions* curr_fce;
   struct variables* tmp_var;
   d_list_types arg_type = D_NON;
+  int brc_count;
 
   //ak je premenna neexistuje, a dlzka arg listu je 1, ulozim a typ je priradeny prva hodnota
   if((find(e->name.info)) == NULL && e->argslist->len == 1) {
@@ -780,6 +781,9 @@ void exp_sem_var(element *e) {
           tmp_var = find(e->argslist->list[1].arg.info);
           arg_type = tmp_var->type;
         }
+      }
+      else if(e->argslist->list[1].arg.type == IDENTIFIER && e->argslist->list[1].arg.kwt == NULL_K) {
+        arg_type = kw_to_d_type(e->argslist->list[1].arg.kwt);
       }
       else {
         arg_type = token_to_d_type(e->argslist->list[1].arg.type);
@@ -858,24 +862,37 @@ void exp_sem_var(element *e) {
         arg_type = D_STRING;
       }
       else {
-        if(find_fce(e->argslist->list[i].arg.info) == NULL) {
-          printf("Error, neexistujuca funkcia\n");
-        }
-        else {
-
+        if(find_fce(e->argslist->list[i].arg.info) != NULL) {
           curr_fce = find_fce(e->argslist->list[i].arg.info);
           arg_type = curr_fce->return_type;
         }
-        
+        else {
+          int index = getListIndex();
+          arg_type = find_in_list(&(*e->argslist->list[i].arg.info));
+          //printf("do arg type pride %d\n", arg_type);
+          changeTokenListIndex(index);
+
+          if(arg_type == D_NON) {
+            printf("Error, neexistujuca funkcia\n");
+          }
+        } 
       }
     }
     else if(e->argslist->list[i].arg.type == RIGHT_BRACKET) {
-      if(in_fce = true) {
+      if(in_fce = true && brc_count == 1) {
         in_fce = false;
       }
+      brc_count--;
+    }
+    else if(e->argslist->list[i].arg.type == LEFT_BRACKET) {
+      brc_count++;
     }
     //todo
     //ak je < ==! == > atd =>error
+    /*else {
+      printf("Error\n");
+    }*/
+    
 
   }
 
@@ -886,34 +903,65 @@ void exp_sem_var(element *e) {
   else {
     insert_first(e->name.info, arg_type);
   }
+
+  Token t;
+  t.isKeyword = true;
+  t.type = IDENTIFIER;
+  t.kwt = d_type_to_kw(arg_type);
+  t.info = d_type_to_info(arg_type);
+  
   arg_type = D_NON;
-  printList();
-  printf("koniec iteracie\n");
+  //printList();
+
+  return t;
 }
 
-void exp_sem_ifwhile(element *e) {
+Token exp_sem_ifwhile(element *e) {
   struct variables* curr;
   struct variables* tmp_var;
+  d_list_types arg_type = D_NON;
   
   for(int i = 0; i < e->argslist->len + 1; i++) {
     //printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
-        //printf("error, nedeklarovana premenna\n");
+        printf("error, nedeklarovana premenna\n");
       }
       else {
         curr = find(e->argslist->list[i].arg.info);
+        if(arg_type == D_NON) {
+          arg_type = curr->type;
+        }
+        else if(arg_type != curr->type) {
+          printf("error v tyoe if/while pre var\n");
+        }
       }
     }
     else if(e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) {
-      if (token_to_d_type(e->argslist->list[i].arg.type) != curr->type) {
-        printf("error nekompatibilna hodnota s datovym typom\n");
+      if(arg_type == D_NON) {
+          arg_type = token_to_d_type(e->argslist->list[i].arg.type);
+        }
+        else if(arg_type != token_to_d_type(e->argslist->list[i].arg.type)) {
+          printf("error v tyoe if/while\n");
+        }
+    }
+    else if(e->argslist->list[i].arg.type == IDENTIFIER) {
+      if(e->argslist->list[i].arg.kwt != NULL_K) {
+        printf("error zly identifier\n");
       }
     }
   }
+
+  Token t;
+  t.isKeyword = true;
+  t.type = IDENTIFIER;
+  t.kwt = INT_K;
+  t.info = "int";
+
+  return t;
 }
 
-void exp_sem_return(element *e) {
+Token exp_sem_return(element *e) {
   struct variables* curr;
   for(int i = 0; i < e->argslist->len; i++) {
     if(e->argslist->list[i].arg.type == VAR_ID) {
@@ -941,17 +989,52 @@ void exp_sem_return(element *e) {
       printf("error, zle pouzitie operatora plus, minus, krat, delene v return\n");
     }
   }
+
+  Token t;
+  t.isKeyword = true;
+  t.type = IDENTIFIER;
+  t.kwt = d_type_to_kw(head_var_fce->return_type);
+  t.info = d_type_to_info(head_var_fce->return_type);
+
+  return t;
 }
 
-/*void  expr_sem_identif(element *e) {
-  printf("tu som\n");
+Token expr_sem_identif(element *e) {
+  struct functions* curr;
+  d_list_types arg_type = D_NON;
+  if(find_fce(e->name.info) != NULL) {
+    curr = find_fce(e->name.info);
+    arg_type = curr->return_type;
+  }
+  else {
+    int index = getListIndex();
+    arg_type = find_in_list(e->name.info);
+    changeTokenListIndex(index);
 
-}*/
+      if(arg_type == D_NON) {
+        printf("Error, neexistujuca funkcia\n");
+      }
+    } 
+    
+
+  Token t;
+  t.isKeyword = true;
+  t.type = IDENTIFIER;
+  t.kwt = d_type_to_kw(arg_type);
+  t.info = d_type_to_info(arg_type);
+  //printf("%s\n", e->name.info);
+  
+}
 
 void exp_sem_func(element *e) {
   in_fce = true;
   d_list_types fce_param_type;
-  insert_first_fce(e->name.info, kw_to_d_type(e->ret_type.kwt));
+  if (e->ret_type.kwt == VOID_K) {
+    insert_first_fce(e->name.info, D_NULL);
+  }
+  else {
+    insert_first_fce(e->name.info, kw_to_d_type(e->ret_type.kwt));
+  }
   
   for(int i = 0; i < e->argslist->len; i++) {
     //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
@@ -960,7 +1043,7 @@ void exp_sem_func(element *e) {
     }
     insert_first(e->argslist->list[i].arg.info, fce_param_type);
   }
-  printList();
+  //printList();
 }
 
 d_list_types kw_to_d_type(int kw_type) {
@@ -971,5 +1054,58 @@ d_list_types kw_to_d_type(int kw_type) {
         return D_STRING;
       case INT_K:
         return D_NUM;
+      case NULL_K:
+        return D_NULL;
       }
 }
+
+d_list_types find_in_list(char *fce_name) {
+  Token t;
+  d_list_types type;
+  while((t=getTokenFromList()).type != EOF_T) {
+    if(t.isKeyword && t.kwt == FUNCTION_K) {
+      t = getTokenFromList();
+      if(strcmp(t.info, fce_name) == 0) {
+        while(t.type != DOUBLE_DOT) {
+          t = getTokenFromList();
+        }
+        t = getTokenFromList();
+        type = kw_to_d_type(t.kwt);
+        return type;
+        break;
+      }
+    }
+  }
+  return D_NON;
+}
+
+KeywordType d_type_to_kw(int d_type) {
+  switch(d_type) {
+    case D_NUM:
+      return INT_K;
+	  case D_DECM_NUM:
+    case D_EXP_NUMB:
+      return FLOAT_K; 
+	  case D_STRING:
+      return STRING_K;
+	  case D_NON:
+      return UNKNOWN_K;
+    case D_NULL:
+      return NULL_K;
+  }
+}
+
+char *d_type_to_info(int d_type) {
+  switch(d_type) {
+    case D_NUM:
+      return "int";
+	  case D_DECM_NUM:
+    case D_EXP_NUMB:
+      return "float"; 
+	  case D_STRING:
+      return "string";
+    case D_NULL:
+      return "null";
+  }
+}
+

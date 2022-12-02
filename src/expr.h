@@ -66,7 +66,8 @@ typedef enum{
 	D_DECM_NUM, //1 
 	D_EXP_NUMB, //2
 	D_STRING, //3
-	D_NON
+	D_NULL, //4
+	D_NON //5
 } d_list_types;
 
 struct variables {
@@ -98,10 +99,11 @@ void greater(struct stack_t *stack);
 
 void printstack(struct stack_t *stack);
 
-void exp_sem_var(element *e);
+Token exp_sem_var(element *e);
 void exp_sem_func(element *e);
-void exp_sem_return(element *e);
-void exp_sem_ifwhile(element *e);
+Token exp_sem_return(element *e);
+Token exp_sem_ifwhile(element *e);
+Token expr_sem_identif(element *e);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
@@ -110,6 +112,9 @@ struct variables* delete(char *key);
 void printList(); 
 d_list_types token_to_d_type(int d_type);
 d_list_types kw_to_d_type(int kw_type);
+d_list_types find_in_list(char *fce_name);
+KeywordType d_type_to_kw(int d_type);
+char *d_type_to_info(int d_type);
 
 void insert_first_fce(char *data, d_list_types d_type);
 struct functions* delete_fce(char *key);

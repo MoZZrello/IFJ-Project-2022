@@ -574,7 +574,8 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
-    exp_sem_return(&e); 
+    e.expr = exp_sem_return(&e); 
+    
     return e;
 }
 
@@ -607,7 +608,7 @@ element sem_if_while(){
             argsCount++;
         }
     }
-    exp_sem_ifwhile(&e); 
+    e.expr = exp_sem_ifwhile(&e); 
     return e;
 }
 
@@ -649,7 +650,7 @@ element sem_var(){
             argsCount++;           
         }
     }
-    exp_sem_var(&e);  
+    e.expr = exp_sem_var(&e);  
     return e;
 }
 
@@ -682,7 +683,7 @@ element sem_identif(){
             argsCount++;
         }
     }
-    //expr_sem_identif(&e); 
+    e.expr = expr_sem_identif(&e);
     return e;
 }
 
