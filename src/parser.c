@@ -289,7 +289,7 @@ void ret_type() {
     }
 }
 
-//moze byt navratovy typ funkcie null?
+//moze byt navratovy typ funkcie null? todo ano moze
 void data_type() {
     //printf("data type je %s %s\n", getTypeName(token), token.info);
     if(strcmp(token.info, "void") == 0) {
@@ -689,7 +689,7 @@ element sem_identif(){
 
 void semControl(ht_table_t *table, int key){
     progdata data;
-    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;cbr;";
+    char funcChar[75] = "reads;readi;readf;write;floatval;intval;strval;strlen;substring;ord;chr;";
     bool functions_defined = false;
 
     data.returned = false;
@@ -901,7 +901,7 @@ void see_call_defined(ht_table_t *table, element call){
 }
 
 void see_call_arguments(element func, element call){
-    char funcChar[50] = "reads;readi;readf;write;strlen;substring;ord;chr;";
+    char funcChar[75] = "reads;readi;readf;write;floatval;intval;strval;strlen;substring;ord;chr;";
     if(strstr(funcChar, call.name.info) == NULL){ // defined in program
         if(func.argslist->len != call.argslist->len){
             callError(ERR_SEM_ARGS);
