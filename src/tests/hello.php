@@ -9,8 +9,8 @@ function hlavni_program(?int $year) : float {
 }
 
 function pohlavni_program(string $month) : void {
-  $var = $month + 1;
-  write("Hello from IFJ", $year, "\n");
+  $var = $month;
+  write("Hello from IFJ", $var, "\n");
   return;
 }
 

@@ -820,18 +820,17 @@ void semControl(ht_table_t *table, int key){
 }
 
 void check_sem_return(element func_e, element ret_e){
-    if((func_e.ret_type.kwt == STRING_K && ret_e.argslist->list[0].arg.type == STRING) ||
-       (func_e.ret_type.kwt == VOID_K && ret_e.argslist->list[0].arg.type == SEMICOLON) ||
-       (func_e.ret_type.canBeNull && ret_e.argslist->list[0].arg.kwt == NULL_K)){
+    if((func_e.ret_type.kwt == STRING_K && ret_e.expr.kwt == STRING_K) ||
+       (func_e.ret_type.kwt == VOID_K && ret_e.expr.kwt == NULL_K) ||
+       (func_e.ret_type.canBeNull && ret_e.expr.kwt == NULL_K)){
         return;
-    } else if (func_e.ret_type.kwt == INT_K && ret_e.argslist->list[0].arg.type == NUMBER){
+    } else if (func_e.ret_type.kwt == INT_K && ret_e.expr.kwt == INT_K){
         if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
             return;
         } else {
             callError(ERR_SEM_ARGS);
         }
-    } else if (func_e.ret_type.kwt == FLOAT_K &&
-                (ret_e.argslist->list[0].arg.type == DECIMAL_NUMBER || ret_e.argslist->list[0].arg.type == EXPONENT_NUMBER)){
+    } else if (func_e.ret_type.kwt == FLOAT_K && ret_e.expr.kwt == FLOAT_K){
         if(strchr(ret_e.argslist->list->arg.info, '.') != NULL){
             return;
         } else {
@@ -845,7 +844,11 @@ void check_sem_return(element func_e, element ret_e){
 //todo expression return in global
 void check_global_return(element ret_e){
     if(ret_e.argslist == NULL || ret_e.argslist->len == 1){
-        return;
+        if(ret_e.expr.isKeyword && ret_e.expr.kwt == INT_K){
+            return;
+        } else {
+            callError(ERR_SEM_RETURN);
+        }
     } else {
         callError(ERR_SEM_RETURN);
     }

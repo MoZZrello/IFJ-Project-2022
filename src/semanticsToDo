@@ -2,7 +2,7 @@ DONE - undefined function                                         - 3
 DONE - function redefinition                                      - 3
 DONE - wrong number of arguments on func call                     - 4
 DONE - wrong type of arguments on func call                       - 4 (without expr)
-DONE - wrong return type on func                                  - 4 (without expr)
+DONE - wrong return type on func                                  - 4
        undefined variable                                         - 5
 DONE - missing or wrong number of return args in return           - 6
        incompatible expr types in expr                            - 7

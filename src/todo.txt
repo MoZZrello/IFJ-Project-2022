@@ -9,19 +9,11 @@ semControl zmenit elementList na hashtable data - by Riso
 80% semantika done - by Riso
 syntactic - by Terka a Jasmi
 
+BETWEEN:
+Dokumentacia - Jasmi
+Return mainu expr - Terka
+
 NEXT:
 1. expression na dokoncenie semantiky - Terka
 2. dokoncit semantiku s expressions - Riso
 3. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso, Mareks
-
-1. Zapíšem si aktuálny index list pomocou funkcie getListIndex()
-2. while(t = getTokenFromList()){
-    if(t.isKeyword && t.kwt == FUNCTION_K){
-        t = getTokenFromList();
-        strcmp(t.info, "nazov hladanej funkcie") == 0
-    }
-}
-3. while do dvojbodky
-4. ulozim typ za nou
-5. vratim index pomocou changeTokenListIndex();
-6. ak nenajdem, call error ERR_SEM_FUNC
