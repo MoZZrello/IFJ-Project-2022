@@ -17,17 +17,18 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 }
 
 //generator celeho kodu
-void gen_program(ht_table_t *table, int key){
+void gen_program(ht_table_t *table, int no_build_in_func){
     start_program();
-    gen_built_in_functions(table, key);
-    gen_function(table, key);
-    gen_main(table, key);
+    gen_function(table);
+    gen_main(table);
+    gen_built_in_functions(table, no_build_in_func);
 }
 
 void start_program(){
     PRINT_LANE_ZERO_ARG(".IFJcode22");
     PRINT_LANE_ONE_ARG("JUMP", "$main");
 }
+
 void gen_built_in_functions(ht_table_t *table, int key){
     bool reads = true, readi = true, readf = true, write = true, floatval = true, intval = true, strval = true;
     bool strlen = true, substring = true, ord = true, chr = true;
@@ -38,24 +39,9 @@ void gen_built_in_functions(ht_table_t *table, int key){
         sprintf(index,
         "%d", i);
         e = ht_get(table, index);
-        if(e->argslist != NULL) {
-            if(e->name.type == IDENTIFIER) {
-                if (strcmp(e->name.info, "reads") == 0) {
-                    if (reads) {
-                        func_reads();
-                        reads = false;
-                    }
-                } else if (strcmp(e->name.info, "readi") == 0) {
-                    if (readi) {
-                        func_readi();
-                        readi = false;
-                    }
-                } else if (strcmp(e->name.info, "readf") == 0) {
-                    if (readf) {
-                        func_readf();
-                        readf = false;
-                    }
-                }else if(strcmp(e->name.info, "write") == 0){
+        if(e->name.type == IDENTIFIER) {
+            if(e->argslist != NULL) {
+                if(strcmp(e->name.info, "write") == 0){
                     if(write){
                         func_write();
                         write = false;
@@ -80,7 +66,7 @@ void gen_built_in_functions(ht_table_t *table, int key){
                         func_strlen();
                         strlen = false;
                     }
-                }else if(strcmp(e->name.info, "susbstring") == 0) {
+                }else if(strcmp(e->name.info, "substring") == 0) {
                     if (substring) {
                         func_substring();
                         substring = false;
@@ -96,22 +82,41 @@ void gen_built_in_functions(ht_table_t *table, int key){
                         chr = false;
                     }
                 }
+            }else{
+                if (strcmp(e->name.info, "reads") == 0) {
+                    if (reads) {
+                        func_reads();
+                        reads = false;
+                    }
+                } else if (strcmp(e->name.info, "readi") == 0) {
+                    if (readi) {
+                        func_readi();
+                        readi = false;
+                    }
+                } else if (strcmp(e->name.info, "readf") == 0) {
+                    if (readf) {
+                        func_readf();
+                        readf = false;
+                    }
+                }
             }
         }
     }
 }
-//funckia na generovanie celej funkcii
 
 //---------------------------------------FUNCTIONS-------------------------------------------------//
 
-void gen_function(ht_table_t *table, int key){
+//funckia na generovanie celej funkcii
+void gen_function(ht_table_t *table){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
     bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
-
-    for(int i = 0; i < key; i++){
+    element* e = NULL;
+    int i = 0;
+    while(!0){
         char func[MAX_HT_SIZE];
-        sprintf(func, "%d", i);
-        element* e = ht_get(table, func);
+        sprintf(func, "%d", i++);
+        e = ht_get(table, func);
+        if(e == NULL)break;
 
         if(e->ret_type.type != ERROR_T){
                 def_func_arg_print(e);//print arg of functions
@@ -124,16 +129,16 @@ void gen_function(ht_table_t *table, int key){
             continue;
         //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
-            PRINT_LANE_ZERO_ARG("POPFRAME");
-            PRINT_LANE_ZERO_ARG("RETURN");
             is_end = true;
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            gen_call_func(table, *e, key);
+            gen_call_func(table, *e);
             def_func_main_print(e);
         }
     }
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
     printf("\n");
 }
 
@@ -171,13 +176,14 @@ void def_func_main_print(element* e){
 }
 
 //push arg to stuck and call functions
-void gen_call_func(ht_table_t *table, element call, int key){
+void gen_call_func(ht_table_t *table, element call){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     char* print = NULL;
+    int i = 0;
 
-    for(int i=0; i < key; i++){
-        sprintf(index, "%d", i);
+    while (!0){
+        sprintf(index, "%d", i++);
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
 
@@ -204,7 +210,7 @@ void gen_call_func(ht_table_t *table, element call, int key){
     }
 
 }
-
+//call functions
 void func_call(char* call){
     char final[500];
     snprintf(final, sizeof final, "$%s", call);
@@ -213,20 +219,23 @@ void func_call(char* call){
 
 //---------------------------------------MAIN-----------------------------------------------------//
 
-void gen_main(ht_table_t *table, int key){
+void gen_main(ht_table_t *table){
     bool inFunction = false;
     int curly = 0;
+    int i = 0;
+    char index[MAX_HT_SIZE];
+
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
-    char index[MAX_HT_SIZE];
-    for(int i=0; i < key; i++){
+    while(!0){
         element* e = NULL;
-        sprintf(index, "%d", i);
+        sprintf(index, "%d", i++);
         e = ht_get(table, index);
+        if(e == NULL){break;}
         if(e->name.type == IDENTIFIER){
             if(e->ret_type.type == ERROR_T) {
                 if(inFunction == false) {
-                    gen_call_func(table, *e, key);
+                    gen_call_func(table, *e);
                 }
             } else {
                 inFunction = true;
@@ -290,10 +299,10 @@ char *retype_arg_for_func(arg arg){
     return final_arg;
 }
 
-//Vstavane funkcie
+//---------------------------------------BUILD-IN FUNCTINOS---------------------------------------//
 
 void func_reads(){
-    printf("\n#ZACALA  FUNKCIA READS !\n");
+    printf("\n#ZACALA FUNKCIA READS !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -307,7 +316,7 @@ void func_reads(){
 }
 
 void func_readi(){
-    printf("\n#ZACALA  FUNKCIA READI !\n");
+    printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -322,7 +331,7 @@ void func_readi(){
 }
 
 void func_readf(){
-    printf("\n#ZACALA  FUNKCIA READF !\n");
+    printf("\n#ZACALA FUNKCIA READF !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -338,7 +347,7 @@ void func_readf(){
 
 //na stack to co chceme precitat
 void func_write(){
-    printf("\n#ZACALA  FUNKCIA WRITE !\n");
+    printf("\n#ZACALA FUNKCIA WRITE !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$write");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -362,7 +371,7 @@ void func_write(){
 
 //na stack treba dat INT a funkcia vrati FLOAT
 void func_floatval(){
-    printf("\n#ZACALA  FUNKCIA FLOATVAL !\n");
+    printf("\n#ZACALA FUNKCIA FLOATVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
@@ -378,7 +387,7 @@ void func_floatval(){
 
 //na stack treba dat FLOAT a funckia vrati INT
 void func_intval(){
-    printf("\n#ZACALA  FUNKCIA INTVAL !\n");
+    printf("\n#ZACALA FUNKCIA INTVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
@@ -394,7 +403,7 @@ void func_intval(){
 
 //na stack string a ona vrati bud string alebo null string
 void func_strval(){
-    printf("\n#ZACALA  FUNKCIA STRVAL !\n");
+    printf("\n#ZACALA FUNKCIA STRVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
@@ -414,7 +423,7 @@ void func_strval(){
 
 //na stack treba dat string a funckia vrati jeho dlzku
 void func_strlen(){
-    printf("\n#ZACALA  FUNKCIA STRLEN !\n");
+    printf("\n#ZACALA FUNKCIA STRLEN !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
@@ -427,7 +436,7 @@ void func_strlen(){
 
 //na stack v poradi treba dat ->string, start_index (i), end_index (j) ... funkcia vrati string medzi tymito indexami
 void func_substring(){
-    printf("\n#ZACALA  FUNKCIA SUBSTRING !\n");
+    printf("\n#ZACALA FUNKCIA SUBSTRING !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
@@ -490,7 +499,7 @@ void func_substring(){
 
 //na stack string a funkia vracia INT hodnotu prveho znaku stringu
 void func_ord(){
-    printf("\n#ZACALA  FUNKCIA ORD !\n");
+    printf("\n#ZACALA FUNKCIA ORD !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
@@ -514,7 +523,7 @@ void func_ord(){
 
 //na stack treba dat INT a funkcia vrati charakter v prislunom indexe ASCII
 void func_chr(){
-    printf("\n#ZACALA  FUNKCIA CHR !\n");
+    printf("\n#ZACALA FUNKCIA CHR !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");

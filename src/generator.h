@@ -60,19 +60,19 @@ void PRINT_LANE_ONE_ARG(char* name, char* arg1);
  */
 void PRINT_LANE_ZERO_ARG(char* name);
 
-void gen_program(ht_table_t *table, int key);
+void gen_program(ht_table_t *table, int no_build_in_func);
 
 void start_program();
 
 //function
-void gen_function(ht_table_t *table, int key);
+void gen_function(ht_table_t *table);
 void def_func_arg_print(element* e);
 void def_func_main_print(element* e);
 void func_call(char* call);
 
 //main
-void gen_main(ht_table_t *table, int key);
-void gen_call_func(ht_table_t *table, element call, int key);
+void gen_main(ht_table_t *table);
+void gen_call_func(ht_table_t *table, element call);
 char *retype_arg_for_func(arg arg);
 
 //Vstavane funckie
