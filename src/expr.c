@@ -4,6 +4,7 @@
 
 #define SIZE 17
 bool rdc = false;
+bool fce = false;
 struct variables *head_var = NULL;
 struct variables *current = NULL;
 struct functions *head_var_fce = NULL;
@@ -575,16 +576,14 @@ void insert_first(char *data, d_list_types d_type) {
 }
 
 //delete first item
-struct variables* deleteFirst() {
+void deleteFirst() {
+   struct variables *tmp;
+   if(head_var == NULL) {
+    return; //todo error list is empty
+   }
 
-   //save reference to first link
-   struct variables *tempLink = head_var;
-	
-   //mark next to first link as first 
+   tmp = head_var;
    head_var = head_var->next;
-	
-   //return the deleted link
-   return tempLink;
 }
 
 //find a link with given key
@@ -764,6 +763,14 @@ Token exp_sem_var(element *e, bool in_func) {
   int brc_count;
   bool fce_call = false;
 
+  if(in_func == false && fce == true) {
+    while (head_var->type != D_NON) {
+      deleteFirst();
+    }
+    deleteFirst();
+    fce = false;
+  }
+
   //ak je premenna neexistuje, a dlzka arg listu je 1, ulozim a typ je priradeny prva hodnota
   if((find(e->name.info)) == NULL && e->argslist->len == 1) {
     if(e->argslist->list[1].arg.type == VAR_ID) {
@@ -938,7 +945,7 @@ Token exp_sem_var(element *e, bool in_func) {
 
   }
 
-  if(find(e->name.info) != NULL) {
+  if(find(e->name.info) != NULL && in_func == false) {
     delete(e->name.info); //ak uz existuje zmazem a prepisem novym
     insert_first(e->name.info, arg_type);
   }
@@ -1170,6 +1177,7 @@ Token exp_sem_return(element *e, bool in_func) {
 
 void exp_sem_func(element *e) {
   d_list_types fce_param_type;
+  fce = true;
   if (e->ret_type.kwt == VOID_K) {
     insert_first_fce(e->name.info, D_NULL, e->nullRet);
   }
@@ -1177,13 +1185,13 @@ void exp_sem_func(element *e) {
     insert_first_fce(e->name.info, kw_to_d_type(e->ret_type.kwt), e->nullRet);
   }
   
+  insert_first("start", D_NON);
   for(int i = 0; i < e->argslist->len; i++) {
     //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
     if(e->argslist->list[i].type.isKeyword) {
       fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
     }
     insert_first(e->argslist->list[i].arg.info, fce_param_type);
-    insert_first("start", D_NON);
   }
   //printList();
 }

@@ -106,7 +106,8 @@ Token exp_sem_return(element *e, bool in_func);
 Token exp_sem_ifwhile(element *e, bool in_func);
 
 void insert_first(char *data, d_list_types d_type);
-struct variables* deleteFirst();
+//struct variables* deleteFirst();
+void deleteFirst();
 struct variables* find(char *key);
 struct variables* delete(char *key);
 void printList(); 
