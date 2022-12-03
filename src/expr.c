@@ -9,8 +9,6 @@ struct variables *current = NULL;
 struct functions *head_var_fce = NULL;
 struct functions *current_fce = NULL;
 
-bool in_fce = false;
-
 // TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
 				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
@@ -652,13 +650,14 @@ struct variables* delete(char *key) {
    return current;
 }
 
-void insert_first_fce(char *data, d_list_types d_type) {
+void insert_first_fce(char *data, d_list_types d_type, bool null_ret) {
   //create a link
    struct functions *link = (struct functions*) malloc(sizeof(struct functions));
 	
    //link->key = key;
    link->fce_name = data;
    link->return_type = d_type;
+   link->can_be_null = null_ret;
 	
    //point it to old first variables
    link->next = head_var_fce;
@@ -763,10 +762,25 @@ Token exp_sem_var(element *e) {
   struct variables* tmp_var;
   d_list_types arg_type = D_NON;
   int brc_count;
+   bool fce_call = false;
 
   //ak je premenna neexistuje, a dlzka arg listu je 1, ulozim a typ je priradeny prva hodnota
   if((find(e->name.info)) == NULL && e->argslist->len == 1) {
-    arg_type = token_to_d_type(e->argslist->list[1].arg.type);
+    if(e->argslist->list[1].arg.type == VAR_ID) {
+      if(find(e->argslist->list[1].arg.info) == NULL) {
+        printf("error, nedeklarovana premenna\n");
+      }
+      else {
+        tmp_var = find(e->argslist->list[1].arg.info);
+        arg_type = tmp_var->type;
+      }
+    }
+    else if(e->argslist->list[1].arg.type == IDENTIFIER && e->argslist->list[1].arg.kwt == NULL_K) {
+      arg_type = kw_to_d_type(e->argslist->list[1].arg.kwt);
+    }
+    else {
+      arg_type = token_to_d_type(e->argslist->list[1].arg.type);
+    }
   }
   else {
     //skontrolovat ci nie je premennej priradeny iny typ nez predtym, ak ano, ulozim novy
@@ -791,9 +805,8 @@ Token exp_sem_var(element *e) {
     }
   }
 
-  bool fce_call = false;
-
   for(int i = 1; i < e->argslist->len + 1; i++) {
+    //printf("%s %d %d\n", e->name.info, e->argslist->list[i].arg.type, e->argslist->len);
     curr = find(e->name.info);
     if((e->argslist->list[i].arg.type == VAR_ID) && (fce_call == false)) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
@@ -801,20 +814,24 @@ Token exp_sem_var(element *e) {
       }
       else {
         tmp_var = find(e->argslist->list[i].arg.info); //najdem si typ premennej
-        if(arg_type == D_NON) {
+        if(arg_type == D_NON || arg_type == D_NULL) {
           arg_type = tmp_var->type;
         }
         else {
-          if(arg_type != tmp_var->type) {
-            printf("typ je %d", tmp_var->type);
-            printf("error nekompatibilne datove typy vo var_id\n");
+          if(arg_type == D_STRING && (arg_type != tmp_var->type)) {
+            printf("error nekompatibilne datove typy pri cmp\n");
+          }
+          else if(tmp_var->type == D_NUM || tmp_var->type == D_EXP_NUMB ||  tmp_var->type == D_DECM_NUM) {
+            if((arg_type == D_NUM) && (tmp_var->type == D_EXP_NUMB || tmp_var->type == D_DECM_NUM)) {
+              arg_type = D_DECM_NUM;
+            }
+        
           }
         }
-        
       }
-    }
-    else if((e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) && (in_fce = false)) {
-      if(arg_type == D_NON) {
+    } 
+    else if(e->argslist->list[i].arg.type == STRING && fce_call == false) {
+      if(arg_type == D_NON || arg_type == D_NULL) {
           arg_type = token_to_d_type(e->argslist->list[i].arg.type);
         }
         else {
@@ -823,48 +840,72 @@ Token exp_sem_var(element *e) {
           }
         }
     }
-    else if((e->argslist->list[i].arg.type == DOT) && (arg_type != D_STRING)) {
+    else if((e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) && (fce_call == false)) {
+      if(arg_type == D_NON || arg_type == D_NULL) {
+        arg_type = token_to_d_type(e->argslist->list[i].arg.type);
+      }
+      else if((arg_type == D_NUM) && (e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER)) {
+        arg_type = D_DECM_NUM;
+      }
+        
+    }
+    else if((e->argslist->list[i].arg.type == DOT) && (arg_type == D_NUM || arg_type == D_EXP_NUMB || arg_type == D_DECM_NUM)) {
       printf("error, zle pouzitie operatora konk\n");
     }
     else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS || e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (arg_type == D_STRING)) {
       printf("error, zle pouzitie operatora plus, minus, krat, delene\n");
     }
     else if(e->argslist->list[i].arg.type == IDENTIFIER) {
-      fce_call = true;
       if(strcmp(e->argslist->list[i].arg.info, "reads") == 0) {
         arg_type = D_STRING;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "readi") == 0) {
         arg_type = D_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "readf") == 0) {
         arg_type = D_DECM_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "floatval") == 0) {
         arg_type = D_DECM_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "intval") == 0) {
         arg_type = D_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "strval") == 0) {
         arg_type = D_STRING;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "strlen") == 0) {
         arg_type = D_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "substring") == 0) {
         arg_type = D_STRING;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "ord") == 0) {
         arg_type = D_NUM;
+        fce_call = true;
       }
       else if(strcmp(e->argslist->list[i].arg.info, "chr") == 0) {
         arg_type = D_STRING;
+        fce_call = true;
+      }
+      else if(e->argslist->list[i].arg.kwt == NULL_K) {
+        if(arg_type == D_NON) {
+          arg_type = D_NULL;
+        }
       }
       else {
         if(find_fce(e->argslist->list[i].arg.info) != NULL) {
           curr_fce = find_fce(e->argslist->list[i].arg.info);
           arg_type = curr_fce->return_type;
+          fce_call = true;
         }
         else {
           int index = getListIndex();
@@ -875,12 +916,13 @@ Token exp_sem_var(element *e) {
           if(arg_type == D_NON) {
             printf("Error, neexistujuca funkcia\n");
           }
+          fce_call = true;
         } 
       }
     }
     else if(e->argslist->list[i].arg.type == RIGHT_BRACKET) {
-      if(in_fce = true && brc_count == 1) {
-        in_fce = false;
+      if(fce_call == true && brc_count == 1) {
+        fce_call = false;
       }
       brc_count--;
     }
@@ -911,7 +953,8 @@ Token exp_sem_var(element *e) {
   t.info = d_type_to_info(arg_type);
   
   arg_type = D_NON;
-  //printList();
+  printList();
+  printf("koniec iteracie\n");
 
   return t;
 }
@@ -963,30 +1006,76 @@ Token exp_sem_ifwhile(element *e) {
 
 Token exp_sem_return(element *e) {
   struct variables* curr;
+  d_list_types ret_t; 
   for(int i = 0; i < e->argslist->len; i++) {
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
         printf("error, nedeklarovana premenna pri return\n");
       }
       else {
-        //skontrolujem ci vraciam dobry typ
-         curr = find(e->argslist->list[i].arg.info);
-         if(curr->type != head_var_fce->return_type) {
-          printf("error, zly navratovy typ\n");
-         }
-
+        curr = find(e->argslist->list[i].arg.info);
+        if(head_var_fce->return_type == D_DECM_NUM || head_var_fce->return_type == D_NUM) {
+          switch(curr->type) {
+            case D_NUM:
+              break;
+            case D_DECM_NUM:
+              break;
+            case D_EXP_NUMB:
+              break;
+            case D_NULL:
+              if(head_var_fce->can_be_null == false) {
+                printf("error null ako navratovy typ");
+              }
+              break;
+            case D_STRING:
+              printf("error, zly navratovy typ\n");
+            break;
+          }
+        }
+        else if(head_var_fce->return_type == D_STRING) {
+          switch(curr->type) {
+            case D_STRING:
+              break;
+            case D_NULL:
+              if(head_var_fce->can_be_null == false) {
+                printf("error null ako navratovy typ\n");
+              }
+              break;
+            default:
+              printf("error, zly navratovy typ\n");
+            break;
+          }
+        }
       }
+
     }
     else if(e->argslist->list[i].arg.type == STRING || e->argslist->list[i].arg.type == NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER || e->argslist->list[i].arg.type == DECIMAL_NUMBER) {
-      if (token_to_d_type(e->argslist->list[i].arg.type) != head_var_fce->return_type) {
-        printf("error nekompatibilna hodnota s datovym typom v return\n");
+      ret_t = token_to_d_type(e->argslist->list[i].arg.type);
+      if(head_var_fce->return_type == D_DECM_NUM || head_var_fce->return_type == D_NUM) {
+        switch(ret_t) {
+          case D_NUM:
+            break;
+          case D_DECM_NUM:
+            break;
+          case D_EXP_NUMB:
+            break;
+          case D_STRING:
+            printf("error nekompatibilna hodnota s datovym typom v return\n");
+            break;
+        }
       }
     }
-    else if((e->argslist->list[i].arg.type == DOT) && (curr->type != D_STRING)) {
+    else if((e->argslist->list[i].arg.type == DOT) && (head_var_fce->return_type == D_NUM || head_var_fce->return_type == D_EXP_NUMB || head_var_fce->return_type == D_DECM_NUM)) {
       printf("error, zle pouzitie operatora konk v return\n");
     }
     else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS || e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (head_var_fce->return_type == D_STRING)) {
       printf("error, zle pouzitie operatora plus, minus, krat, delene v return\n");
+    }
+    else if(e->argslist->list[i].arg.type == IDENTIFIER && e->argslist->len == 1) {
+      ret_t = kw_to_d_type(e->argslist->list[i].arg.kwt);
+      if(ret_t == D_NULL && head_var_fce->can_be_null != true) {
+        printf("error null nemoze byt ako navratovy typ\n");
+      }
     }
   }
 
@@ -999,41 +1088,13 @@ Token exp_sem_return(element *e) {
   return t;
 }
 
-/*Token expr_sem_identif(element *e) {
-  struct functions* curr;
-  d_list_types arg_type = D_NON;
-  if(find_fce(e->name.info) != NULL) {
-    curr = find_fce(e->name.info);
-    arg_type = curr->return_type;
-  }
-  else {
-    int index = getListIndex();
-    arg_type = find_in_list(e->name.info);
-    changeTokenListIndex(index);
-
-      if(arg_type == D_NON) {
-        printf("Error, neexistujuca funkcia\n");
-      }
-    } 
-    
-
-  Token t;
-  t.isKeyword = true;
-  t.type = IDENTIFIER;
-  t.kwt = d_type_to_kw(arg_type);
-  t.info = d_type_to_info(arg_type);
-  //printf("%s\n", e->name.info);
-  
-}*/
-
 void exp_sem_func(element *e) {
-  in_fce = true;
   d_list_types fce_param_type;
   if (e->ret_type.kwt == VOID_K) {
-    insert_first_fce(e->name.info, D_NULL);
+    insert_first_fce(e->name.info, D_NULL, e->nullRet);
   }
   else {
-    insert_first_fce(e->name.info, kw_to_d_type(e->ret_type.kwt));
+    insert_first_fce(e->name.info, kw_to_d_type(e->ret_type.kwt), e->nullRet);
   }
   
   for(int i = 0; i < e->argslist->len; i++) {

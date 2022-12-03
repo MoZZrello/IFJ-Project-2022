@@ -80,6 +80,7 @@ struct variables {
 struct functions {
    char *fce_name;
    d_list_types return_type;
+   bool can_be_null;
    struct functions *next;
 };
 
@@ -103,7 +104,6 @@ Token exp_sem_var(element *e);
 void exp_sem_func(element *e);
 Token exp_sem_return(element *e);
 Token exp_sem_ifwhile(element *e);
-Token expr_sem_identif(element *e);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
@@ -116,7 +116,7 @@ d_list_types find_in_list(char *fce_name);
 KeywordType d_type_to_kw(int d_type);
 char *d_type_to_info(int d_type);
 
-void insert_first_fce(char *data, d_list_types d_type);
+void insert_first_fce(char *data, d_list_types d_type, bool null_ret);
 struct functions* delete_fce(char *key);
 struct functions* find_fce(char *key);
 void print_list_fce();
