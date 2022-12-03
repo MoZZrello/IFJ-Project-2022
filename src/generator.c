@@ -119,9 +119,10 @@ void gen_function(ht_table_t *table){
         if(e == NULL)break;
 
         if(e->ret_type.type != ERROR_T){
-                def_func_arg_print(e);//print arg of functions
-                is_function = true;
-                is_end = false;
+            def_func_start(e);
+            def_func_arg_print(e);//print arg of functions
+            is_function = true;
+            is_end = false;
             continue;
         }
         //telo funkcie zacina { --preskocim
@@ -143,21 +144,26 @@ void gen_function(ht_table_t *table){
 }
 
 //funckia na printenie zaciatku funkcie
+void def_func_start(element* e ){
+    if(e->argslist != NULL) {
+        printf("\n");
+        printf("#ZACALA NOVA FUNKCIA !!!!!\n");
+        char final[500];
+        snprintf(final, sizeof final, "$%s", e->name.info);
+        PRINT_LANE_ONE_ARG("LABEL", final);
+        PRINT_LANE_ZERO_ARG("CREATEFRAME");
+        PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    }
+}
+
 void def_func_arg_print(element* e){
     if(e->argslist != NULL) {
-    printf("\n");
-    printf("#ZACALA NOVA FUNKCIA !!!!!\n");
-    char final [500];
-    snprintf(final,sizeof final, "$%s", e->name.info );
-    PRINT_LANE_ONE_ARG("LABEL", final );
-    PRINT_LANE_ZERO_ARG("PUSHFRAME");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     char final_var [500];
 
         for (int i = 0; i < e->argslist->len; ++i) {
             memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,
                     strlen(e->argslist->list[i].arg.info));
-            snprintf(final_var, sizeof final_var, "TF@%s", e->argslist->list[i].arg.info);
+            snprintf(final_var, sizeof final_var, "LF@%s", e->argslist->list[i].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", final_var);
             PRINT_LANE_ONE_ARG("POPS", final_var);
         }
@@ -197,6 +203,7 @@ void gen_call_func(ht_table_t *table, element call){
                         }
                     }
                     func_call(call.name.info);
+                    //def_func_arg_print(&call);
                 }
             }
         }
@@ -208,7 +215,6 @@ void gen_call_func(ht_table_t *table, element call){
     }else if (strcmp(call.name.info, "readf") == 0){
         func_call(call.name.info);
     }
-
 }
 //call functions
 void func_call(char* call){
@@ -294,6 +300,14 @@ char *retype_arg_for_func(arg arg){
         strcpy(final_arg, "string@");
         memmove(arg.arg.info, arg.arg.info-1, strlen(arg.arg.info));
         memmove(arg.arg.info, arg.arg.info+2, strlen(arg.arg.info));
+        strcat(final_arg, arg.arg.info);
+    }else if(arg.arg.type == VAR_ID){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+        if(final_arg == NULL){
+            callError(ERR_INTERNAL);
+        }
+        strcpy(final_arg, "LF@");
+        memmove(arg.arg.info, arg.arg.info+1, strlen(arg.arg.info));
         strcat(final_arg, arg.arg.info);
     }
     return final_arg;
