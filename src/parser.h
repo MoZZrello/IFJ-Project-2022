@@ -57,12 +57,14 @@ element sem_if_while(bool in_fce);
 element sem_else();
 element sem_var(bool in_fce);
 element sem_identif();
+void check_args_name(element e);
 void semControl(ht_table_t *table, int key);
 void check_sem_return(element func_e, element ret_e);
 void check_global_return(element ret_e);
 void check_defined_functions(progdata data, char* name);
-void see_call_defined(ht_table_t *table, element call);
-void see_call_arguments(element func, element call);
+void see_call_defined(ht_table_t *table, element call, int key);
+void see_call_arguments(ht_table_t *table, element func, element call, int key);
+Token get_variable(ht_table_t *table, element* e, Token var, int key);
 
 
 #endif //IFJ_PROJECT_2022_PARSER_H

@@ -8,10 +8,10 @@ zmenit !strcmp na strcmp == 0 - by Riso
 semControl zmenit elementList na hashtable data - by Riso
 80% semantika done - by Riso
 syntactic - by Terka a Jasmi
+Return mainu expr - Terka
 
 BETWEEN:
 Dokumentacia - Jasmi
-Return mainu expr - Terka
 
 NEXT:
 1. expression na dokoncenie semantiky - Terka

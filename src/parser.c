@@ -535,7 +535,8 @@ element sem_func(){
         e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
-    exp_sem_func(&e); 
+    exp_sem_func(&e);
+    check_args_name(e);
     return e;
 }
 
@@ -689,14 +690,34 @@ element sem_identif(){
         }
         previousTokenListIndex();
         while ((t = getTokenFromList()).type != RIGHT_BRACKET) {
-            e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
-            e.argslist->list[argsCount].arg = t;
-            e.argslist->len = argsCount+1;
-            argsCount++;
+            if(t.type != COMMA){
+                e.argslist->list = realloc(e.argslist->list, sizeof(arg) * (argsCount + 1));
+                e.argslist->list[argsCount].arg = t;
+                e.argslist->len = argsCount+1;
+                argsCount++;
+            }
         }
     }
     //e.expr = expr_sem_identif(&e);
     return e;
+}
+
+void check_args_name(element e){
+    if(e.argslist == NULL){
+        return;
+    }
+
+    for(int i = 0;i < e.argslist->len; i++){
+        int j = e.argslist->len-1;
+        while(j != 0){
+            if(i != j){
+                if(strcmp(e.argslist->list[i].arg.info, e.argslist->list[j].arg.info) == 0) {
+                    callError(ERR_SEM_OTHER);
+                }
+            }
+            j--;
+        }
+    }
 }
 
 void semControl(ht_table_t *table, int key){
@@ -785,7 +806,7 @@ void semControl(ht_table_t *table, int key){
                 lc[lcIndex++] = ELSE;
                 data.inElse++;
             } else { // function calls
-                see_call_defined(table, *e);
+                see_call_defined(table, *e, i);
             }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             if (data.inFunction){
@@ -888,7 +909,7 @@ void check_defined_functions(progdata data, char* name){
     }
 }
 
-void see_call_defined(ht_table_t *table, element call){
+void see_call_defined(ht_table_t *table, element call, int key){
     int i = 0;
     bool defined = false;
     char index[MAX_HT_SIZE];
@@ -896,7 +917,7 @@ void see_call_defined(ht_table_t *table, element call){
     element* definition_e = NULL;
 
     while(!0){
-        sprintf(index, "%d", i++);
+        sprintf(index, "%d", i);
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
 
@@ -906,18 +927,36 @@ void see_call_defined(ht_table_t *table, element call){
                 defined = true;
             }
         }
+        i++;
     }
     if(defined){
-        see_call_arguments(*definition_e, call);
+        see_call_arguments(table, *definition_e, call, key);
     } else {
         // undefined function called
         callError(ERR_SEM_FUNC);
     }
 }
 
-void see_call_arguments(element func, element call){
+void see_call_arguments(ht_table_t *table, element func, element call, int key){
     char funcChar[75] = "reads;readi;readf;write;floatval;intval;strval;strlen;substring;ord;chr;";
-    if(strstr(funcChar, call.name.info) == NULL){ // defined in program
+    char* one_func;
+    one_func = malloc(sizeof(char) * (int) strlen(funcChar));
+    bool new = true;
+
+    for(int i = 0; i < strlen(funcChar); i++){
+        int one_func_index = 0;
+        while(funcChar[i] != ';'){
+            one_func[one_func_index++] = funcChar[i];
+            i++;
+        }
+        one_func[one_func_index] = '\0';
+        if(strcmp(one_func, call.name.info) == 0){
+            new = false;
+        }
+    }
+    free(one_func);
+
+    if(new == true){ // defined in program
         if(func.argslist->len != call.argslist->len){
             callError(ERR_SEM_ARGS);
         }
@@ -946,23 +985,131 @@ void see_call_arguments(element func, element call){
             }
         } else if(strcmp(call.name.info, "strlen") == 0 ||
                   strcmp(call.name.info, "ord") == 0){
-            if(call.argslist->len != 1 ||
+            if(call.argslist == NULL){
+                callError(ERR_SEM_ARGS);
+            }
+            if(call.argslist->list[0].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[0].arg, key);
+                if(var.isKeyword == false && var.kwt != STRING_K){
+                    callError(ERR_SEM_ARGS);
+                }
+            } else if(call.argslist->len != 1 ||
                call.argslist->list[0].arg.type != STRING){
                 callError(ERR_SEM_ARGS);
             }
+
+        } else if(strcmp(call.name.info, "floatval") == 0 ||
+                strcmp(call.name.info, "intval") == 0){
+            if(call.argslist == NULL){
+                callError(ERR_SEM_ARGS);
+            }
+            if(call.argslist->list[0].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[0].arg, key);
+                if(var.isKeyword == false || (var.kwt != INT_K && var.kwt != FLOAT_K && var.kwt != NULL_K)){
+                    callError(ERR_SEM_ARGS);
+                }
+            } else if(call.argslist->len != 1 ||
+                (call.argslist->list[0].arg.type != NUMBER &&
+                call.argslist->list[0].arg.type != EXPONENT_NUMBER &&
+                call.argslist->list[0].arg.type != DECIMAL_NUMBER &&
+                call.argslist->list[0].arg.kwt != NULL_K)){
+                    callError(ERR_SEM_ARGS);
+            }
+        } else if(strcmp(call.name.info, "strval") == 0){
+            if(call.argslist == NULL){
+                callError(ERR_SEM_ARGS);
+            }
+            if(call.argslist->list[0].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[0].arg, key);
+                if(var.isKeyword == false || (var.kwt != STRING_K && var.kwt != NULL_K)){
+                    callError(ERR_SEM_ARGS);
+                }
+            } else if(call.argslist->len != 1 ||
+                    (call.argslist->list[0].arg.type != STRING &&
+                    call.argslist->list[0].arg.kwt != NULL_K)){
+                callError(ERR_SEM_ARGS);
+            }
         } else if(strcmp(call.name.info, "substring") == 0){
+            bool first = false, second = false, third = false;
+            if(call.argslist == NULL){
+                callError(ERR_SEM_ARGS);
+            }
+            if(call.argslist->list[0].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[0].arg, key);
+                if(var.isKeyword == false || var.kwt != STRING_K){
+                    callError(ERR_SEM_ARGS);
+                }
+                first = true;
+            }
+            if(call.argslist->list[1].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[1].arg, key);
+                if(var.isKeyword == false || var.kwt != INT_K){
+                    callError(ERR_SEM_ARGS);
+                }
+                second = true;
+            }
+            if(call.argslist->list[2].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[2].arg, key);
+                if(var.isKeyword == false || var.kwt != INT_K){
+                    callError(ERR_SEM_ARGS);
+                }
+                third = true;
+            }
             if(call.argslist->len != 3 ||
-               call.argslist->list[0].arg.type != STRING ||
-               call.argslist->list[1].arg.type != NUMBER ||
-               call.argslist->list[2].arg.type != NUMBER){
+                     ((call.argslist->list[0].arg.type != STRING  && first == false) ||
+                     (call.argslist->list[1].arg.type != NUMBER && second == false ) ||
+                     (call.argslist->list[2].arg.type != NUMBER && third == false))){
                 callError(ERR_SEM_ARGS);
             }
         } else if(strcmp(call.name.info, "chr") == 0){
-            if(call.argslist->len != 1 ||
+            if(call.argslist == NULL){
+                callError(ERR_SEM_ARGS);
+            }if(call.argslist->list[0].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[0].arg, key);
+                if(var.isKeyword == false || var.kwt != INT_K){
+                    callError(ERR_SEM_ARGS);
+                }
+            } else if(call.argslist->len != 1 ||
                call.argslist->list[0].arg.type != NUMBER){
                 callError(ERR_SEM_ARGS);
             }
         }
     }
     //printf("%s|%s\n", func.name.info, call.name.info);
+}
+
+Token get_variable(ht_table_t *table, element* e, Token var, int key){
+    int i = 0, curly = 0;
+    bool inFunction = false;
+    char index[MAX_HT_SIZE];
+    element* compare_e = NULL;
+    element* definition_e = NULL;
+    Token retToken;
+
+    while(!0){
+        sprintf(index, "%d", i++);
+        compare_e = ht_get(table, index);
+        if((i-1) == key) break;
+
+        if (compare_e->ret_type.type != ERROR_T){
+            inFunction = true;
+            retToken = getEmptyToken();
+        } else if (compare_e->name.type == VAR_ID){
+            if(strcmp(compare_e->name.info, var.info) == 0){
+                retToken = compare_e->expr;
+            }
+        } else if (compare_e->name.type == LEFT_CURLY_BRACKET){
+            curly++;
+        } else if (compare_e->name.type == RIGHT_CURLY_BRACKET){
+            curly--;
+            if(curly == 0){
+                inFunction = false;
+                retToken = getEmptyToken();
+            }
+        }
+    }
+    if(retToken.type == ERROR_T){
+        callError(ERR_SEM_VAR);
+    }
+    return retToken;
 }

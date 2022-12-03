@@ -8,14 +8,20 @@ function hlavni_program(?int $year) : float {
   return 1.1 + 1;
 }
 
-function pohlavni_program(string $month) : void {
+function pohlavni_program(string $month, int $year) : void {
   $var = $month;
   write("Hello from IFJ", $var, "\n");
   return;
 }
 
+
+$tmp = "ab";
+$tmp2 = 1;
+
 reads();
-strlen("yes");
+floatval($tmp2);
+strlen($tmp);
+substring($tmp, $tmp2, 3);
 hlavni_program(22);
 hlavni_program(23); // pozdrav z budoucnosti
 ?>
