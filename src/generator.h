@@ -75,6 +75,7 @@ void gen_call_arg(ht_table_t *table, element call, int key);
 char *retype_arg_for_func(arg arg);
 
 //Vstavane funckie
+void gen_built_in_functions(ht_table_t *table, int key);
 void func_reads();      //done I guess
 void func_readi();      //done I guess
 void func_readf();      //done I guess
