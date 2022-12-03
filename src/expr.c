@@ -960,14 +960,16 @@ Token exp_sem_var(element *e, bool in_func) {
   t.info = d_type_to_info(arg_type);
   
   arg_type = D_NON;
-  printList();
-  printf("koniec iteracie\n");
+  //printList();
+  //printf("koniec iteracie\n");
 
   return t;
 }
 
 Token exp_sem_ifwhile(element *e, bool in_func) {
   struct variables* curr;
+  struct functions* curr_fce;
+
   struct variables* tmp_var;
   d_list_types arg_type = D_NON;
   
@@ -977,7 +979,7 @@ Token exp_sem_ifwhile(element *e, bool in_func) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
         printf("error, nedeklarovana premenna\n");
       }
-      else {
+      /*else {
         curr = find(e->argslist->list[i].arg.info);
         if(arg_type == D_NON) {
           arg_type = curr->type;
@@ -998,7 +1000,7 @@ Token exp_sem_ifwhile(element *e, bool in_func) {
     else if(e->argslist->list[i].arg.type == IDENTIFIER) {
       if(e->argslist->list[i].arg.kwt != NULL_K) {
         printf("error zly identifier\n");
-      }
+      }*/
     }
   }
 
