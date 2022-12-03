@@ -362,21 +362,21 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
                 case IF_K:
                     data = realloc(data, sizeof(element)*(key+1));
                     sprintf( func,"%d", key);
-                    data[key] = sem_if_while();
+                    data[key] = sem_if_while(inFunction);
                     ht_insert(table, func, &data[key]);
                     key++;
                     break;
                 case RETURN_K:
                     data = realloc(data, sizeof(element)*(key+1));
                     sprintf( func,"%d", key);
-                    data[key] = sem_return();
+                    data[key] = sem_return(inFunction);
                     ht_insert(table, func, &data[key]);
                     key++;
                     break;
                 case WHILE_K:
                     data = realloc(data, sizeof(element)*(key+1));
                     sprintf( func,"%d", key);
-                    data[key] = sem_if_while();
+                    data[key] = sem_if_while(inFunction);
                     ht_insert(table, func, &data[key]);
                     key++;
                     break;
@@ -391,7 +391,7 @@ ht_table_t* sortSem(ht_table_t *table, int *retKey){
         } else if(t.type == VAR_ID){
             data = realloc(data, sizeof(element)*(key+1));
             sprintf( func,"%d", key);
-            data[key] = sem_var();
+            data[key] = sem_var(inFunction);
             ht_insert(table, func, &data[key]);
             key++;
             previousTokenListIndex();
@@ -539,7 +539,7 @@ element sem_func(){
     return e;
 }
 
-element sem_return(){
+element sem_return(bool in_fce){
     previousTokenListIndex();
     Token t = getTokenFromList();
     int argsCount = 0;
@@ -586,12 +586,12 @@ element sem_return(){
         e.argslist->list[argsCount].arg = t;
         e.argslist->len++;
     }
-    e.expr = exp_sem_return(&e); 
+    e.expr = exp_sem_return(&e, in_fce); 
     
     return e;
 }
 
-element sem_if_while(){
+element sem_if_while(bool in_fce){
     previousTokenListIndex();
     Token t = getTokenFromList();
     element e;
@@ -620,7 +620,7 @@ element sem_if_while(){
             argsCount++;
         }
     }
-    e.expr = exp_sem_ifwhile(&e); 
+    e.expr = exp_sem_ifwhile(&e, in_fce); 
     return e;
 }
 
@@ -634,7 +634,7 @@ element sem_else(){
     return e;
 }
 
-element sem_var(){
+element sem_var(bool in_fce){
     previousTokenListIndex();
     Token t = getTokenFromList();
     element e;
@@ -662,7 +662,7 @@ element sem_var(){
             argsCount++;           
         }
     }
-    e.expr = exp_sem_var(&e);  
+    e.expr = exp_sem_var(&e, in_fce);  
     return e;
 }
 

@@ -100,10 +100,10 @@ void greater(struct stack_t *stack);
 
 void printstack(struct stack_t *stack);
 
-Token exp_sem_var(element *e);
+Token exp_sem_var(element *e, bool in_func);
 void exp_sem_func(element *e);
-Token exp_sem_return(element *e);
-Token exp_sem_ifwhile(element *e);
+Token exp_sem_return(element *e, bool in_func);
+Token exp_sem_ifwhile(element *e, bool in_func);
 
 void insert_first(char *data, d_list_types d_type);
 struct variables* deleteFirst();
