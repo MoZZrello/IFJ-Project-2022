@@ -32,73 +32,78 @@ void gen_built_in_functions(ht_table_t *table, int key){
     bool reads = true, readi = true, readf = true, write = true, floatval = true, intval = true, strval = true;
     bool strlen = true, substring = true, ord = true, chr = true;
     char index[MAX_HT_SIZE];
+
     for(int i=0; i < key; i++){
         element *e = NULL;
         sprintf(index,
         "%d", i);
         e = ht_get(table, index);
-
-        if(e->name.type == IDENTIFIER) {
-            if (strcmp(e->name.info, "reads") == 0) {
-                if (reads) {
-                    func_reads();
-                    reads = false;
-                }
-            } else if (strcmp(e->name.info, "readi") == 0) {
-                if (readi) {
-                    func_readi();
-                    readi = false;
-                }
-            } else if (strcmp(e->name.info, "readf") == 0) {
-                if (readf) {
-                    func_readf();
-                    readf = false;
-                }
-            }else if(strcmp(e->name.info, "write") == 0){
-                if(write){
-                    func_write();
-                    write = false;
-                }
-            }else if(strcmp(e->name.info, "floatval") == 0) {
-                if (floatval) {
-                    func_floatval();
-                    floatval = false;
-                }
-            }else if(strcmp(e->name.info, "intval") == 0) {
-                if (intval) {
-                    func_intval();
-                    intval = false;
-                }
-            }else if(strcmp(e->name.info, "strval") == 0) {
-                if (strval) {
-                    func_strval();
-                    strval = false;
-                }
-            }else if(strcmp(e->name.info, "strlen") == 0) {
-                if (strlen) {
-                    func_strlen();
-                    strlen = false;
-                }
-            }else if(strcmp(e->name.info, "susbstring") == 0) {
-                if (substring) {
-                    func_substring();
-                    substring = false;
-                }
-            }else if(strcmp(e->name.info, "ord") == 0) {
-                if (ord) {
-                    func_ord();
-                    ord = false;
-                }
-            }else if(strcmp(e->name.info, "chr") == 0) {
-                if (chr) {
-                    func_chr();
-                    chr = false;
+        if(e->argslist != NULL) {
+            if(e->name.type == IDENTIFIER) {
+                if (strcmp(e->name.info, "reads") == 0) {
+                    if (reads) {
+                        func_reads();
+                        reads = false;
+                    }
+                } else if (strcmp(e->name.info, "readi") == 0) {
+                    if (readi) {
+                        func_readi();
+                        readi = false;
+                    }
+                } else if (strcmp(e->name.info, "readf") == 0) {
+                    if (readf) {
+                        func_readf();
+                        readf = false;
+                    }
+                }else if(strcmp(e->name.info, "write") == 0){
+                    if(write){
+                        func_write();
+                        write = false;
+                    }
+                }else if(strcmp(e->name.info, "floatval") == 0) {
+                    if (floatval) {
+                        func_floatval();
+                        floatval = false;
+                    }
+                }else if(strcmp(e->name.info, "intval") == 0) {
+                    if (intval) {
+                        func_intval();
+                        intval = false;
+                    }
+                }else if(strcmp(e->name.info, "strval") == 0) {
+                    if (strval) {
+                        func_strval();
+                        strval = false;
+                    }
+                }else if(strcmp(e->name.info, "strlen") == 0) {
+                    if (strlen) {
+                        func_strlen();
+                        strlen = false;
+                    }
+                }else if(strcmp(e->name.info, "susbstring") == 0) {
+                    if (substring) {
+                        func_substring();
+                        substring = false;
+                    }
+                }else if(strcmp(e->name.info, "ord") == 0) {
+                    if (ord) {
+                        func_ord();
+                        ord = false;
+                    }
+                }else if(strcmp(e->name.info, "chr") == 0) {
+                    if (chr) {
+                        func_chr();
+                        chr = false;
+                    }
                 }
             }
         }
     }
 }
 //funckia na generovanie celej funkcii
+
+//---------------------------------------FUNCTIONS-------------------------------------------------//
+
 void gen_function(ht_table_t *table, int key){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
     bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
@@ -125,7 +130,8 @@ void gen_function(ht_table_t *table, int key){
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-                def_func_main_print(e);
+            gen_call_func(table, *e, key);
+            def_func_main_print(e);
         }
     }
     printf("\n");
@@ -133,6 +139,7 @@ void gen_function(ht_table_t *table, int key){
 
 //funckia na printenie zaciatku funkcie
 void def_func_arg_print(element* e){
+    if(e->argslist != NULL) {
     printf("\n");
     printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     char final [500];
@@ -141,15 +148,19 @@ void def_func_arg_print(element* e){
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     char final_var [500];
-    for (int i = 0; i < e->argslist->len; ++i) {
-        memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info+1, strlen(e->argslist->list[i].arg.info));
-        snprintf(final_var,sizeof final_var, "TF@%s", e->argslist->list[i].arg.info );
-        PRINT_LANE_ONE_ARG("DEFVAR", final_var );
-        PRINT_LANE_ONE_ARG("POPS", final_var );
+
+        for (int i = 0; i < e->argslist->len; ++i) {
+            memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,
+                    strlen(e->argslist->list[i].arg.info));
+            snprintf(final_var, sizeof final_var, "TF@%s", e->argslist->list[i].arg.info);
+            PRINT_LANE_ONE_ARG("DEFVAR", final_var);
+            PRINT_LANE_ONE_ARG("POPS", final_var);
+        }
     }
 
 }
 //printujem telo medzi { a }
+
 void def_func_main_print(element* e){
     /*
         if(strcmp(e->name.info , "write") == 0){
@@ -159,31 +170,8 @@ void def_func_main_print(element* e){
 
 }
 
-void gen_main(ht_table_t *table, int key){
-    PRINT_LANE_ONE_ARG("LABEL", "$main");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
-    char index[MAX_HT_SIZE];
-    for(int i=0; i < key; i++){
-        element* e = NULL;
-        sprintf(index, "%d", i);
-        e = ht_get(table, index);
-
-        if(e->name.type == IDENTIFIER){
-            if(strcmp(e->name.info, "if") == 0){
-
-            } else if(strcmp(e->name.info, "while") == 0){
-
-            } else if(strcmp(e->name.info, "else") == 0){
-
-            } else if(e->ret_type.type == ERROR_T) { // function calls
-                gen_call_arg(table, *e, key);
-            }
-        }
-        //printf("%s\n", e->name.info);
-    }
-}
-
-void gen_call_arg(ht_table_t *table, element call, int key){
+//push arg to stuck and call functions
+void gen_call_func(ht_table_t *table, element call, int key){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     char* print = NULL;
@@ -193,22 +181,83 @@ void gen_call_arg(ht_table_t *table, element call, int key){
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
 
-        if (compare_e->ret_type.type != ERROR_T){
-            if(strcmp(compare_e->name.info, call.name.info) == 0){
-                for (int j = 0; j < call.argslist->len ; ++j) {
-                    if(strcmp(call.argslist->list[j].arg.info , ",") != 0) {
-                        print = retype_arg_for_func(call.argslist->list[j]);
-                        PRINT_LANE_ONE_ARG("PUSHS", print );
+        if (compare_e->ret_type.type != ERROR_T) {
+            if (call.argslist != NULL) {
+                if (strcmp(compare_e->name.info, call.name.info) == 0) {
+                    for (int j = 0; j < call.argslist->len; ++j) {
+                        if (strcmp(call.argslist->list[j].arg.info, ",") != 0) {
+                            print = retype_arg_for_func(call.argslist->list[j]);
+                            PRINT_LANE_ONE_ARG("PUSHS", print);
+                        }
                     }
+                    func_call(call.name.info);
                 }
-                char final [500];
-                snprintf(final,sizeof final, "$%s", call.name.info );
-                PRINT_LANE_ONE_ARG("CALL", final );
+            }
+        }
+    }
+    if (strcmp(call.name.info, "readi") == 0) {
+        func_call(call.name.info);
+    }else if (strcmp(call.name.info, "reads") == 0){
+        func_call(call.name.info);
+    }else if (strcmp(call.name.info, "readf") == 0){
+        func_call(call.name.info);
+    }
+
+}
+
+void func_call(char* call){
+    char final[500];
+    snprintf(final, sizeof final, "$%s", call);
+    PRINT_LANE_ONE_ARG("CALL", final);
+}
+
+//---------------------------------------MAIN-----------------------------------------------------//
+
+void gen_main(ht_table_t *table, int key){
+    bool inFunction = false;
+    int curly = 0;
+    PRINT_LANE_ONE_ARG("LABEL", "$main");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    char index[MAX_HT_SIZE];
+    for(int i=0; i < key; i++){
+        element* e = NULL;
+        sprintf(index, "%d", i);
+        e = ht_get(table, index);
+        if(e->name.type == IDENTIFIER){
+            if(e->ret_type.type == ERROR_T) {
+                if(inFunction == false) {
+                    gen_call_func(table, *e, key);
+                }
+            } else {
+                inFunction = true;
+            }
+        } else if(e->name.type == LEFT_CURLY_BRACKET){
+            curly++;
+        } else if(e->name.type == RIGHT_CURLY_BRACKET){
+            curly--;
+            if(curly == 0){
+                inFunction = false;
+            }
+        } else if (e->name.type == VAR_ID){
+            if(inFunction == false){
+                printf("%s\n", e->name.info);
             }
         }
     }
 }
-//Vstavane funkcie
+
+void gen_all(element *e){
+
+    if(e->name.type == IDENTIFIER){
+        if(strcmp(e->name.info, "if") == 0){
+
+        } else if(strcmp(e->name.info, "while") == 0){
+
+        } else if(strcmp(e->name.info, "else") == 0){
+
+        }
+    }
+}
 
 char *retype_arg_for_func(arg arg){
     char *final_arg = NULL;
@@ -240,6 +289,8 @@ char *retype_arg_for_func(arg arg){
     }
     return final_arg;
 }
+
+//Vstavane funkcie
 
 void func_reads(){
     printf("\n#ZACALA  FUNKCIA READS !\n");
