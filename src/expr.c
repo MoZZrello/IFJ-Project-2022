@@ -216,7 +216,6 @@ void expression(Token *token, bool var) {
           callError(ERR_SYN);
         }
 
-        //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
         switch (table[symb_b][symb_a]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -725,7 +724,7 @@ void printList() {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("v liste je %s %d\n", ptr->data, ptr->type);
+      //printf("v liste je %s %d\n", ptr->data, ptr->type);
       ptr = ptr->next;
    }
 }
@@ -735,7 +734,7 @@ void print_list_fce() {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("v liste fce je %s %d\n", ptr->fce_name, ptr->return_type);
+      //printf("v liste fce je %s %d\n", ptr->fce_name, ptr->return_type);
       ptr = ptr->next;
    }
 }
@@ -1170,10 +1169,14 @@ Token exp_sem_return(element *e, bool in_func) {
       t.kwt = INT_K;
       t.info = "int";
     }
-    
-  }
-  
+    int index = getListIndex();
+    arg_type = find_in_list(e->name.info);
+    changeTokenListIndex(index);
 
+      if(arg_type == D_NON) {
+        //printf("Error, neexistujuca funkcia\n");
+      }
+    }
   return t;
 }
 

@@ -49,6 +49,8 @@ void gen_function(ht_table_t *table, int key){
             continue;
         //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
+            PRINT_LANE_ZERO_ARG("POPFRAME");
+            PRINT_LANE_ZERO_ARG("RETURN");
             is_end = true;
         }
         //printujem telo funkcie
@@ -56,10 +58,12 @@ void gen_function(ht_table_t *table, int key){
                 def_func_main_print(e);
         }
     }
+    printf("\n");
 }
 
 //funckia na printenie zaciatku funkcie
 void def_func_arg_print(element* e){
+    printf("\n");
     printf("#ZACALA NOVA FUNKCIA !!!!!\n");
     char final [500];
     snprintf(final,sizeof final, "$%s", e->name.info );
@@ -73,6 +77,7 @@ void def_func_arg_print(element* e){
         PRINT_LANE_ONE_ARG("DEFVAR", final_var );
         PRINT_LANE_ONE_ARG("POPS", final_var );
     }
+
 }
 //printujem telo medzi { a }
 void def_func_main_print(element* e){
@@ -81,6 +86,7 @@ void def_func_main_print(element* e){
             func_write();
         }*/
     printf("%s\n", e->name.info);
+
 }
 
 void gen_main(ht_table_t *table, int key){
@@ -103,6 +109,7 @@ void gen_main(ht_table_t *table, int key){
                 gen_call_arg(table, *e, key);
             }
         }
+        //printf("%s\n", e->name.info);
     }
 }
 
@@ -115,6 +122,7 @@ void gen_call_arg(ht_table_t *table, element call, int key){
         sprintf(index, "%d", i);
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
+
         if (compare_e->ret_type.type != ERROR_T){
             if(strcmp(compare_e->name.info, call.name.info) == 0){
                 for (int j = 0; j < call.argslist->len ; ++j) {
