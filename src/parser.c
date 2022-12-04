@@ -963,6 +963,14 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
 
         int i = 0;
         while(i < func.argslist->len){
+            if(call.argslist->list[i].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[i].arg, key);
+                if(var.isKeyword == false || (func.argslist->list[i].type.kwt != var.kwt)){
+                    callError(ERR_SEM_ARGS);
+                }
+                i++;
+                continue;
+            }
             if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i].arg.type == NUMBER) ||
                (func.argslist->list[i].type.kwt == FLOAT_K &&
                     (call.argslist->list[i].arg.type == DECIMAL_NUMBER ||
@@ -1084,7 +1092,8 @@ Token get_variable(ht_table_t *table, element* e, Token var, int key){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     element* definition_e = NULL;
-    Token retToken;
+    Token func;
+    Token main;
 
     while(!0){
         sprintf(index, "%d", i++);
@@ -1093,10 +1102,13 @@ Token get_variable(ht_table_t *table, element* e, Token var, int key){
 
         if (compare_e->ret_type.type != ERROR_T){
             inFunction = true;
-            retToken = getEmptyToken();
         } else if (compare_e->name.type == VAR_ID){
             if(strcmp(compare_e->name.info, var.info) == 0){
-                retToken = compare_e->expr;
+                if(inFunction) {
+                    func = compare_e->expr;
+                } else {
+                    main = compare_e->expr;
+                }
             }
         } else if (compare_e->name.type == LEFT_CURLY_BRACKET){
             curly++;
@@ -1104,12 +1116,19 @@ Token get_variable(ht_table_t *table, element* e, Token var, int key){
             curly--;
             if(curly == 0){
                 inFunction = false;
-                retToken = getEmptyToken();
+                func = getEmptyToken();
             }
         }
     }
-    if(retToken.type == ERROR_T){
-        callError(ERR_SEM_VAR);
+    if(inFunction){
+        if(func.type == ERROR_T){
+            callError(ERR_SEM_VAR);
+        }
+        return func;
+    } else {
+        if(main.type == ERROR_T){
+            callError(ERR_SEM_VAR);
+        }
+        return main;
     }
-    return retToken;
 }

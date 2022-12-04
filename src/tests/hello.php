@@ -14,14 +14,9 @@ function pohlavni_program(string $month, int $year) : void {
   return;
 }
 
-
 $tmp = "ab";
 $tmp2 = 1;
 
-reads();
-floatval($tmp2);
-strlen($tmp);
-substring($tmp, $tmp2, 3);
-hlavni_program(22);
-hlavni_program(23); // pozdrav z budoucnosti
+hlavni_program($tmp2);
+$tmp = hlavni_program(23); // pozdrav z budoucnosti
 ?>
