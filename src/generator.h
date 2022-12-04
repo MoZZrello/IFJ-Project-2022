@@ -68,10 +68,10 @@ void start_program();
 void gen_function(ht_table_t *table);
 void def_func_arg_print(element* e);
 void def_func_main_print(element* e);
+void func_return(element* e, int ret_type);
 void func_call(char* call);
-void def_func_start(element* e );
+int def_func_start(element* e );
 
-void return_from_functions(element *e, bool is_main);
 //main
 void gen_main(ht_table_t *table);
 void gen_call_func(ht_table_t *table, element call);

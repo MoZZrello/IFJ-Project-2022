@@ -22,7 +22,6 @@ void gen_program(ht_table_t *table, int no_build_in_func){
     gen_built_in_functions(table, no_build_in_func);
     gen_function(table);
     gen_main(table);
-
 }
 
 void start_program(){
@@ -112,15 +111,15 @@ void gen_function(ht_table_t *table){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
     bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
     element* e = NULL;
-    int i = 0;
+    char func[MAX_HT_SIZE];
+    int ret_type, i = 0;
     while(!0){
-        char func[MAX_HT_SIZE];
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
         if(e == NULL)break;
 
         if(e->ret_type.type != ERROR_T){
-            def_func_start(e);
+            ret_type = def_func_start(e);
             def_func_arg_print(e);//print arg of functions
             is_function = true;
             is_end = false;
@@ -135,19 +134,19 @@ void gen_function(ht_table_t *table){
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            gen_call_func(table, *e);
+            gen_call_func(table, *e);//ak sa z funkcie vola druha funkcia
             def_func_main_print(e);
+            func_return(e, ret_type);
         }
-
     }
-
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
     printf("\n");
 }
 
 //funckia na printenie zaciatku funkcie
-void def_func_start(element* e ){
+int def_func_start(element* e ){
+    int return_type = 0;
     if(e->argslist != NULL) {
         printf("\n");
         printf("#ZACALA NOVA FUNKCIA !!!!!\n");
@@ -157,6 +156,14 @@ void def_func_start(element* e ){
         PRINT_LANE_ZERO_ARG("CREATEFRAME");
         PRINT_LANE_ZERO_ARG("PUSHFRAME");
     }
+    if(e->ret_type.kwt == STRING_K){
+        return_type = 1; //func return is string
+    }else if(e->ret_type.kwt == INT_K){
+        return_type = 2; //func return is int
+    }else if(e->ret_type.kwt == FLOAT_K){
+        return_type = 3; //func return is float
+    }
+    return return_type;
 }
 
 void def_func_arg_print(element* e){
@@ -171,25 +178,32 @@ void def_func_arg_print(element* e){
             PRINT_LANE_ONE_ARG("POPS", final_var);
         }
     }
-
 }
 
-void return_from_functions(element *e, bool is_main){
-    /*if(e->ret_type.type != ERROR_T) {
-        if (e->ret_type.info == "void") {
+void func_return(element* e, int ret_type){
 
-        } else if (e->ret_type.kwt == STRING_K) {
-            printf("string");
+    if(ret_type == 0){
+        if(e->name.kwt == RETURN_K){
+
         }
-    }*/
+    }else if(ret_type == 1){
+        if(e->name.kwt == RETURN_K){
+            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+        }
+    }else if(ret_type == 2){
+        if(e->name.kwt == RETURN_K){
+            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+        }
+    }else if(ret_type == 3){
+        if(e->name.kwt == RETURN_K){
+            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+        }
+    }
 }
 
 //printujem telo medzi { a }
 void def_func_main_print(element* e){
-   /* if(e->name.kwt == RETURN_K){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", e->argslist->list[0].arg.info );
-    }*/
+//print main funkcie
 }
 
 //push arg to stuck and call functions
@@ -271,22 +285,8 @@ void gen_main(ht_table_t *table){
     }
 }
 
-void gen_all(element *e){
-
-    if(e->name.type == IDENTIFIER){
-        if(strcmp(e->name.info, "if") == 0){
-
-        } else if(strcmp(e->name.info, "while") == 0){
-
-        } else if(strcmp(e->name.info, "else") == 0){
-
-        }
-    }
-}
-
 char *retype_arg_for_func(arg arg){
     char *final_arg = NULL;
-    char tmpC[MAX_HT_SIZE];
     if(arg.arg.type == NUMBER){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
         if(final_arg == NULL){
