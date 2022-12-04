@@ -19,9 +19,9 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 //generator celeho kodu
 void gen_program(ht_table_t *table, int no_build_in_func){
     start_program();
-    gen_built_in_functions(table, no_build_in_func);
     gen_function(table);
     gen_main(table);
+    gen_built_in_functions(table, no_build_in_func);
 }
 
 void start_program(){
@@ -152,6 +152,7 @@ void def_func_start(element* e ){
         snprintf(final, sizeof final, "$%s", e->name.info);
         PRINT_LANE_ONE_ARG("LABEL", final);
         PRINT_LANE_ZERO_ARG("CREATEFRAME");
+        PRINT_LANE_ZERO_ARG("PUSHFRAME");
     }
 }
 
@@ -160,8 +161,9 @@ void def_func_arg_print(element* e){
     char final_var [500];
 
         for (int i = 0; i < e->argslist->len; ++i) {
-            memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,strlen(e->argslist->list[i].arg.info));
-            snprintf(final_var, sizeof final_var, "TF@%s", e->argslist->list[i].arg.info);
+            memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,
+                    strlen(e->argslist->list[i].arg.info));
+            snprintf(final_var, sizeof final_var, "LF@%s", e->argslist->list[i].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", final_var);
             PRINT_LANE_ONE_ARG("POPS", final_var);
         }
@@ -175,7 +177,7 @@ void def_func_main_print(element* e){
         if(strcmp(e->name.info , "write") == 0){
             func_write();
         }*/
-    //printf("%s\n", e->name.info);
+    printf("%s\n", e->name.info);
 
 }
 
@@ -201,7 +203,7 @@ void gen_call_func(ht_table_t *table, element call){
                         }
                     }
                     func_call(call.name.info);
-                    def_func_arg_print(&call); ///vola sa to vela krat staci len raz
+                    //def_func_arg_print(&call);
                 }
             }
         }
@@ -218,7 +220,6 @@ void gen_call_func(ht_table_t *table, element call){
 void func_call(char* call){
     char final[500];
     snprintf(final, sizeof final, "$%s", call);
-    PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("CALL", final);
 }
 
@@ -232,7 +233,6 @@ void gen_main(ht_table_t *table){
 
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
-
     while(!0){
         element* e = NULL;
         sprintf(index, "%d", i++);
@@ -261,6 +261,19 @@ void gen_main(ht_table_t *table){
     }
 }
 
+void gen_all(element *e){
+
+    if(e->name.type == IDENTIFIER){
+        if(strcmp(e->name.info, "if") == 0){
+
+        } else if(strcmp(e->name.info, "while") == 0){
+
+        } else if(strcmp(e->name.info, "else") == 0){
+
+        }
+    }
+}
+
 char *retype_arg_for_func(arg arg){
     char *final_arg = NULL;
     char tmpC[MAX_HT_SIZE];
@@ -278,8 +291,7 @@ char *retype_arg_for_func(arg arg){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "float@");
-        sprintf(final_arg, "float@%a", arg.arg.info);
-
+        strcat(final_arg, arg.arg.info);
     }else if(arg.arg.type == STRING){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
         if(final_arg == NULL){
@@ -294,7 +306,7 @@ char *retype_arg_for_func(arg arg){
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
-        strcpy(final_arg, "TF@");
+        strcpy(final_arg, "LF@");
         memmove(arg.arg.info, arg.arg.info+1, strlen(arg.arg.info));
         strcat(final_arg, arg.arg.info);
     }
@@ -306,13 +318,13 @@ char *retype_arg_for_func(arg arg){
 void func_reads(){
     printf("\n#ZACALA FUNKCIA READS !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "string");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "string");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -320,13 +332,13 @@ void func_reads(){
 void func_readi(){
     printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "int");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
@@ -335,13 +347,13 @@ void func_readi(){
 void func_readf(){
     printf("\n#ZACALA FUNKCIA READF !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_TWO_ARG("READ", "TF@tmp", "float");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "float");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
@@ -351,17 +363,17 @@ void func_readf(){
 void func_write(){
     printf("\n#ZACALA FUNKCIA WRITE !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$write");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@type_of_tmp");
-    PRINT_LANE_TWO_ARG("TYPE", "TF@type_of_tmp", "TF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@type_of_tmp");
+    PRINT_LANE_TWO_ARG("TYPE", "LF@type_of_tmp", "LF@tmp");
 
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$writenull", "TF@type_of_tmp", "string@nil" );
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$writenull", "LF@type_of_tmp", "string@nil" );
 
-    PRINT_LANE_ONE_ARG("WRITE", "TF@tmp");
+    PRINT_LANE_ONE_ARG("WRITE", "LF@tmp");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 
@@ -375,15 +387,14 @@ void func_write(){
 void func_floatval(){
     printf("\n#ZACALA FUNKCIA FLOATVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("POPS", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_float");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@number");
-    PRINT_LANE_ONE_ARG("POPS", "TF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return_float");
+    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@return_float", "LF@number");
 
-    PRINT_LANE_TWO_ARG("INT2FLOAT","TF@return_float", "TF@number");
-
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_float");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_float");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -392,15 +403,14 @@ void func_floatval(){
 void func_intval(){
     printf("\n#ZACALA FUNKCIA INTVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("POPS", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@number");
-    PRINT_LANE_ONE_ARG("POPS", "TF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return_int");
+    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
 
-    PRINT_LANE_TWO_ARG("FLOAT2INT","TF@return_int", "TF@number");
-
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -409,13 +419,12 @@ void func_intval(){
 void func_strval(){
     printf("\n#ZACALA FUNKCIA STRVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
+    PRINT_LANE_ONE_ARG("POPS", "LF@string");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@string");
-    PRINT_LANE_ONE_ARG("POPS", "TF@string");
-
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@string", "nil@nil");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@string", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@string");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 
@@ -430,12 +439,11 @@ void func_strval(){
 void func_strlen(){
     printf("\n#ZACALA FUNKCIA STRLEN !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
-
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return_val");
-    PRINT_LANE_ONE_ARG("POPS", "TF@return_val");
-    PRINT_LANE_TWO_ARG("STRLEN", "TF@return_val", "TF@return_val");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_val");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
+    PRINT_LANE_ONE_ARG("POPS", "LF@return_val");
+    PRINT_LANE_TWO_ARG("STRLEN", "LF@return_val", "LF@return_val");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_val");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -444,62 +452,61 @@ void func_strlen(){
 void func_substring(){
     printf("\n#ZACALA FUNKCIA SUBSTRING !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
-
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@end_index");
-    PRINT_LANE_ONE_ARG("POPS", "TF@end_index");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@start_index");
-    PRINT_LANE_ONE_ARG("POPS", "TF@start_index");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@string");
-    PRINT_LANE_ONE_ARG("POPS", "TF@string");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@strlen_string");
-    PRINT_LANE_TWO_ARG("STRLEN", "TF@strlen_string", "TF@string");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
+    PRINT_LANE_ONE_ARG("POPS", "LF@end_index");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@start_index");
+    PRINT_LANE_ONE_ARG("POPS", "LF@start_index");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
+    PRINT_LANE_ONE_ARG("POPS", "LF@string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@strlen_string");
+    PRINT_LANE_TWO_ARG("STRLEN", "LF@strlen_string", "LF@string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
 
     //j<0
-    PRINT_LANE_TWO_ARG("MOVE", "TF@return", "bool@false");
-    PRINT_LANE_THREE_ARG("LT", "TF@return", "TF@end_index", "int@0");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@return", "bool@true");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return", "bool@false");
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "int@0");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
     //i<0
-    PRINT_LANE_THREE_ARG("LT", "TF@return", "TF@start_index", "int@0");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@return", "bool@true");
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@start_index", "int@0");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
     //to do kontrola ci j > strlen
-    PRINT_LANE_THREE_ARG("GT", "TF@return", "TF@end_index", "TF@strlen_string");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@return", "bool@true");
+    PRINT_LANE_THREE_ARG("GT", "LF@return", "LF@end_index", "LF@strlen_string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
     //to do kontrola ci i > strlen
-    PRINT_LANE_THREE_ARG("GT", "TF@return", "TF@start_index", "TF@strlen_string");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@return", "bool@true");
+    PRINT_LANE_THREE_ARG("GT", "LF@return", "LF@start_index", "LF@strlen_string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
     // i > j
-    PRINT_LANE_THREE_ARG("SUB", "TF@end_index" , "TF@end_index", "int@1"); //j-1
-    PRINT_LANE_THREE_ARG("GT", "TF@return", "TF@start_index", "TF@end_index");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@return", "bool@true");
+    PRINT_LANE_THREE_ARG("SUB", "LF@end_index" , "LF@end_index", "int@1"); //j-1
+    PRINT_LANE_THREE_ARG("GT", "LF@return", "LF@start_index", "LF@end_index");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@return", "bool@true");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@tmp_string");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return_string");
-    PRINT_LANE_TWO_ARG("MOVE", "TF@return_string", "string@");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp_string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "string@");
 
     PRINT_LANE_ONE_ARG("LABEL", "$start_while");
-    PRINT_LANE_THREE_ARG("LT", "TF@return", "TF@end_index", "TF@start_index"); //j<i
+    PRINT_LANE_THREE_ARG("LT", "LF@return", "LF@end_index", "LF@start_index"); //j<i
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end_while", "LF@return", "bool@true");
 
-    PRINT_LANE_THREE_ARG("GETCHAR", "TF@tmp_string", "TF@string", "TF@start_index");
-    PRINT_LANE_THREE_ARG("CONCAT", "TF@return_string","TF@return_string", "LF@tmp_string");
+    PRINT_LANE_THREE_ARG("GETCHAR", "LF@tmp_string", "LF@string", "LF@start_index");
+    PRINT_LANE_THREE_ARG("CONCAT", "LF@return_string","LF@return_string", "LF@tmp_string");
 
-    PRINT_LANE_THREE_ARG("ADD", "TF@start_index", "TF@start_index", "int@1");
+    PRINT_LANE_THREE_ARG("ADD", "LF@start_index", "LF@start_index", "int@1");
     PRINT_LANE_ONE_ARG("JUMP", "$start_while");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end_while");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_string");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_string");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end");
-    PRINT_LANE_TWO_ARG("MOVE", "TF@return", "nil@nil");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -508,22 +515,22 @@ void func_substring(){
 void func_ord(){
     printf("\n#ZACALA FUNKCIA ORD !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@string");
-    PRINT_LANE_ONE_ARG("POPS", "TF@string");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@return_int");
-    PRINT_LANE_TWO_ARG("MOVE", "TF@return_int", "int@0");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
+    PRINT_LANE_ONE_ARG("POPS", "LF@string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_int", "int@0");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@strlen_string");
-    PRINT_LANE_TWO_ARG("STRLEN", "TF@strlen_string", "TF@string");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@strlen_string", "TF@return_int");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@strlen_string");
+    PRINT_LANE_TWO_ARG("STRLEN", "LF@strlen_string", "LF@string");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@strlen_string", "LF@return_int");
 
-    PRINT_LANE_THREE_ARG("STRI2INT", "TF@return_int", "TF@string", "TF@return_int");
+    PRINT_LANE_THREE_ARG("STRI2INT", "LF@return_int", "LF@string", "LF@return_int");
 
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
     PRINT_LANE_ONE_ARG("LABEL", "$end");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@return_int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -532,19 +539,19 @@ void func_ord(){
 void func_chr(){
     printf("\n#ZACALA FUNKCIA CHR !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
-    PRINT_LANE_ZERO_ARG("CREATEFRAME");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@number");
-    PRINT_LANE_ONE_ARG("POPS", "TF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "TF@result");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("POPS", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@result");
 
-    PRINT_LANE_THREE_ARG("LT", "TF@result", "TF@number", "int@0");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@result", "bool@true");
+    PRINT_LANE_THREE_ARG("LT", "LF@result", "LF@number", "int@0");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@result", "bool@true");
 
-    PRINT_LANE_THREE_ARG("GT", "TF@result", "TF@number", "int@255");
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "TF@result", "bool@true");
+    PRINT_LANE_THREE_ARG("GT", "LF@result", "LF@number", "int@255");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@result", "bool@true");
 
-    PRINT_LANE_TWO_ARG("INT2CHAR", "TF@result", "TF@number");
-    PRINT_LANE_ONE_ARG("PUSHS", "TF@result");
+    PRINT_LANE_TWO_ARG("INT2CHAR", "LF@result", "LF@number");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@result");
     PRINT_LANE_ONE_ARG("LABEL", "$end");
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
