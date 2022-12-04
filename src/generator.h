@@ -71,6 +71,7 @@ void def_func_main_print(element* e);
 void func_call(char* call);
 void def_func_start(element* e );
 
+void return_from_functions(element *e, bool is_main);
 //main
 void gen_main(ht_table_t *table);
 void gen_call_func(ht_table_t *table, element call);

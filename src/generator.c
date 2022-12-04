@@ -19,9 +19,10 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 //generator celeho kodu
 void gen_program(ht_table_t *table, int no_build_in_func){
     start_program();
+    gen_built_in_functions(table, no_build_in_func);
     gen_function(table);
     gen_main(table);
-    gen_built_in_functions(table, no_build_in_func);
+
 }
 
 void start_program(){
@@ -137,7 +138,9 @@ void gen_function(ht_table_t *table){
             gen_call_func(table, *e);
             def_func_main_print(e);
         }
+
     }
+
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
     printf("\n");
@@ -170,15 +173,23 @@ void def_func_arg_print(element* e){
     }
 
 }
+
+void return_from_functions(element *e, bool is_main){
+    /*if(e->ret_type.type != ERROR_T) {
+        if (e->ret_type.info == "void") {
+
+        } else if (e->ret_type.kwt == STRING_K) {
+            printf("string");
+        }
+    }*/
+}
+
 //printujem telo medzi { a }
-
 void def_func_main_print(element* e){
-    /*
-        if(strcmp(e->name.info , "write") == 0){
-            func_write();
-        }*/
-    printf("%s\n", e->name.info);
-
+   /* if(e->name.kwt == RETURN_K){
+        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LT@return", e->argslist->list[0].arg.info );
+    }*/
 }
 
 //push arg to stuck and call functions
@@ -203,7 +214,6 @@ void gen_call_func(ht_table_t *table, element call){
                         }
                     }
                     func_call(call.name.info);
-                    //def_func_arg_print(&call);
                 }
             }
         }
@@ -255,7 +265,7 @@ void gen_main(ht_table_t *table){
             }
         } else if (e->name.type == VAR_ID){
             if(inFunction == false){
-                printf("%s\n", e->name.info);
+               // printf("%s\n", e->name.info);
             }
         }
     }
@@ -318,6 +328,7 @@ char *retype_arg_for_func(arg arg){
 void func_reads(){
     printf("\n#ZACALA FUNKCIA READS !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
@@ -332,6 +343,7 @@ void func_reads(){
 void func_readi(){
     printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
@@ -347,6 +359,7 @@ void func_readi(){
 void func_readf(){
     printf("\n#ZACALA FUNKCIA READF !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
@@ -363,6 +376,7 @@ void func_readf(){
 void func_write(){
     printf("\n#ZACALA FUNKCIA WRITE !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$write");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
@@ -387,6 +401,7 @@ void func_write(){
 void func_floatval(){
     printf("\n#ZACALA FUNKCIA FLOATVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
@@ -403,6 +418,7 @@ void func_floatval(){
 void func_intval(){
     printf("\n#ZACALA FUNKCIA INTVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
@@ -419,6 +435,7 @@ void func_intval(){
 void func_strval(){
     printf("\n#ZACALA FUNKCIA STRVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
     PRINT_LANE_ONE_ARG("POPS", "LF@string");
@@ -439,6 +456,7 @@ void func_strval(){
 void func_strlen(){
     printf("\n#ZACALA FUNKCIA STRLEN !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_val");
     PRINT_LANE_ONE_ARG("POPS", "LF@return_val");
@@ -452,6 +470,7 @@ void func_strlen(){
 void func_substring(){
     printf("\n#ZACALA FUNKCIA SUBSTRING !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
     PRINT_LANE_ONE_ARG("POPS", "LF@end_index");
@@ -515,6 +534,7 @@ void func_substring(){
 void func_ord(){
     printf("\n#ZACALA FUNKCIA ORD !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@string");
@@ -539,6 +559,7 @@ void func_ord(){
 void func_chr(){
     printf("\n#ZACALA FUNKCIA CHR !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$chr");
+    PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
