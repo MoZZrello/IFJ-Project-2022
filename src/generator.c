@@ -2,7 +2,13 @@
 // Created by Marek Spirka on 27. 11. 2022.
 //
 #include "generator.h"
-
+/**
+ *@brief functions that print commands in the IFJcode22 language
+ *@param name -> command name
+ *@param arg1 -> first arg of command
+ *@param arg2 -> first arg of command
+ *@param arg3 -> first arg of command
+ */
 void PRINT_LANE_THREE_ARG(char* name, char* arg1, char* arg2, char* arg3) {
     printf("%s %s %s %s \n", name, arg1, arg2, arg3);
 }
@@ -16,19 +22,32 @@ void PRINT_LANE_ZERO_ARG(char* name) {
     printf("%s \n", name);
 }
 
-//generator celeho kodu
+/**
+ *@brief The function calls the functions that compose the entire IFJcode22 code
+ *@param table -> place where the entire code from input is stored
+ *@param no_build_in_func -> ID of element in Table
+ */
 void gen_program(ht_table_t *table, int no_build_in_func){
     start_program();
     gen_built_in_functions(table, no_build_in_func);
-    gen_function(table);
-    gen_main(table);
+    function_gen(table);
+    gen_main(table, no_build_in_func);
 }
 
+/**
+ *@brief The function prints the program header and a reference to main
+ */
 void start_program(){
     PRINT_LANE_ZERO_ARG(".IFJcode22");
     PRINT_LANE_ONE_ARG("JUMP", "$main");
 }
 
+/**
+ *@brief When a built-in function is called, the function is printed at the beginning of the program,
+ *each function is called only once
+ *@param table -> place where the entire code from input is stored
+ *@param no_build_in_func -> ID of element in Table
+ */
 void gen_built_in_functions(ht_table_t *table, int key){
     bool reads = true, readi = true, readf = true, write = true, floatval = true, intval = true, strval = true;
     bool strlen = true, substring = true, ord = true, chr = true;
@@ -105,9 +124,11 @@ void gen_built_in_functions(ht_table_t *table, int key){
 }
 
 //---------------------------------------FUNCTIONS-------------------------------------------------//
-
-//funckia na generovanie celej funkcii
-void gen_function(ht_table_t *table){
+/**
+ *@brief A function that prints an user-defined function
+ *@param ht_table_t *table -> pointer to place where the entire code from input is stored
+ */
+void function_gen(ht_table_t *table){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
     bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
     element* e = NULL;
@@ -120,7 +141,7 @@ void gen_function(ht_table_t *table){
 
         if(e->ret_type.type != ERROR_T){
             ret_type = def_func_start(e);
-            def_func_arg_print(e);//print arg of functions
+            func_arg_print(e);//print arg of functions
             is_function = true;
             is_end = false;
             continue;
@@ -134,17 +155,17 @@ void gen_function(ht_table_t *table){
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            gen_call_func(table, *e);//ak sa z funkcie vola druha funkcia
-            def_func_main_print(e);
-            func_return(e, ret_type);
+            func_main_print(table, e, ret_type);
         }
     }
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
     printf("\n");
 }
-
-//funckia na printenie zaciatku funkcie
+/**
+ *@brief A function that prints an user-defined function
+ *@param element* e -> pointer on element from table
+ */
 int def_func_start(element* e ){
     int return_type = 0;
     if(e->argslist != NULL) {
@@ -165,8 +186,11 @@ int def_func_start(element* e ){
     }
     return return_type;
 }
-
-void def_func_arg_print(element* e){
+/**
+ *@brief A function defines and assigns values to the variable arguments that are passed to the function
+ *@param element* e -> pointer on element from table
+ */
+void func_arg_print(element* e){
     if(e->argslist != NULL) {
     char final_var [500];
 
@@ -179,9 +203,10 @@ void def_func_arg_print(element* e){
         }
     }
 }
-
+/**
+ * TODO - dokoncit funkciu -- funkcia, ktora by mala pushovat pri returne
+ */
 void func_return(element* e, int ret_type){
-
     if(ret_type == 0){
         if(e->name.kwt == RETURN_K){
 
@@ -189,24 +214,37 @@ void func_return(element* e, int ret_type){
     }else if(ret_type == 1){
         if(e->name.kwt == RETURN_K){
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
         }
     }else if(ret_type == 2){
         if(e->name.kwt == RETURN_K){
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
         }
     }else if(ret_type == 3){
         if(e->name.kwt == RETURN_K){
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
         }
     }
 }
-
-//printujem telo medzi { a }
-void def_func_main_print(element* e){
-//print main funkcie
+/**
+ *@brief A function that prints the function body
+ *@param element* e -> pointer on element from table
+ * TODO - make it :D tlacit by mala vsetko okrem volania inej funkcii
+ */
+void func_main_print(ht_table_t *table, element* e, int ret_type){
+    gen_call_func(table, *e); //ak sa z funkcie vola druha funkcia
+    func_return(e, ret_type);
 }
-
-//push arg to stuck and call functions
+/**
+ *@brief A function that declares the arguments to be passed to the function
+ *@param element call -> the arguments we want to push for the called function
+ *@param ht_table_t *table -> pointer to place where the entire code from input is stored
+ */
 void gen_call_func(ht_table_t *table, element call){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
@@ -223,8 +261,9 @@ void gen_call_func(ht_table_t *table, element call){
                 if (strcmp(compare_e->name.info, call.name.info) == 0) {
                     for (int j = 0; j < call.argslist->len; ++j) {
                         if (strcmp(call.argslist->list[j].arg.info, ",") != 0) {
-                            print = retype_arg_for_func(call.argslist->list[j]);
+                            print = retype_string(call.argslist->list[j]);
                             PRINT_LANE_ONE_ARG("PUSHS", print);
+                            //free(print);
                         }
                     }
                     func_call(call.name.info);
@@ -240,7 +279,10 @@ void gen_call_func(ht_table_t *table, element call){
         func_call(call.name.info);
     }
 }
-//call functions
+/**
+ *@brief A function that calls a function
+ *@param element call -> name of the function
+ */
 void func_call(char* call){
     char final[500];
     snprintf(final, sizeof final, "$%s", call);
@@ -248,18 +290,16 @@ void func_call(char* call){
 }
 
 //---------------------------------------MAIN-----------------------------------------------------//
-
-void gen_main(ht_table_t *table){
+void gen_main(ht_table_t *table, int key){
     bool inFunction = false;
     int curly = 0;
-    int i = 0;
     char index[MAX_HT_SIZE];
 
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
-    while(!0){
+    for (int i = 0; i < key ; ++i) {
         element* e = NULL;
-        sprintf(index, "%d", i++);
+        sprintf(index, "%d", i);
         e = ht_get(table, index);
         if(e == NULL){break;}
         if(e->name.type == IDENTIFIER){
@@ -285,7 +325,7 @@ void gen_main(ht_table_t *table){
     }
 }
 
-char *retype_arg_for_func(arg arg){
+char *retype_string(arg arg){
     char *final_arg = NULL;
     if(arg.arg.type == NUMBER){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);

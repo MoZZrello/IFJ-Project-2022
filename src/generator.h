@@ -65,17 +65,19 @@ void gen_program(ht_table_t *table, int no_build_in_func);
 void start_program();
 
 //function
-void gen_function(ht_table_t *table);
-void def_func_arg_print(element* e);
-void def_func_main_print(element* e);
+void function_gen(ht_table_t *table);
+void func_arg_print(element* e);
+void func_main_print(ht_table_t *table, element* e, int ret_type);
 void func_return(element* e, int ret_type);
-void func_call(char* call);
 int def_func_start(element* e );
 
-//main
-void gen_main(ht_table_t *table);
+//Volanie funkcie vo funckii alebo v maine
 void gen_call_func(ht_table_t *table, element call);
-char *retype_arg_for_func(arg arg);
+void func_call(char* call );
+
+//main
+void gen_main(ht_table_t *table, int key);
+char *retype_string(arg arg);
 
 //Vstavane funckie
 void gen_built_in_functions(ht_table_t *table, int key);
