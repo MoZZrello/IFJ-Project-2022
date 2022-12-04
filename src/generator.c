@@ -290,6 +290,8 @@ void func_call(char* call){
 }
 
 //---------------------------------------MAIN-----------------------------------------------------//
+
+//printujeme main
 void gen_main(ht_table_t *table, int key){
     bool inFunction = false;
     int curly = 0;
@@ -364,7 +366,7 @@ char *retype_string(arg arg){
 }
 
 //---------------------------------------BUILD-IN FUNCTINOS---------------------------------------//
-
+/////------------dorob!!!!!!!!!!!!!!!!!!!
 void func_reads(){
     printf("\n#ZACALA FUNKCIA READS !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
@@ -386,28 +388,46 @@ void func_readi(){
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@error");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@read_int");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
 
-    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "int");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@read_int", "int");
+    PRINT_LANE_TWO_ARG("TYPE", "LF@error", "LF@read_int");
+    PRINT_LANE_THREE_ARG("JUMPIFNEQ", "$error_read", "string@int", "LF@error");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_int", "LF@read_int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
 
+    PRINT_LANE_ONE_ARG("LABEL", "$error_read");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_int", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
 
 void func_readf(){
-    printf("\n#ZACALA FUNKCIA READF !\n");
+    printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@error");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@read_float");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_float");
 
-    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "float");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@read_float", "float");
+    PRINT_LANE_TWO_ARG("TYPE", "LF@error", "LF@read_float");
+    PRINT_LANE_THREE_ARG("JUMPIFNEQ", "$error_read", "string@float", "LF@error");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_float", "LF@read_float");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_float");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
 
+    PRINT_LANE_ONE_ARG("LABEL", "$error_read");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_float", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_float");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
