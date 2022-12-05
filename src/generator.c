@@ -260,11 +260,24 @@ void gen_call_func(ht_table_t *table, element call){
             if (call.argslist != NULL) {
                 if (strcmp(compare_e->name.info, call.name.info) == 0) {
                     for (int j = 0; j < call.argslist->len; ++j) {
-                        if (strcmp(call.argslist->list[j].arg.info, ",") != 0) {
+                        if (strcmp(call.argslist->list[j].arg.info, ",") != 0 && strcmp(call.name.info, "write") != 0 )  {
                             print = retype_string(call.argslist->list[j]);
                             PRINT_LANE_ONE_ARG("PUSHS", print);
-                            //free(print);
+                            free(print);
                         }
+
+                    }
+                    //argumenty do write musime pushovat opacne na zasobnik a to od konca
+                    if(strcmp(call.name.info, "write") == 0) {
+                        for (int j = call.argslist->len - 1; j >= 0; j--) {
+                            if (strcmp(call.argslist->list[j].arg.info, ",") != 0 )  {
+                                print = retype_string(call.argslist->list[j]);
+                                PRINT_LANE_ONE_ARG("PUSHS", print);
+                                free(print);
+                            }
+
+                        }
+                        printf("PUSHS int@%d\n", call.argslist->len); //pushneme ta stack pocet argumentov, ktore vypisujeme
                     }
                     func_call(call.name.info);
                 }
@@ -373,11 +386,21 @@ void func_reads(){
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@error");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@read_string");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
 
-    PRINT_LANE_TWO_ARG("READ", "LF@tmp", "string");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@tmp");
+    PRINT_LANE_TWO_ARG("READ", "LF@read_int", "string");
+    PRINT_LANE_TWO_ARG("TYPE", "LF@error", "LF@read_string");
+    PRINT_LANE_THREE_ARG("JUMPIFNEQ", "$error_read", "string@string", "LF@error");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "LF@read_string");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_string");
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$error_read");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "nil@nil");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_string");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
@@ -440,19 +463,30 @@ void func_write(){
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
 
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@tmp");
-    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
-
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@type_of_tmp");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@num_of_cycles");
+    PRINT_LANE_ONE_ARG("POPS", "LF@num_of_cycles");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$while_write");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$while_end", "LF@num_of_cycles", "int@0" );
+
+    PRINT_LANE_ONE_ARG("POPS", "LF@tmp");
     PRINT_LANE_TWO_ARG("TYPE", "LF@type_of_tmp", "LF@tmp");
 
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$writenull", "LF@type_of_tmp", "string@nil" );
 
     PRINT_LANE_ONE_ARG("WRITE", "LF@tmp");
+    PRINT_LANE_THREE_ARG("SUB", "LF@num_of_cycles", "LF@num_of_cycles", "int@1" );
+    PRINT_LANE_ONE_ARG("JUMP", "$while_write");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 
     PRINT_LANE_ONE_ARG("LABEL", "$writenull");
     PRINT_LANE_ONE_ARG("WRITE", "nil@nil");
+    PRINT_LANE_THREE_ARG("SUB", "LF@num_of_cycles", "LF@num_of_cycles", "int@1" );
+    PRINT_LANE_ONE_ARG("JUMP", "$while_write");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$while_end");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
