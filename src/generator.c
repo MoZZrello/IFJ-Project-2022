@@ -346,6 +346,7 @@ void gen_main(ht_table_t *table, int key){
 
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     for (int i = 0; i < key ; ++i) {
         element* e = NULL;
