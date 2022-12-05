@@ -263,7 +263,6 @@ void gen_call_func(ht_table_t *table, element call){
                         if (strcmp(call.argslist->list[j].arg.info, ",") != 0 && strcmp(call.name.info, "write") != 0 )  {
                             print = retype_string(call.argslist->list[j]);
                             PRINT_LANE_ONE_ARG("PUSHS", print);
-                            free(print);
                         }
 
                     }
@@ -273,7 +272,6 @@ void gen_call_func(ht_table_t *table, element call){
                             if (strcmp(call.argslist->list[j].arg.info, ",") != 0 )  {
                                 print = retype_string(call.argslist->list[j]);
                                 PRINT_LANE_ONE_ARG("PUSHS", print);
-                                free(print);
                             }
 
                         }
@@ -284,6 +282,7 @@ void gen_call_func(ht_table_t *table, element call){
             }
         }
     }
+
     if (strcmp(call.name.info, "readi") == 0) {
         func_call(call.name.info);
     }else if (strcmp(call.name.info, "reads") == 0){
@@ -356,6 +355,7 @@ char *retype_string(arg arg){
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
+
         strcpy(final_arg, "int@");
         strcat(final_arg, arg.arg.info);
 
@@ -367,6 +367,7 @@ char *retype_string(arg arg){
         strcpy(final_arg, "float@");
         sprintf(tmp, "%a", strtod(arg.arg.info, NULL));
         strcat(final_arg, tmp);
+
     }else if(arg.arg.type == STRING){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
         if(final_arg == NULL){
@@ -553,7 +554,6 @@ void func_strval(){
     PRINT_LANE_ONE_ARG("PUSHS", "string@");
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
-
 }
 
 //na stack treba dat string a funckia vrati jeho dlzku
@@ -573,7 +573,7 @@ void func_strlen(){
 //na stack v poradi treba dat ->string, start_index (i), end_index (j) ... funkcia vrati string medzi tymito indexami
 void func_substring(){
     printf("\n#ZACALA FUNKCIA SUBSTRING !\n");
-    PRINT_LANE_ONE_ARG("LABEL", "$func_strlen");
+    PRINT_LANE_ONE_ARG("LABEL", "$substring");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@end_index");
