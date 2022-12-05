@@ -850,6 +850,7 @@ void semControl(ht_table_t *table, int key){
     }
     free(data.definedFunctions);
     free(data.definedVars);
+    free(lc);
 }
 
 void check_sem_return(element func_e, element ret_e){

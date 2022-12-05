@@ -14,7 +14,7 @@ function pohlavni_program(string $month, int $year) : void {
   return;
 }
 
-$tmp = "ab";
+$tmp = "ab" . "c";
 $tmp2 = 1;
 
 hlavni_program($tmp2);
