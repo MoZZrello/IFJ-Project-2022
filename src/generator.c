@@ -462,12 +462,22 @@ char *retype_string(Token arg){
                     && ((isdigit(arg.info[i+2] ) || ((arg.info[i+2] >= 'A') && (arg.info[i+2] <= 'F')) || ((arg.info[i+2] >= 'a') && (arg.info[i+2] <= 'f')))
                     && (isdigit(arg.info[i+3] ) || ((arg.info[i+3] >= 'A') && (arg.info[i+3] <= 'F')) || ((arg.info[i+3] >= 'a') && (arg.info[i+3] <= 'f'))))){
                         sprintf(cTmp, "\\%c%c%c",arg.info[i+1],arg.info[i+2],arg.info[i+3] );
-                        strcat(final_arg, cTmp);
+                        int long long number =  hexa_to_octal(cTmp);
+                        strcat(final_arg, "\\");
+                        if(number < 100){
+                            strcat(final_arg, "0");
+                        }
+                        if(number < 10){
+                            strcat(final_arg, "0");
+                        }
+                        char buffer[MAX_HT_SIZE];
+                        sprintf(buffer, "%d", number);
+                        strcat(final_arg, buffer);
                         i += 3;
                         continue;
                     }
                 }
-                final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 9));
                 sprintf(cTmp, "\\0%d", character);
                 strcat(final_arg, cTmp);
             } else if (character >= 0 && character < '\n'){
@@ -491,6 +501,116 @@ char *retype_string(Token arg){
         strcat(final_arg, arg.info);
     }
     return final_arg;
+}
+
+long long hexa_to_octal(char hex[]){
+    long long octal_number, bin_number, spot;
+    int rem, val;
+
+    octal_number = 0ll;
+    bin_number = 0ll;
+    spot= 0ll;
+
+    for(int i=0; hex[i]!='\0'; i++){
+        bin_number = bin_number * spot;
+
+        switch(hex[i]){
+            case '0':
+                bin_number += 0;
+                break;
+            case '1':
+                bin_number += 1;
+                break;
+            case '2':
+                bin_number += 10;
+                break;
+            case '3':
+                bin_number += 11;
+                break;
+            case '4':
+                bin_number += 100;
+                break;
+            case '5':
+                bin_number += 101;
+                break;
+            case '6':
+                bin_number += 110;
+                break;
+            case '7':
+                bin_number += 111;
+                break;
+            case '8':
+                bin_number += 1000;
+                break;
+            case '9':
+                bin_number += 1001;
+                break;
+            case 'a':
+            case 'A':
+                bin_number += 1010;
+                break;
+            case 'b':
+            case 'B':
+                bin_number += 1011;
+                break;
+            case 'c':
+            case 'C':
+                bin_number += 1100;
+                break;
+            case 'd':
+            case 'D':
+                bin_number += 1101;
+                break;
+            case 'e':
+            case 'E':
+                bin_number += 1110;
+                break;
+            case 'f':
+            case 'F':
+                bin_number += 1111;
+                break;
+            default:
+                break;
+        }
+        spot = 10000;
+    }
+    spot = 1;
+
+    while(bin_number> 0){
+        rem = bin_number % 1000;
+        switch(rem){
+            case 0:
+                val = 0;
+                break;
+            case 1:
+                val = 1;
+                break;
+            case 10:
+                val = 2;
+                break;
+            case 11:
+                val = 3;
+                break;
+            case 100:
+                val = 4;
+                break;
+            case 101:
+                val = 5;
+                break;
+            case 110:
+                val = 6;
+                break;
+            case 111:
+                val = 7;
+                break;
+            default:
+                break;
+        }
+        octal_number = (val * spot) + octal_number;
+        bin_number /= 1000;
+        spot *= 10;
+    }
+    return octal_number;
 }
 
 //---------------------------------------BUILD-IN FUNCTINOS---------------------------------------//

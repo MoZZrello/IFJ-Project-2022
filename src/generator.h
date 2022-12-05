@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "symtable.h"
 
+
 /*
  * ADD (var) (symb1) (symb2)
  * SUB (var) (symb1) (symb2)
@@ -78,6 +79,7 @@ void func_call(char* call );
 //main
 void gen_main(ht_table_t *table, int key);
 char *retype_string(Token arg);
+long long hexa_to_octal(char hex[]);
 
 //Vstavane funckie
 void gen_built_in_functions(ht_table_t *table, int key);
