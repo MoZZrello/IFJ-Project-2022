@@ -336,9 +336,9 @@ void gen_main(ht_table_t *table, int key){
             }
         } else if (e->name.type == VAR_ID){
             if(inFunction == false && e->argslist != NULL){
-                printf("%s\n", e->name.info);
+                //printf("%s\n", e->name.info);
                 if(e->argslist->list[1].arg.type == IDENTIFIER){
-                    func_call_asign();
+                    func_call_asign(e);
                     printf("FUNC CALL\n");
                 } else {
                     printf("EXPR ASSIGN\n");
@@ -373,8 +373,8 @@ char *retype_string(arg arg){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "string@");
-        memmove(arg.arg.info, arg.arg.info-1, strlen(arg.arg.info));
-        memmove(arg.arg.info, arg.arg.info+2, strlen(arg.arg.info));
+        arg.arg.info[strlen(arg.arg.info)-1] = '\0';
+        memmove(arg.arg.info, arg.arg.info+1, strlen(arg.arg.info));
         strcat(final_arg, arg.arg.info);
     }else if(arg.arg.type == VAR_ID){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
@@ -684,6 +684,12 @@ void func_chr(){
 }
 
 //---------------------------------------EXPR---------------------------------------//
-void func_call_asign(){
-
+void func_call_asign(element *e){
+    char* print = NULL;
+    for(int i = 3; i < e->argslist->len; i++){
+        if(e->argslist->list[i].arg.type != COMMA){
+            print = retype_string(e->argslist->list[i]);
+            PRINT_LANE_ONE_ARG("PUSHS", print);
+        }
+    }
 }

@@ -12,6 +12,7 @@ Return mainu expr - Terka
 
 BETWEEN:
 Dokumentacia - Jasmi
+functionCall in var assign call check args
 
 NEXT:
 1. expression na dokoncenie semantiky - Terka
