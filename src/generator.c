@@ -452,9 +452,16 @@ char *retype_string(Token arg){
                         i++;
                         continue;
                     } else if(isdigit(arg.info[i+1]) && isdigit(arg.info[i+2]) && isdigit(arg.info[i+3])){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                        sprintf(cTmp, "\\%c%c%c",arg.info[i+1],arg.info[i+2],arg.info[i+3] );
+                        strcat(final_arg, cTmp);
                         i += 3;
                         continue;
-                    } else if(arg.info[i+1] == 'x' && isdigit(arg.info[i+2]) && isdigit(arg.info[i+3])){
+                    } else if(arg.info[i+1] == 'x'
+                    && ((isdigit(arg.info[i+2] ) || ((arg.info[i+2] >= 'A') && (arg.info[i+2] <= 'F')) || ((arg.info[i+2] >= 'a') && (arg.info[i+2] <= 'f')))
+                    && (isdigit(arg.info[i+3] ) || ((arg.info[i+2] >= 'A') && (arg.info[i+2] <= 'F')) || ((arg.info[i+2] >= 'a') && (arg.info[i+2] <= 'f'))))){
+                        sprintf(cTmp, "\\%c%c%c",arg.info[i+1],arg.info[i+2],arg.info[i+3] );
+                        strcat(final_arg, cTmp);
                         i += 3;
                         continue;
                     }
@@ -465,7 +472,6 @@ char *retype_string(Token arg){
             } else if (character >= 0 && character < '\n'){
                 final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 6));
                 sprintf(cTmp, "\\00%d", character);
-                printf("ahoj0");
                 strcat(final_arg, cTmp);
             } else if (character != 0){
                 final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 2));
