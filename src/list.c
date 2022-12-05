@@ -64,7 +64,11 @@ int getListIndex(){
 }
 
 Token getTokenFromList(){
-    return prog_list->list[prog_list->index++];
+    if( prog_list->index < prog_list->len-1){
+        return prog_list->list[prog_list->index++];
+    } else {
+        return prog_list->list[prog_list->index];
+    }
 }
 
 void previousTokenListIndex(){
@@ -74,5 +78,5 @@ void previousTokenListIndex(){
 }
 
 Token getEmptyToken(){
-    return (Token){.info=NULL,.type=ERROR_T,.kwt=UNKNOWN_K, .isKeyword=false};
+    return (Token){.info="",.type=ERROR_T,.kwt=UNKNOWN_K, .isKeyword=false};
 }
