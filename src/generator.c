@@ -479,7 +479,7 @@ char *retype_string(Token arg){
                             strcat(final_arg, "0");
                         }
                         char buffer[MAX_HT_SIZE];
-                        sprintf(buffer, "%d", number);
+                        sprintf(buffer, "%d", (int)number);
                         strcat(final_arg, buffer);
                         i += 3;
                         continue;

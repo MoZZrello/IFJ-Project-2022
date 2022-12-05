@@ -48,7 +48,7 @@ void prolog() {
                                 }
                                 else {
                                     body();
-                                    printf("tu som\n");
+                                    //printf("tu som\n");
                                 }
                             }
                         }
@@ -61,7 +61,7 @@ void prolog() {
 
 void body() {
     token = getTokenFromList();
-    printf("%d %s\n", token.type, token.info);
+    //printf("%d %s\n", token.type, token.info);
 
     if(token.type == IDENTIFIER){
         stmt();
