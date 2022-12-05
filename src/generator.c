@@ -296,7 +296,7 @@ void gen_call_func(ht_table_t *table, element call){
                 if (strcmp(compare_e->name.info, call.name.info) == 0) {
                     for (int j = 0; j < call.argslist->len; ++j) {
                         if (strcmp(call.argslist->list[j].arg.info, ",") != 0 && strcmp(call.name.info, "write") != 0 )  {
-                            print = retype_string(call.argslist->list[j]);
+                            print = retype_string(call.argslist->list[j].arg);
                             PRINT_LANE_ONE_ARG("PUSHS", print);
                         }
 
@@ -305,7 +305,7 @@ void gen_call_func(ht_table_t *table, element call){
                     if(strcmp(call.name.info, "write") == 0) {
                         for (int j = call.argslist->len - 1; j >= 0; j--) {
                             if (strcmp(call.argslist->list[j].arg.info, ",") != 0 )  {
-                                print = retype_string(call.argslist->list[j]);
+                                print = retype_string(call.argslist->list[j].arg);
                                 PRINT_LANE_ONE_ARG("PUSHS", print);
                             }
 
@@ -382,44 +382,44 @@ void gen_main(ht_table_t *table, int key){
     }
 }
 
-char *retype_string(arg arg){
+char *retype_string(Token arg){
     char *final_arg = NULL;
     char tmp[MAX_HT_SIZE];
-    if(arg.arg.type == NUMBER){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+    if(arg.type == NUMBER){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
 
         strcpy(final_arg, "int@");
-        strcat(final_arg, arg.arg.info);
+        strcat(final_arg, arg.info);
 
-    }else if(arg.arg.type == DECIMAL_NUMBER){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+    }else if(arg.type == DECIMAL_NUMBER){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "float@");
-        sprintf(tmp, "%a", strtod(arg.arg.info, NULL));
+        sprintf(tmp, "%a", strtod(arg.info, NULL));
         strcat(final_arg, tmp);
 
-    }else if(arg.arg.type == STRING){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+    }else if(arg.type == STRING){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "string@");
-        arg.arg.info[strlen(arg.arg.info)-1] = '\0';
-        memmove(arg.arg.info, arg.arg.info+1, strlen(arg.arg.info));
-        strcat(final_arg, arg.arg.info);
-    }else if(arg.arg.type == VAR_ID){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
+        arg.info[strlen(arg.info)-1] = '\0';
+        memmove(arg.info, arg.info+1, strlen(arg.info));
+        strcat(final_arg, arg.info);
+    }else if(arg.type == VAR_ID){
+        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "LF@");
-        memmove(arg.arg.info, arg.arg.info+1, strlen(arg.arg.info));
-        strcat(final_arg, arg.arg.info);
+        memmove(arg.info, arg.info+1, strlen(arg.info));
+        strcat(final_arg, arg.info);
     }
     return final_arg;
 }
@@ -723,9 +723,15 @@ void func_call_asign(element *e){
     char* print = NULL;
     for(int i = 3; i < e->argslist->len; i++){
         if(e->argslist->list[i].arg.type != COMMA){
-            print = retype_string(e->argslist->list[i]);
+            print = retype_string(e->argslist->list[i].arg);
             PRINT_LANE_ONE_ARG("PUSHS", print);
         }
     }
     func_call(e->argslist->list[1].arg.info);
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
+    PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
+    print = retype_string(e->name);
+    PRINT_LANE_ONE_ARG("DEFVAR", print);
+
+    PRINT_LANE_TWO_ARG("MOVE", e->name.info, "");
 }

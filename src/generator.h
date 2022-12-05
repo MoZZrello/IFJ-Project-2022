@@ -77,7 +77,7 @@ void func_call(char* call );
 
 //main
 void gen_main(ht_table_t *table, int key);
-char *retype_string(arg arg);
+char *retype_string(Token arg);
 
 //Vstavane funckie
 void gen_built_in_functions(ht_table_t *table, int key);
