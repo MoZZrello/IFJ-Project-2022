@@ -95,6 +95,6 @@ void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
 
 //assign a expr do vars
 void func_call_asign(element *e);
-void expr_gen(element *e);
+void var_expr_gen(element *e);
 
 #endif //SCANNER_C_GENERATOR_H

@@ -376,7 +376,7 @@ void gen_main(ht_table_t *table, int key){
                 if(e->argslist->list[1].arg.type == IDENTIFIER){
                     func_call_asign(e);
                 } else {
-                    expr_gen(e);
+                    var_expr_gen(e);
                 }
             }
         }
@@ -459,7 +459,7 @@ char *retype_string(Token arg){
                         continue;
                     } else if(arg.info[i+1] == 'x'
                     && ((isdigit(arg.info[i+2] ) || ((arg.info[i+2] >= 'A') && (arg.info[i+2] <= 'F')) || ((arg.info[i+2] >= 'a') && (arg.info[i+2] <= 'f')))
-                    && (isdigit(arg.info[i+3] ) || ((arg.info[i+2] >= 'A') && (arg.info[i+2] <= 'F')) || ((arg.info[i+2] >= 'a') && (arg.info[i+2] <= 'f'))))){
+                    && (isdigit(arg.info[i+3] ) || ((arg.info[i+3] >= 'A') && (arg.info[i+3] <= 'F')) || ((arg.info[i+3] >= 'a') && (arg.info[i+3] <= 'f'))))){
                         sprintf(cTmp, "\\%c%c%c",arg.info[i+1],arg.info[i+2],arg.info[i+3] );
                         strcat(final_arg, cTmp);
                         i += 3;
@@ -802,7 +802,7 @@ void func_call_asign(element *e){
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
 }
 
-void expr_gen(element *e){
+void var_expr_gen(element *e){
     char *var = NULL, *arg = NULL;
     bool allFloat = false, printFloat = false;
     Token operator;
