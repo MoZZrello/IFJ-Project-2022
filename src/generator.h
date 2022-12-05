@@ -93,4 +93,7 @@ void func_substring();  //funguje--- skontrolovane
 void func_ord();        //funguje--- skontrolovane
 void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
 
+//assign a expr do vars
+void func_call_asign();
+
 #endif //SCANNER_C_GENERATOR_H

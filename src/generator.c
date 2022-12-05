@@ -318,7 +318,9 @@ void gen_main(ht_table_t *table, int key){
         e = ht_get(table, index);
         if(e == NULL){break;}
         if(e->name.type == IDENTIFIER){
-            if(e->ret_type.type == ERROR_T) {
+            if (e->name.isKeyword && e->name.kwt == RETURN_K && inFunction == false){
+                printf("RETURN V MAINE\n");
+            } else if(e->ret_type.type == ERROR_T) {
                 if(inFunction == false) {
                     gen_call_func(table, *e);
                 }
@@ -333,8 +335,14 @@ void gen_main(ht_table_t *table, int key){
                 inFunction = false;
             }
         } else if (e->name.type == VAR_ID){
-            if(inFunction == false){
-               // printf("%s\n", e->name.info);
+            if(inFunction == false && e->argslist != NULL){
+                printf("%s\n", e->name.info);
+                if(e->argslist->list[1].arg.type == IDENTIFIER){
+                    func_call_asign();
+                    printf("FUNC CALL\n");
+                } else {
+                    printf("EXPR ASSIGN\n");
+                }
             }
         }
     }
@@ -342,6 +350,7 @@ void gen_main(ht_table_t *table, int key){
 
 char *retype_string(arg arg){
     char *final_arg = NULL;
+    char tmp[MAX_HT_SIZE];
     if(arg.arg.type == NUMBER){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
         if(final_arg == NULL){
@@ -356,7 +365,8 @@ char *retype_string(arg arg){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "float@");
-        strcat(final_arg, arg.arg.info);
+        sprintf(tmp, "%a", strtod(arg.arg.info, NULL));
+        strcat(final_arg, tmp);
     }else if(arg.arg.type == STRING){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.arg.info) + 1);
         if(final_arg == NULL){
@@ -671,4 +681,9 @@ void func_chr(){
 
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
+}
+
+//---------------------------------------EXPR---------------------------------------//
+void func_call_asign(){
+
 }
