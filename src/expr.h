@@ -106,7 +106,6 @@ Token exp_sem_return(element *e, bool in_func);
 Token exp_sem_ifwhile(element *e, bool in_func);
 
 void insert_first(char *data, d_list_types d_type);
-//struct variables* deleteFirst();
 void deleteFirst();
 struct variables* find(char *key);
 struct variables* delete(char *key);
@@ -118,6 +117,7 @@ KeywordType d_type_to_kw(int d_type);
 char *d_type_to_info(int d_type);
 
 void insert_first_fce(char *data, d_list_types d_type, bool null_ret);
-struct functions* delete_fce(char *key);
 struct functions* find_fce(char *key);
 void print_list_fce();
+
+int get_position(char *key);
