@@ -732,6 +732,5 @@ void func_call_asign(element *e){
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
     PRINT_LANE_ONE_ARG("DEFVAR", print);
-
-    PRINT_LANE_TWO_ARG("MOVE", e->name.info, "");
+    PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
 }
