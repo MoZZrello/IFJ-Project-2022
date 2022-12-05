@@ -405,14 +405,75 @@ char *retype_string(Token arg){
         strcat(final_arg, tmp);
 
     }else if(arg.type == STRING){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
+        char cTmp[6];
+
+        final_arg = malloc(sizeof (char) * 8);
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
+
         strcpy(final_arg, "string@");
         arg.info[strlen(arg.info)-1] = '\0';
         memmove(arg.info, arg.info+1, strlen(arg.info));
-        strcat(final_arg, arg.info);
+
+        int lenght_string =  (int) strlen(arg.info);
+        for (int i = 0; i < lenght_string ; i++) {
+            int character = (int) arg.info[i];
+            if((character >= '\n' && character <= ' ') ||  character == '#' || character == '\\'){
+                if(character == '\\'){
+                    if(arg.info[i+1] == 'n'){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                        sprintf(cTmp, "\\0%d", '\n');
+                        strcat(final_arg, cTmp);
+                        i++;
+                        continue;
+                    } else if(arg.info[i+1] == '\\'){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                        sprintf(cTmp, "\\0%d", '\\');
+                        strcat(final_arg, cTmp);
+                        i++;
+                        continue;
+                    } else if(arg.info[i+1] == 't'){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                        sprintf(cTmp, "\\0%d", '\t');
+                        strcat(final_arg, cTmp);
+                        i++;
+                        continue;
+                    } else if(arg.info[i+1] == '$'){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 2));
+                        sprintf(cTmp, "%c", '$');
+                        strcat(final_arg, cTmp);
+                        i++;
+                        continue;
+                    } else if(arg.info[i+1] == '"'){
+                        final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 2));
+                        sprintf(cTmp, "%c", '"');
+                        strcat(final_arg, cTmp);
+                        i++;
+                        continue;
+                    } else if(isdigit(arg.info[i+1]) && isdigit(arg.info[i+2]) && isdigit(arg.info[i+3])){
+                        i += 3;
+                        continue;
+                    } else if(arg.info[i+1] == 'x' && isdigit(arg.info[i+2]) && isdigit(arg.info[i+3])){
+                        i += 3;
+                        continue;
+                    }
+                }
+                final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 5));
+                sprintf(cTmp, "\\0%d", character);
+                strcat(final_arg, cTmp);
+            } else if (character >= 0 && character < '\n'){
+                final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 6));
+                sprintf(cTmp, "\\00%d", character);
+                printf("ahoj0");
+                strcat(final_arg, cTmp);
+            } else if (character != 0){
+                final_arg = realloc(final_arg, sizeof(char) * ((int) strlen(final_arg) + 2));
+                sprintf(cTmp, "%c", character);
+                strcat(final_arg, cTmp);
+            }
+        }
+        //printf("|%s|\n", final_arg);
     }else if(arg.type == VAR_ID){
         final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
         if(final_arg == NULL){
