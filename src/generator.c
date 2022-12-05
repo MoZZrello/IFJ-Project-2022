@@ -119,6 +119,41 @@ void gen_built_in_functions(ht_table_t *table, int key){
                     }
                 }
             }
+        } else if(e->name.type == VAR_ID && e->argslist != NULL){
+            if(strcmp(e->argslist->list[1].arg.info, "readi") == 0){
+                func_readi();
+                readi = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "reads") == 0){
+                func_reads();
+                reads = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "readf") == 0){
+                func_readf();
+                readf = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "write") == 0){
+                func_write();
+                write = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "floatval") == 0){
+                func_floatval();
+                floatval = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "intval") == 0){
+                func_intval();
+                intval = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "strval") == 0){
+                func_strval();
+                strval = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "strlen") == 0){
+                func_strlen();
+                strlen = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "substring") == 0){
+                func_substring();
+                substring = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "ord") == 0){
+                func_ord();
+                ord = false;
+            } else if(strcmp(e->argslist->list[1].arg.info, "chr") == 0){
+                func_chr();
+                chr = false;
+            }
         }
     }
 }
@@ -692,4 +727,5 @@ void func_call_asign(element *e){
             PRINT_LANE_ONE_ARG("PUSHS", print);
         }
     }
+    func_call(e->argslist->list[1].arg.info);
 }
