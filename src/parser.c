@@ -7,6 +7,7 @@ int brac_count = 0;
 
 void prolog() {
     token = getTokenFromList();
+    
     if (strcmp("|PHP|", getTypeName(token)) != 0) {
         callError(ERR_SYN);
     }
@@ -47,6 +48,7 @@ void prolog() {
                                 }
                                 else {
                                     body();
+                                    printf("tu som\n");
                                 }
                             }
                         }
@@ -59,12 +61,15 @@ void prolog() {
 
 void body() {
     token = getTokenFromList();
-    //printf("%s %ds %s\n", token.info, token.type, getTypeName(token));
+    printf("%d %s\n", token.type, token.info);
 
     if(token.type == IDENTIFIER){
         stmt();
     } else if (token.type == VAR_ID){
        stmt();
+    } else if(token.type == NUMBER || token.type == STRING || token.type == DECIMAL_NUMBER || token.type == EXPONENT_NUMBER) {
+        expression(&token, true);
+        body();
     } else if (token.type == PHP_END){
         return;
     } else if (token.type == EOF_T) {
@@ -126,7 +131,7 @@ void stmt() {
             //printf("error while\n");
             callError(ERR_SYN);
         }  
-    } else if(token.type == IDENTIFIER) { //todo urobit expression
+    } else if(token.type == IDENTIFIER) {
         if (strcmp(token.info, "return") == 0) {
             token = getTokenFromList();
             expression(&token, true);
