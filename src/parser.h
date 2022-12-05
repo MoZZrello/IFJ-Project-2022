@@ -57,6 +57,7 @@ element sem_if_while(bool in_fce);
 element sem_else();
 element sem_var(bool in_fce);
 element sem_identif();
+void check_var_calls(ht_table_t *table, element e, int key);
 void check_args_name(element e);
 void semControl(ht_table_t *table, int key);
 void check_sem_return(element func_e, element ret_e);
