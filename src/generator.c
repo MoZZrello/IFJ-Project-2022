@@ -794,15 +794,8 @@ void expr_gen(element *e){
                 } else {
                     PRINT_LANE_THREE_ARG("MUL", var, var, arg);
                 }
-            } else if(operator.type == GREATER){
-                PRINT_LANE_THREE_ARG("GT", var, var, arg);
-            } else if(operator.type == LESS){
-                PRINT_LANE_THREE_ARG("LT", var, var, arg);
-            } else if(operator.type == EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", var, var, arg);
-            }else if(operator.type == NOT_EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", var, var, arg);
-                PRINT_LANE_ONE_ARG("NOT", var);
+            } else if(operator.type == DOT){
+                PRINT_LANE_THREE_ARG("CONCAT", var, var, arg);
             }
         }
     }
