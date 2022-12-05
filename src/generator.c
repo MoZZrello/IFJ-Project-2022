@@ -168,7 +168,8 @@ void function_gen(ht_table_t *table){
     bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
     element* e = NULL;
     char func[MAX_HT_SIZE];
-    int ret_type, i = 0;
+    RetType ret_type;
+    int i = 0;
     while(!0){
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
@@ -190,7 +191,7 @@ void function_gen(ht_table_t *table){
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            func_main_print(table, e, ret_type);
+            func_main_print(table, e, ret_type, &i);
         }
     }
     PRINT_LANE_ZERO_ARG("POPFRAME");
@@ -201,8 +202,8 @@ void function_gen(ht_table_t *table){
  *@brief A function that prints an user-defined function
  *@param element* e -> pointer on element from table
  */
-int def_func_start(element* e ){
-    int return_type = 0;
+RetType def_func_start(element* e ){
+    RetType rt;
     if(e->argslist != NULL) {
         printf("\n");
         printf("#ZACALA NOVA FUNKCIA !!!!!\n");
@@ -212,14 +213,23 @@ int def_func_start(element* e ){
         PRINT_LANE_ZERO_ARG("CREATEFRAME");
         PRINT_LANE_ZERO_ARG("PUSHFRAME");
     }
+
     if(e->ret_type.kwt == STRING_K){
-        return_type = 1; //func return is string
+        rt.return_type = 1; //func return is string
     }else if(e->ret_type.kwt == INT_K){
-        return_type = 2; //func return is int
+        rt.return_type = 2; //func return is int
     }else if(e->ret_type.kwt == FLOAT_K){
-        return_type = 3; //func return is float
+        rt.return_type = 3; //func return is float
+    }else{
+        rt.return_type = 0;
     }
-    return return_type;
+
+    if(e->nullRet){
+        rt.canBeNull = true;
+    } else {
+        rt.canBeNull = false;
+    }
+    return rt;
 }
 /**
  *@brief A function defines and assigns values to the variable arguments that are passed to the function
@@ -241,25 +251,28 @@ void func_arg_print(element* e){
 /**
  * TODO - dokoncit funkciu -- funkcia, ktora by mala pushovat pri returne
  */
-void func_return(element* e, int ret_type){
-    if(ret_type == 0){
-        if(e->name.kwt == RETURN_K){
-
+void func_return(element* e, RetType ret_type){
+    if(ret_type.return_type == 0){
+        if(e->name.kwt == RETURN_K) {
+            printf("|%s|\n", e->argslist->list[0].arg.info);
         }
-    }else if(ret_type == 1){
+    }else if(ret_type.return_type == 1){
         if(e->name.kwt == RETURN_K){
+            printf("|%s|\n",e->argslist->list[0].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
             PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
         }
-    }else if(ret_type == 2){
+    }else if(ret_type.return_type == 2){
         if(e->name.kwt == RETURN_K){
+            printf("|%s|\n",e->argslist->list[0].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
             PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
         }
-    }else if(ret_type == 3){
+    }else if(ret_type.return_type == 3){
         if(e->name.kwt == RETURN_K){
+            printf("|%s|\n",e->argslist->list[0].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
             PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
@@ -271,8 +284,8 @@ void func_return(element* e, int ret_type){
  *@param element* e -> pointer on element from table
  * TODO - make it :D tlacit by mala vsetko okrem volania inej funkcii
  */
-void func_main_print(ht_table_t *table, element* e, int ret_type){
-    gen_call_func(table, *e); //ak sa z funkcie vola druha funkcia
+void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key){
+    gen_func_body(table, *e, key); //ak sa z funkcie vola druha funkcia
     func_return(e, ret_type);
 }
 /**
@@ -280,14 +293,13 @@ void func_main_print(ht_table_t *table, element* e, int ret_type){
  *@param element call -> the arguments we want to push for the called function
  *@param ht_table_t *table -> pointer to place where the entire code from input is stored
  */
-void gen_call_func(ht_table_t *table, element call){
+void gen_func_body(ht_table_t *table, element call, int *key){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     char* print = NULL;
-    int i = 0;
 
     while (!0){
-        sprintf(index, "%d", i++);
+        sprintf(index, "%d", *key++);
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
 
@@ -362,7 +374,7 @@ void gen_main(ht_table_t *table, int key){
                 printf("RETURN V MAINE\n");
             } else if(e->ret_type.type == ERROR_T) {
                 if(inFunction == false) {
-                    gen_call_func(table, *e);
+                    gen_func_body(table, *e, &i);
                 }
             } else {
                 inFunction = true;

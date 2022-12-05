@@ -10,6 +10,11 @@
 #include <stdbool.h>
 #include "symtable.h"
 
+typedef struct{
+    int return_type;
+    bool canBeNull;
+} RetType;
+
 /*
  * ADD (var) (symb1) (symb2)
  * SUB (var) (symb1) (symb2)
@@ -69,12 +74,12 @@ void start_program();
 //Define functions
 void function_gen(ht_table_t *table);
 void func_arg_print(element* e);
-void func_main_print(ht_table_t *table, element* e, int ret_type);
-void func_return(element* e, int ret_type);
-int def_func_start(element* e );
+void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key);
+void func_return(element* e, RetType ret_type);
+RetType def_func_start(element* e );
 
 //Functions to call the function
-void gen_call_func(ht_table_t *table, element call);
+void gen_func_body(ht_table_t *table, element call, int *key);
 void func_call(char* call );
 
 //Main
