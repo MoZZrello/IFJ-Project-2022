@@ -387,7 +387,7 @@ char *retype_string(Token arg){
     char *final_arg = NULL;
     char tmp[MAX_HT_SIZE];
     if(arg.type == NUMBER){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
+        final_arg = malloc(sizeof (char) * (4 + (int)strlen(arg.info) + 1));
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
@@ -396,12 +396,13 @@ char *retype_string(Token arg){
         strcat(final_arg, arg.info);
 
     }else if(arg.type == DECIMAL_NUMBER){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
+        sprintf(tmp, "%a", strtod(arg.info, NULL));
+
+        final_arg = malloc(sizeof (char) * (8 + (int)strlen(tmp) + 1));
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "float@");
-        sprintf(tmp, "%a", strtod(arg.info, NULL));
         strcat(final_arg, tmp);
 
     }else if(arg.type == STRING){
@@ -481,7 +482,7 @@ char *retype_string(Token arg){
         }
         //printf("|%s|\n", final_arg);
     }else if(arg.type == VAR_ID){
-        final_arg = malloc(sizeof (char) * (int)strlen(arg.info) + 1);
+        final_arg = malloc(sizeof (char) * (3 + (int)strlen(arg.info) + 1));
         if(final_arg == NULL){
             callError(ERR_INTERNAL);
         }
