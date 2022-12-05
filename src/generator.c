@@ -346,6 +346,7 @@ void gen_main(ht_table_t *table, int key){
 
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     for (int i = 0; i < key ; ++i) {
         element* e = NULL;
         sprintf(index, "%d", i);
@@ -373,9 +374,8 @@ void gen_main(ht_table_t *table, int key){
                 //printf("%s\n", e->name.info);
                 if(e->argslist->list[1].arg.type == IDENTIFIER){
                     func_call_asign(e);
-                    printf("FUNC CALL\n");
                 } else {
-                    printf("EXPR ASSIGN\n");
+                    expr_gen(e);
                 }
             }
         }
@@ -728,9 +728,81 @@ void func_call_asign(element *e){
         }
     }
     func_call(e->argslist->list[1].arg.info);
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
     PRINT_LANE_ONE_ARG("DEFVAR", print);
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
+}
+
+void expr_gen(element *e){
+    char *var = NULL, *arg = NULL;
+    bool allFloat = false, printFloat = false;
+    Token operator;
+
+    // Check if we have any float
+
+    for(int i = 1; i < e->argslist->len+1; i++){
+        if(e->argslist->list[i].arg.type == DECIMAL_NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER){
+            allFloat = true;
+        }
+    }
+    if(allFloat){
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
+    }
+
+    var = retype_string(e->name);
+    PRINT_LANE_ONE_ARG("DEFVAR", var);
+    arg = retype_string(e->argslist->list[1].arg);
+    PRINT_LANE_TWO_ARG("MOVE", var, arg);
+    if(e->argslist->list[1].arg.type == NUMBER){
+        PRINT_LANE_TWO_ARG("INT2FLOAT", var, var);
+    }
+
+
+
+    for(int i = 2; i < e->argslist->len+1; i++){
+        if(i % 2 == 0){
+            operator = e->argslist->list[i].arg;
+        } else {
+            arg = retype_string(e->argslist->list[i].arg);
+            if(allFloat && e->argslist->list[i].arg.type == NUMBER){
+                PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", arg);
+                printFloat = true;
+            }
+            if(operator.type == MINUS){
+                if(printFloat){
+                    PRINT_LANE_THREE_ARG("SUB", var, var,"LF@INT2FLOATVAR");
+                } else {
+                    PRINT_LANE_THREE_ARG("SUB", var, var,arg);
+                }
+            } else if(operator.type == PLUS){
+                if(printFloat){
+                    PRINT_LANE_THREE_ARG("ADD", var, var,"LF@INT2FLOATVAR");
+                } else {
+                    PRINT_LANE_THREE_ARG("ADD", var, var, arg);
+                }
+            } else if(operator.type == DIVIDE){
+                if(printFloat){
+                    PRINT_LANE_THREE_ARG("DIV", var, var,"LF@INT2FLOATVAR");
+                } else {
+                    PRINT_LANE_THREE_ARG("DIV", var, var, arg);
+                }
+            } else if(operator.type == MULTIPLY){
+                if(printFloat){
+                    PRINT_LANE_THREE_ARG("MUL", var, var,"LF@INT2FLOATVAR");
+                } else {
+                    PRINT_LANE_THREE_ARG("MUL", var, var, arg);
+                }
+            } else if(operator.type == GREATER){
+                PRINT_LANE_THREE_ARG("GT", var, var, arg);
+            } else if(operator.type == LESS){
+                PRINT_LANE_THREE_ARG("LT", var, var, arg);
+            } else if(operator.type == EQUAL){
+                PRINT_LANE_THREE_ARG("EQ", var, var, arg);
+            }else if(operator.type == NOT_EQUAL){
+                PRINT_LANE_THREE_ARG("EQ", var, var, arg);
+                PRINT_LANE_ONE_ARG("NOT", var);
+            }
+        }
+    }
 }
