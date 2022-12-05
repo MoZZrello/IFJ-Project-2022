@@ -863,29 +863,33 @@ void check_var_calls(ht_table_t *table, element e, int key){
     call.argslist = NULL;
     call.ret_type = getEmptyToken();
 
-    call.argslist = malloc(sizeof(argList));
-    if(call.argslist == NULL){
-        callError(ERR_INTERNAL);
-    }
+    if(e.argslist->len > 3) {
+        call.argslist = malloc(sizeof(argList));
+        if (call.argslist == NULL) {
+            callError(ERR_INTERNAL);
+        }
 
-    call.argslist->list = malloc(sizeof(arg));
-    if(call.argslist->list == NULL){
-        callError(ERR_INTERNAL);
-    }
+        call.argslist->list = malloc(sizeof(arg));
+        if (call.argslist->list == NULL) {
+            callError(ERR_INTERNAL);
+        }
 
-    call.argslist->len = 0;
+        call.argslist->len = 0;
 
-    for(int i = 3; i < e.argslist->len; i++){
-        call.argslist->list = realloc(call.argslist->list, sizeof(arg)*(argsCount+1));
-        call.argslist->list[argsCount].arg = e.argslist->list[i].arg;
-        call.argslist->len++;
-        argsCount++;
+        for (int i = 3; i < e.argslist->len; i++) {
+            call.argslist->list = realloc(call.argslist->list, sizeof(arg) * (argsCount + 1));
+            call.argslist->list[argsCount].arg = e.argslist->list[i].arg;
+            call.argslist->len++;
+            argsCount++;
+        }
     }
 
     see_call_defined(table, call, key);
 
-    free(call.argslist->list);
-    free(call.argslist);
+    if(call.argslist != NULL){
+        free(call.argslist->list);
+        free(call.argslist);
+    }
 }
 
 void check_sem_return(element func_e, element ret_e){
