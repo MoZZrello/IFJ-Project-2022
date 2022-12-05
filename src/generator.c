@@ -338,7 +338,11 @@ void func_call(char* call){
 
 //---------------------------------------MAIN-----------------------------------------------------//
 
-//printujeme main
+/**
+ *@brief A function that generates main
+ *@param ht_table_t *table -> place where the entire code from input is stored
+ *@param key -> ID of element in Table
+ */
 void gen_main(ht_table_t *table, int key){
     bool inFunction = false;
     int curly = 0;
@@ -383,6 +387,10 @@ void gen_main(ht_table_t *table, int key){
     }
 }
 
+/**
+ *@brief A function that retypes argument to the required form LF@ / int@ / float@ / string@
+ *@param Token arg - the input argument that we cast
+ */
 char *retype_string(Token arg){
     char *final_arg = NULL;
     char tmp[MAX_HT_SIZE];
@@ -503,7 +511,11 @@ char *retype_string(Token arg){
     return final_arg;
 }
 
-long long hexa_to_octal(char hex[]){
+/**
+ *@brief A function that converts hexadecimal notation to octal notation
+ *@param const char hex[] - Input argument in hexa form
+ */
+long long hexa_to_octal(const char hex[]){
     long long octal_number, bin_number, spot;
     int rem, val;
 
@@ -614,7 +626,11 @@ long long hexa_to_octal(char hex[]){
 }
 
 //---------------------------------------BUILD-IN FUNCTINOS---------------------------------------//
-/////------------dorob!!!!!!!!!!!!!!!!!!!
+//-------------------------------These functions are written in IFJcode22-------------------------//
+/**
+ * @brief A built-in function that reads strings from standard input
+ * -string pushes on the stack
+ */
 void func_reads(){
     printf("\n#ZACALA FUNKCIA READS !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$reads");
@@ -639,7 +655,10 @@ void func_reads(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
+/**
+ * @brief A built-in function that reads int from standard input
+ * -int pushes on the stack
+ */
 void func_readi(){
     printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readi");
@@ -664,7 +683,10 @@ void func_readi(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
+/**
+ * @brief A built-in function that reads float from standard input
+ * -float pushes on the stack
+ */
 void func_readf(){
     printf("\n#ZACALA FUNKCIA READI !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$readf");
@@ -690,7 +712,10 @@ void func_readf(){
     PRINT_LANE_ZERO_ARG("RETURN");
 }
 
-//na stack to co chceme precitat
+/**
+ * @brief Built-in function for printing
+ * The number of arguments must be pushed on the stack, and given arguments
+ */
 void func_write(){
     printf("\n#ZACALA FUNKCIA WRITE !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$write");
@@ -725,8 +750,10 @@ void func_write(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack treba dat INT a funkcia vrati FLOAT
+/**
+ * @brief Built-in function to change INT to FLOAT
+ * It is necessary to push INT number to the function via stack
+ */
 void func_floatval(){
     printf("\n#ZACALA FUNKCIA FLOATVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$floatval");
@@ -742,8 +769,10 @@ void func_floatval(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack treba dat FLOAT a funckia vrati INT
+/**
+ * @brief Built-in function to change FLOAT to INT
+ * It is necessary to push FLOAT number to the function via stack
+ */
 void func_intval(){
     printf("\n#ZACALA FUNKCIA INTVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$intval");
@@ -759,8 +788,9 @@ void func_intval(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack string a ona vrati bud string alebo null string
+/**
+ * @brief In our case, the function just returns a string or nill
+ */
 void func_strval(){
     printf("\n#ZACALA FUNKCIA STRVAL !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strval");
@@ -779,8 +809,9 @@ void func_strval(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack treba dat string a funckia vrati jeho dlzku
+/**
+ * @brief Built-in function returns the length of the argument that was pushed on stack
+ */
 void func_strlen(){
     printf("\n#ZACALA FUNKCIA STRLEN !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$strlen");
@@ -793,8 +824,9 @@ void func_strlen(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack v poradi treba dat ->string, start_index (i), end_index (j) ... funkcia vrati string medzi tymito indexami
+/**
+ * @brief Built-in function returns the substring of the string that was pushed on stack
+ */
 void func_substring(){
     printf("\n#ZACALA FUNKCIA SUBSTRING !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$substring");
@@ -858,7 +890,10 @@ void func_substring(){
     PRINT_LANE_ZERO_ARG("RETURN");
 }
 
-//na stack string a funkia vracia INT hodnotu prveho znaku stringu
+/**
+ * @brief Built-in function to change first CHAR of STRINF to INT
+ * It is necessary to push STRING to the function via stack
+ */
 void func_ord(){
     printf("\n#ZACALA FUNKCIA ORD !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$ord");
@@ -882,8 +917,10 @@ void func_ord(){
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
-
-//na stack treba dat INT a funkcia vrati charakter v prislunom indexe ASCII
+/**
+ * @brief Built-in function to change INT to CHAR
+ * It is necessary to push INT to the function via stack
+ */
 void func_chr(){
     printf("\n#ZACALA FUNKCIA CHR !\n");
     PRINT_LANE_ONE_ARG("LABEL", "$chr");

@@ -10,7 +10,6 @@
 #include <stdbool.h>
 #include "symtable.h"
 
-
 /*
  * ADD (var) (symb1) (symb2)
  * SUB (var) (symb1) (symb2)
@@ -61,27 +60,31 @@ void PRINT_LANE_ONE_ARG(char* name, char* arg1);
  */
 void PRINT_LANE_ZERO_ARG(char* name);
 
+//Main func for generate program
 void gen_program(ht_table_t *table, int no_build_in_func);
 
+//Header of IFJcode22
 void start_program();
 
-//function
+//Define functions
 void function_gen(ht_table_t *table);
 void func_arg_print(element* e);
 void func_main_print(ht_table_t *table, element* e, int ret_type);
 void func_return(element* e, int ret_type);
 int def_func_start(element* e );
 
-//Volanie funkcie vo funckii alebo v maine
+//Functions to call the function
 void gen_call_func(ht_table_t *table, element call);
 void func_call(char* call );
 
-//main
+//Main
 void gen_main(ht_table_t *table, int key);
-char *retype_string(Token arg);
-long long hexa_to_octal(char hex[]);
 
-//Vstavane funckie
+//Retypes functions
+char *retype_string(Token arg);
+long long hexa_to_octal(const char hex[]);
+
+//Built-in functions
 void gen_built_in_functions(ht_table_t *table, int key);
 void func_reads();      //done I guess
 void func_readi();      //done I guess
