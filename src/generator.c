@@ -166,11 +166,13 @@ void gen_built_in_functions(ht_table_t *table, int key){
  */
 void function_gen(ht_table_t *table){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
-    bool is_end = false;  //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
+    bool is_end = false; //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
+    bool inElse = false;
     element* e = NULL;
     char func[MAX_HT_SIZE];
+    char else_end_label[20] = "$else_end_";
     RetType ret_type;
-    int i = 0;
+    int i = 0, elseCurly = 0;
     while(!0){
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
@@ -185,6 +187,9 @@ void function_gen(ht_table_t *table){
         }
         //telo funkcie zacina { --preskocim
         if (e->name.type == LEFT_CURLY_BRACKET){
+            if(inElse){
+                elseCurly++;
+            }
             continue;
         //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
@@ -194,9 +199,30 @@ void function_gen(ht_table_t *table){
                 PRINT_LANE_ZERO_ARG("RETURN");
                 printf("\n");
             }
+            if(inElse) {
+                elseCurly--;
+                if (elseCurly == 0) {
+                    PRINT_LANE_ONE_ARG("LABEL", else_end_label);
+                    inElse = false;
+                }
+            }
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
+            if(e->name.kwt == ELSE_K){
+                inElse = true;
+                char tmp[MAX_HT_SIZE];
+                else_end_label[10] = '\0';
+                sprintf(tmp, "%d", counter-1);
+                strcat(else_end_label, tmp);
+                PRINT_LANE_ONE_ARG("JUMP", else_end_label);
+
+                char else_label[20] = "$else_";
+                sprintf(tmp, "%d", counter-1);
+                else_label[7] = '\0';
+                strcat(else_label, tmp);
+                PRINT_LANE_ONE_ARG("LABEL", else_label);
+            }
             func_main_print(table, e, ret_type, &i);
         }
     }
@@ -289,12 +315,7 @@ void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key){
     } else if(e->name.isKeyword && e->name.kwt == IF_K){
         gen_if(table, e);
     } else if(e->name.isKeyword && e->name.kwt == ELSE_K){
-        char tmp[MAX_HT_SIZE];
-        char else_label[20] = "$else_";
-        sprintf(tmp, "%d", counter-1);
-        else_label[7] = '\0';
-        strcat(else_label, tmp);
-        PRINT_LANE_ONE_ARG("LABEL", else_label);
+        return;
     } else if(e->name.isKeyword && e->name.kwt == WHILE_K){
 
     } else if(e->name.type == IDENTIFIER){
