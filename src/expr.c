@@ -1144,10 +1144,19 @@ Token exp_sem_return(element *e, bool in_func) {
 
   Token t;
   if(in_func == true) {
-    t.isKeyword = true;
-    t.type = IDENTIFIER;
-    t.kwt = d_type_to_kw(head_var_fce->return_type);
-    t.info = d_type_to_info(head_var_fce->return_type);
+     if(e->argslist->list[0].arg.type == SEMICOLON) {
+      t.isKeyword = true;
+      t.type = IDENTIFIER;
+      t.kwt = NULL_K;
+      t.info = "null";
+    }
+    else {
+      t.isKeyword = true;
+      t.type = IDENTIFIER;
+      t.kwt = d_type_to_kw(head_var_fce->return_type);
+      t.info = d_type_to_info(head_var_fce->return_type);
+    }
+    
   }
   else {
     if(e->argslist->list[0].arg.type == SEMICOLON) {
@@ -1162,15 +1171,16 @@ Token exp_sem_return(element *e, bool in_func) {
       t.kwt = INT_K;
       t.info = "int";
     }
-    int index = getListIndex();
+    /*int index = getListIndex();
     arg_type = find_in_list(e->name.info);
     changeTokenListIndex(index);
 
       if(arg_type == D_NON) {
         //printf("Error, neexistujuca funkcia\n");
         callError(ERR_SEM_FUNC);
-      }
+      }*/
     }
+    //printf("%s\n", t.info);
   return t;
 }
 
@@ -1259,4 +1269,3 @@ char *d_type_to_info(int d_type) {
       return "null";
   }
 }
-
