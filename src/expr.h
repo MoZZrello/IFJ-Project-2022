@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "scanner.h"
 #include "list.h"
-#include "error.h"
+#include "errors.h"
 #include "symtable.h"
 
 typedef enum{
