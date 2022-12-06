@@ -9,12 +9,14 @@ semControl zmenit elementList na hashtable data - by Riso
 80% semantika done - by Riso
 syntactic - by Terka a Jasmi
 Return mainu expr - Terka
+Dokumentacia - Jasmi
+expression na dokoncenie semantiky - Terka
+dokoncit semantiku s expressions - Riso
 
 BETWEEN:
-Dokumentacia - Jasmi
-functionCall in var assign call check args
+opravit chyby podla automatickych testov
+opravit co najviac z generatora
+dopisat dokumentaciu
 
 NEXT:
-1. expression na dokoncenie semantiky - Terka
-2. dokoncit semantiku s expressions - Riso
-3. ked prejde cely program do hashtable a semantikou, zavolat generator kodu - Riso, Mareks
+generator kodu - Riso, Mareks
