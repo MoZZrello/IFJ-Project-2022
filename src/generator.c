@@ -1038,8 +1038,8 @@ void func_call_asign(element *e){
     func_call(e->argslist->list[1].arg.info);
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
-    print = realloc(print, sizeof(char) * (strlen(print) + strlen(tmp) + 2));
     sprintf(tmp, "%d", counter++);
+    print = realloc(print, sizeof(char) * (strlen(print) + strlen(tmp) + 2));
     strcat(print, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", print);
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
@@ -1058,7 +1058,7 @@ void var_expr_gen(element *e){
         }
     }
 
-    if(allFloat){
+    if(allFloat == true){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
@@ -1066,7 +1066,7 @@ void var_expr_gen(element *e){
     PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
     PRINT_LANE_TWO_ARG("MOVE", var, arg);
-    if(e->argslist->list[1].arg.type == NUMBER){
+    if(e->argslist->list[1].arg.type == NUMBER && allFloat){
         PRINT_LANE_TWO_ARG("INT2FLOAT", var, var);
     }
 
@@ -1124,13 +1124,13 @@ void return_expr(element *e){
         return;
     }
 
-    for(int i = 0; i < e->argslist->len+1; i++){
+    for(int i = 0; i < e->argslist->len; i++){
         if(e->argslist->list[i].arg.type == DECIMAL_NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER){
             allFloat = true;
         }
     }
-    
-    if(allFloat){
+
+    if(allFloat == true){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
@@ -1195,7 +1195,7 @@ void gen_if(ht_table_t *t, element *e){
         return;
     }
 
-    for(int i = 0; i < e->argslist->len+1; i++){
+    for(int i = 0; i < e->argslist->len; i++){
         if(e->argslist->list[i].arg.type == DECIMAL_NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER){
             allFloat = true;
         }
