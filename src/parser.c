@@ -48,7 +48,6 @@ void prolog() {
                                 }
                                 else {
                                     body();
-                                    //printf("tu som\n");
                                 }
                             }
                         }
@@ -145,8 +144,11 @@ void stmt() {
     } else if (strcmp(getTypeName(token), "|VAR_ID|") == 0) {
         token = getTokenFromList();
         if (token.type != ASSIGN) {
+            if(token.type != SEMICOLON) {
+                callError(ERR_SYN);
+            }
             //printf("error =\n");
-            callError(ERR_SYN);
+            //callError(ERR_SYN);
         } else {
             token = getTokenFromList();
             expression(&token, true);
