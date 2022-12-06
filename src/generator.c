@@ -1044,5 +1044,71 @@ void var_expr_gen(element *e){
 }
 
 void return_expr(element *e){
+    char* print = NULL;
+    Token operator;
+    bool allFloat = false, printFloat = false;
+    char var[35] = "LF@IM_FUNCTION_AND_I_RETURN_THIS";
 
+    PRINT_LANE_ONE_ARG("DEFVAR", var);
+
+    if(e->argslist == NULL){
+        return;
+    }
+
+    for(int i = 0; i < e->argslist->len+1; i++){
+        if(e->argslist->list[i].arg.type == DECIMAL_NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER){
+            allFloat = true;
+        }
+    }
+    if(allFloat){
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
+    }
+
+    if(e->argslist->list[0].arg.type != SEMICOLON){
+        print = retype_string(e->argslist->list[0].arg);
+        PRINT_LANE_TWO_ARG("MOVE", var, print);
+    } else {
+        return;
+    }
+
+    for(int i = 1; i < e->argslist->len; i++){
+        if(e->argslist->list[i].arg.type != SEMICOLON){
+            if(i % 2 != 0){
+                operator = e->argslist->list[i].arg;
+            } else {
+                print = retype_string(e->argslist->list[i].arg);
+                if(allFloat && e->argslist->list[i].arg.type == NUMBER){
+                    PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", print);
+                    printFloat = true;
+                }
+                if(operator.type == MINUS){
+                    if(printFloat){
+                        PRINT_LANE_THREE_ARG("SUB", var, var,"LF@INT2FLOATVAR");
+                    } else {
+                        PRINT_LANE_THREE_ARG("SUB", var, var,print);
+                    }
+                } else if(operator.type == PLUS){
+                    if(printFloat){
+                        PRINT_LANE_THREE_ARG("ADD", var, var,"LF@INT2FLOATVAR");
+                    } else {
+                        PRINT_LANE_THREE_ARG("ADD", var, var, print);
+                    }
+                } else if(operator.type == DIVIDE){
+                    if(printFloat){
+                        PRINT_LANE_THREE_ARG("DIV", var, var,"LF@INT2FLOATVAR");
+                    } else {
+                        PRINT_LANE_THREE_ARG("DIV", var, var, print);
+                    }
+                } else if(operator.type == MULTIPLY){
+                    if(printFloat){
+                        PRINT_LANE_THREE_ARG("MUL", var, var,"LF@INT2FLOATVAR");
+                    } else {
+                        PRINT_LANE_THREE_ARG("MUL", var, var, print);
+                    }
+                } else if(operator.type == DOT){
+                    PRINT_LANE_THREE_ARG("CONCAT", var, var, print);
+                }
+            }
+        }
+    }
 }

@@ -633,9 +633,9 @@ int get_position(char *key) {
   struct variables* current = head_var;
   int count = 0;
 
-  while(strcmp(current->data, key)) {
+  while(strcmp(current->data, key) != 0) {
     if(current->next == NULL) {
-         return NULL;
+         return 0;
       } else {
          current = current->next;
          count++;
