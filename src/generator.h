@@ -15,7 +15,7 @@ typedef struct{
     bool canBeNull;
 } RetType;
 
-int counter;
+
 
 /*
  * ADD (var) (symb1) (symb2)
