@@ -110,5 +110,6 @@ void return_expr(element *e);
 
 //if, while, else
 void gen_if(ht_table_t * t, element *e);
+void gen_while(ht_table_t *t, element *e);
 
 #endif //SCANNER_C_GENERATOR_H

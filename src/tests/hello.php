@@ -5,10 +5,9 @@ declare(strict_types=1);
 
 function hlavni_program(?int $year) : float {
   write("Hello from IFJ", $year, "\n");
-  if(2 === 2){
-    write("ano, tohle plati");
-  } else {
-    write("ne, tohle neplati");
+  while($year < 25){
+    write("while|");
+    $year = $year + 1;
   }
   return 1.1 + 1;
 }
