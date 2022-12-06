@@ -980,8 +980,8 @@ void check_sem_return(element func_e, element ret_e){
 }
 
 void check_global_return(element ret_e){
-    if(ret_e.argslist == NULL || ret_e.argslist->len == 1){
-        if(ret_e.expr.isKeyword && ret_e.expr.kwt == INT_K){
+    if(ret_e.argslist != NULL || (ret_e.argslist == NULL || ret_e.argslist->len == 1)){
+        if(ret_e.expr.isKeyword && (ret_e.expr.kwt == INT_K || ret_e.expr.kwt == STRING_K || ret_e.expr.kwt == FLOAT_K || ret_e.expr.kwt == NULL_K)){
             return;
         } else {
             callError(ERR_SEM_RETURN);

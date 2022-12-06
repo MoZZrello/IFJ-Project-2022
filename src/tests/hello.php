@@ -21,8 +21,8 @@ function pohlavni_program(string $month, int $year) : void {
 $tmp = "ab" . "c";
 $tmp2 = 1;
 
-if(1>=2){
-    write("true");
+if(1 < 2){
+    $var = strlen("true");
 } else {
     write("false");
 }
