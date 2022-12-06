@@ -15,8 +15,6 @@ typedef struct{
     bool canBeNull;
 } RetType;
 
-
-
 /*
  * ADD (var) (symb1) (symb2)
  * SUB (var) (symb1) (symb2)
