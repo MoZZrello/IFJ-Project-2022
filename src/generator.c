@@ -1057,6 +1057,7 @@ void var_expr_gen(element *e){
             allFloat = true;
         }
     }
+
     if(allFloat){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
@@ -1127,6 +1128,10 @@ void return_expr(element *e){
         if(e->argslist->list[i].arg.type == DECIMAL_NUMBER || e->argslist->list[i].arg.type == EXPONENT_NUMBER){
             allFloat = true;
         }
+    }
+    
+    if(allFloat){
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
     if(e->argslist->list[0].arg.type != SEMICOLON){
