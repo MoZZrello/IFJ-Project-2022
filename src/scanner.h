@@ -117,7 +117,7 @@ AutomatStates nextState(AutomatStates input, char c, bool *php_comment);
 
 Token returnTokenCreator(AutomatStates final_state, string* str);
 
-Token getToken();
+Token getToken(string str);
 
 char* getTypeName(Token t);
 

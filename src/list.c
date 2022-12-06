@@ -40,6 +40,13 @@ void printTokenList(){
 void createTokenList(){
     initTokenList();
     string str;
+    int i = getchar();
+
+    if(i != '<'){
+        callError(ERR_SYN);
+    }
+    ungetc(i, stdin);
+
     while(1){
         stringInit(&str);
         Token t = getToken(str);
