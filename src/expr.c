@@ -1002,7 +1002,6 @@ Token exp_sem_return(element *e, bool in_func) {
   }
 
   for(int i = 0; i < e->argslist->len; i++) {
-    //printf("%s\n", e->argslist->list[i].arg.info);
     if(in_func == true) {
       if(e->argslist->list[i].arg.type == VAR_ID) {
         if(find(e->argslist->list[i].arg.info) == NULL) {
@@ -1042,7 +1041,7 @@ Token exp_sem_return(element *e, bool in_func) {
                 }
                 break;
               default:
-                //printf("error, zly navratovy typ\n");
+                  printf("error, zly navratovy typ\n");
                   callError(ERR_SEM_ARGS);
               break;
             }
@@ -1065,6 +1064,22 @@ Token exp_sem_return(element *e, bool in_func) {
               callError(ERR_SEM_ARGS);
               break;
           }
+        }
+        else if(head_var_fce->return_type == D_STRING) {
+           switch(ret_t) {
+              case D_STRING:
+                break;
+              case D_NULL:
+                if(head_var_fce->can_be_null == false) {
+                  //printf("error null ako navratovy typ\n");
+                  callError(ERR_SEM_ARGS);
+                }
+                break;
+              default:
+                //printf("error, zly navratovy typ\n");
+                  callError(ERR_SEM_ARGS);
+              break;
+            }
         }
       }
       else if((e->argslist->list[i].arg.type == DOT) && (head_var_fce->return_type == D_NUM || head_var_fce->return_type == D_EXP_NUMB || head_var_fce->return_type == D_DECM_NUM)) {
