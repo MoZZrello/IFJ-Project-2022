@@ -287,24 +287,24 @@ void func_arg_print(element* e){
  */
 void func_return(element* e, RetType ret_type){
     if(ret_type.return_type == 0){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nil@nil");
-        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LF@return", "nil@nil");
+        PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 1){
         return_expr(e);
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+        PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 2){
         return_expr(e);
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+        PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 3){
         return_expr(e);
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+        PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }
 }
 /**
@@ -1057,11 +1057,7 @@ void var_expr_gen(element *e){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
-    char tmp[MAX_HT_SIZE];
     var = retype_string(e->name);
-    var = realloc(var, sizeof(char) * (strlen(var) + strlen(tmp) + 2));
-    sprintf(tmp, "%d", counter++);
-    strcat(var, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
     PRINT_LANE_TWO_ARG("MOVE", var, arg);
