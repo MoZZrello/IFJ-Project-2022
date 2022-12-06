@@ -237,13 +237,13 @@ void function_gen(ht_table_t *table){
             PRINT_LANE_ONE_ARG("JUMP", else_end_label);
             PRINT_LANE_ONE_ARG("LABEL", else_label);
         } else if(e->name.kwt == WHILE_K && is_function){
+            inWhile = true;
             gen_while(table, e);
         } else if(e->name.type == VAR_ID && is_function){
             var_expr_gen(e);
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            inWhile = true;
             func_main_print(table, e, ret_type, &i);
         }
     }
@@ -414,8 +414,8 @@ void func_call(char* call){
  *@param key -> ID of element in Table
  */
 void gen_main(ht_table_t *table, int key){
-    bool inFunction = false, inElse = false;
-    int curly = 0, elseCurly = 0;
+    bool inFunction = false, inElse = false, inWhile = false;
+    int curly = 0, elseCurly = 0, whileCurly = 0;
     char index[MAX_HT_SIZE];
     char else_end_label[20] = "$else_end_";
 
@@ -442,12 +442,13 @@ void gen_main(ht_table_t *table, int key){
                     strcat(else_end_label, tmp);
                     PRINT_LANE_ONE_ARG("JUMP", else_end_label);
 
-                    char else_label[20] = "$else_";
                     sprintf(tmp, "%d", counter-1);
                     else_label[7] = '\0';
                     strcat(else_label, tmp);
                     PRINT_LANE_ONE_ARG("LABEL", else_label);
                     inElse = true;
+                } else if(e->name.kwt == WHILE_K){
+                    gen_while(table, e);
                 }
                 if(inFunction == false) {
                     gen_func_call(table, *e);
@@ -460,10 +461,22 @@ void gen_main(ht_table_t *table, int key){
             if(inElse){
                 elseCurly++;
             }
+            if(inWhile){
+                whileCurly++;
+            }
         } else if(e->name.type == RIGHT_CURLY_BRACKET){
             curly--;
             if(curly == 0){
                 inFunction = false;
+            }
+            if(inWhile){
+                whileCurly--;
+                if(whileCurly == 0){
+                    inWhile = false;
+                    char tmp[MAX_HT_SIZE];
+                    PRINT_LANE_ONE_ARG("JUMP", cycle_name);
+                    PRINT_LANE_ONE_ARG("LABEL", cycle_end);
+                }
             }
             if(inElse){
                 elseCurly--;
@@ -1370,6 +1383,8 @@ void gen_while(ht_table_t *t, element *e){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
+    int newLF = counter, newLF2 = counter;
+
     for(int i = 0; i < e->argslist->len+1; i++){
         if(i%2==0){
             print = retype_string(e->argslist->list[i].arg);
@@ -1396,8 +1411,6 @@ void gen_while(ht_table_t *t, element *e){
     sprintf(tmp, "%d", counter++);
     cycle_end[11] = '\0';
     strcat(cycle_end, tmp);
-
-    int newLF = counter;
 
     for(int i = 0; i < e->argslist->len+1; i++){
         if(i%2 != 0){
@@ -1437,7 +1450,7 @@ void gen_while(ht_table_t *t, element *e){
             } else if(operator.type == DOT){
                 PRINT_LANE_THREE_ARG("CONCAT", while_var, while_var, print);
             } else {
-                sprintf(tmp, "%d", counter++);
+                sprintf(tmp, "%d", newLF++);
                 while_var[14] = '\0';
                 strcat(while_var, tmp);
                 PRINT_LANE_TWO_ARG("MOVE", while_var, print);
@@ -1445,7 +1458,7 @@ void gen_while(ht_table_t *t, element *e){
         }
     }
 
-    sprintf(tmp, "%d", newLF++);
+    sprintf(tmp, "%d", newLF2++);
     while_var[14] = '\0';
     strcat(while_var, tmp);
     PRINT_LANE_TWO_ARG("MOVE", while_main, while_var);
@@ -1500,7 +1513,7 @@ void gen_while(ht_table_t *t, element *e){
                 PRINT_LANE_ONE_ARG("LABEL", gt_jump_label);
                 PRINT_LANE_TWO_ARG("MOVE", while_main, gt_var);
             } else {
-                sprintf(tmp, "%d", newLF++);
+                sprintf(tmp, "%d", newLF2++);
                 while_var[14] = '\0';
                 strcat(while_var, tmp);
             }
