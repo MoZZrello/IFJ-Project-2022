@@ -997,7 +997,12 @@ Token exp_sem_return(element *e, bool in_func) {
   d_list_types ret_t; 
   d_list_types arg_type = D_NON;
 
+  if(head_var_fce->return_type == D_NULL && e->argslist->list[0].arg.type != SEMICOLON) {
+    callError(ERR_SEM_RETURN );
+  }
+
   for(int i = 0; i < e->argslist->len; i++) {
+    printf("%s\n", e->argslist->list[i].arg.info);
     if(in_func == true) {
       if(e->argslist->list[i].arg.type == VAR_ID) {
         if(find(e->argslist->list[i].arg.info) == NULL) {
@@ -1145,6 +1150,7 @@ Token exp_sem_return(element *e, bool in_func) {
   Token t;
   if(in_func == true) {
      if(e->argslist->list[0].arg.type == SEMICOLON) {
+      printf("tu som\n");
       t.isKeyword = true;
       t.type = IDENTIFIER;
       t.kwt = NULL_K;
@@ -1180,7 +1186,7 @@ Token exp_sem_return(element *e, bool in_func) {
         callError(ERR_SEM_FUNC);
       }*/
     }
-    //printf("%s\n", t.info);
+    printf("%s\n", t.info);
   return t;
 }
 
@@ -1204,7 +1210,7 @@ void exp_sem_func(element *e) {
           insert_first(e->argslist->list[i].arg.info, fce_param_type);
       }
   }
-  //printList();
+  //print_list_fce();
 }
 
 d_list_types kw_to_d_type(int kw_type) {
