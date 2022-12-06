@@ -322,10 +322,6 @@ void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key){
     } else if(e->name.type == IDENTIFIER){
         gen_func_call(table, *e); //ak sa z funkcie vola druha funkcia
     }
-    //printf("%s\n", e->name.info);
-    gen_main(table, *key);
-    gen_func_call(table, *e); //ak sa z funkcie vola druha funkcia
-    func_return(e, ret_type);
 }
 /**
  *@brief A function that declares the arguments to be passed to the function

@@ -17,6 +17,12 @@ function pohlavni_program(string $month, int $year) : void {
 $tmp = "ab" . "c";
 $tmp2 = 1;
 
+if(1<2){
+    write("true");
+} else {
+    write("false");
+}
+
 hlavni_program($tmp2);
 $tmp = hlavni_program(23); // pozdrav z budoucnosti
 ?>
