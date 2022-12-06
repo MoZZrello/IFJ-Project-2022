@@ -540,11 +540,6 @@ element sem_func(){
         e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
-    if(e.argslist->len == 0){
-        free(e.argslist->list);
-        free(e.argslist);
-        e.argslist = NULL;
-    }
     exp_sem_func(&e);
     check_args_name(e);
     return e;
@@ -772,11 +767,17 @@ void semControl(ht_table_t *table, int key){
             if(data.definedVars == NULL){
                 callError(ERR_INTERNAL);
             }
+
             if(e->argslist != NULL && e->argslist->list[1].arg.type == IDENTIFIER){
                 if(strcmp(e->argslist->list[1].arg.info, "null") != 0){
                     check_var_calls(table, *e, i);
                 }
             }
+
+            if(e->argslist != NULL && e->argslist->list[0].arg.type == SEMICOLON){
+                get_variable(table, e, e->name ,i);
+            }
+
             strcat(data.definedVars, e->name.info);
             strcat(data.definedVars, ";");
 
@@ -914,7 +915,8 @@ void check_var_calls(ht_table_t *table, element e, int key){
 void check_sem_return(element func_e, element ret_e){
     if((func_e.ret_type.kwt == STRING_K && ret_e.expr.kwt == STRING_K) ||
        (func_e.ret_type.kwt == VOID_K && ret_e.expr.kwt == NULL_K) ||
-       (func_e.ret_type.canBeNull && ret_e.expr.kwt == NULL_K)){
+       (func_e.ret_type.canBeNull && ret_e.expr.kwt == NULL_K)||
+       (func_e.ret_type.canBeNull && ret_e.argslist->len == 1 && ret_e.argslist->list[0].arg.kwt == NULL_K)){
         return;
     } else if (func_e.ret_type.kwt == INT_K && ret_e.expr.kwt == INT_K){
         if(strchr(ret_e.argslist->list->arg.info, '.') == NULL){
@@ -929,11 +931,43 @@ void check_sem_return(element func_e, element ret_e){
             callError(ERR_SEM_ARGS);
         }
     } else {
+        if(ret_e.argslist != NULL && func_e.ret_type.kwt != VOID_K){
+            int partCount = 0;
+            for(int i = 0; i < ret_e.argslist->len;i++){
+                if(ret_e.argslist->list[i].arg.type == SEMICOLON){
+                    break;
+                }
+                if(i == 0){
+                    partCount++;
+                }
+                if(ret_e.argslist->list[i].arg.type == COMMA){
+                    partCount++;
+                }
+            }
+            if(partCount != 1){
+                callError(ERR_SEM_RETURN);
+            }
+        } else if(ret_e.argslist != NULL && func_e.ret_type.kwt == VOID_K){
+            int partCount = 0;
+            for(int i = 0; i < ret_e.argslist->len;i++){
+                if(ret_e.argslist->list[i].arg.type == SEMICOLON){
+                    break;
+                }
+                if(i == 0){
+                    partCount++;
+                }
+                if(ret_e.argslist->list[i].arg.type == COMMA){
+                    partCount++;
+                }
+            }
+            if(partCount != 0){
+                callError(ERR_SEM_RETURN);
+            }
+        }
         callError(ERR_SEM_ARGS);
     }
 }
 
-//todo expression return in global
 void check_global_return(element ret_e){
     if(ret_e.argslist == NULL || ret_e.argslist->len == 1){
         if(ret_e.expr.isKeyword && ret_e.expr.kwt == INT_K){
@@ -1016,7 +1050,7 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
     free(one_func);
 
     if(call.argslist == NULL){
-        if(func.argslist == NULL){
+        if(func.argslist == NULL || func.argslist->len == 0){
             return;
         } else {
             callError(ERR_SEM_ARGS);
@@ -1025,25 +1059,37 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
 
     if(new == true){ // defined in program
         if(func.argslist->len != call.argslist->len){
-            callError(ERR_SEM_ARGS);
+            int count = 0;
+            for(int i = 0; i < call.argslist->len; i++){
+                if(call.argslist->list[i].arg.type != COMMA){
+                    count++;
+                }
+            }
+            if(count != func.argslist->len){
+                callError(ERR_SEM_ARGS);
+            }
         }
 
         int i = 0;
         while(i < func.argslist->len){
-            if(call.argslist->list[i].arg.type == VAR_ID){
-                Token var = get_variable(table, &call, call.argslist->list[i].arg, key);
+            int commaCount = 0;
+            if(call.argslist->list[i].arg.type == COMMA){
+                commaCount++;
+            }
+            if(call.argslist->list[i+commaCount].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[i+commaCount].arg, key);
                 if(var.isKeyword == false || (func.argslist->list[i].type.kwt != var.kwt)){
                     callError(ERR_SEM_ARGS);
                 }
                 i++;
                 continue;
             }
-            if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i].arg.type == NUMBER) ||
+            if((func.argslist->list[i].type.kwt == INT_K && call.argslist->list[i+commaCount].arg.type == NUMBER) ||
                (func.argslist->list[i].type.kwt == FLOAT_K &&
-                    (call.argslist->list[i].arg.type == DECIMAL_NUMBER ||
-                     call.argslist->list[i].arg.type == EXPONENT_NUMBER)) ||
-               (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i].arg.type == STRING) ||
-               (func.argslist->list[i].type.canBeNull && call.argslist->list[i].arg.kwt == NULL_K)){
+                    (call.argslist->list[i+commaCount].arg.type == DECIMAL_NUMBER ||
+                     call.argslist->list[i+commaCount].arg.type == EXPONENT_NUMBER)) ||
+               (func.argslist->list[i].type.kwt == STRING_K && call.argslist->list[i+commaCount].arg.type == STRING) ||
+               (func.argslist->list[i].type.canBeNull && call.argslist->list[i+commaCount].arg.kwt == NULL_K)){
                 i++;
                 continue;
             } else {
@@ -1148,6 +1194,14 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
                call.argslist->list[0].arg.type != NUMBER){
                 callError(ERR_SEM_ARGS);
             }
+        } else if(strcmp(call.name.info, "write") == 0){
+            if(call.argslist != NULL){
+                for(int i = 0; i < call.argslist->len; i++){
+                    if(call.argslist->list[i].arg.type == VAR_ID){
+                        get_variable(table, &call, call.argslist->list[i].arg, key);
+                    }
+                }
+            }
         }
     }
     //printf("%s|%s\n", func.name.info, call.name.info);
@@ -1159,8 +1213,8 @@ Token get_variable(ht_table_t *table, element* e, Token var, int key){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     element* definition_e = NULL;
-    Token func;
-    Token main;
+    Token func = getEmptyToken();
+    Token main = getEmptyToken();
 
     while(!0){
         sprintf(index, "%d", i++);

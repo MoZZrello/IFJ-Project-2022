@@ -1002,7 +1002,7 @@ Token exp_sem_return(element *e, bool in_func) {
   }
 
   for(int i = 0; i < e->argslist->len; i++) {
-    printf("%s\n", e->argslist->list[i].arg.info);
+    //printf("%s\n", e->argslist->list[i].arg.info);
     if(in_func == true) {
       if(e->argslist->list[i].arg.type == VAR_ID) {
         if(find(e->argslist->list[i].arg.info) == NULL) {
@@ -1150,7 +1150,7 @@ Token exp_sem_return(element *e, bool in_func) {
   Token t;
   if(in_func == true) {
      if(e->argslist->list[0].arg.type == SEMICOLON) {
-      printf("tu som\n");
+      //printf("tu som\n");
       t.isKeyword = true;
       t.type = IDENTIFIER;
       t.kwt = NULL_K;
@@ -1186,7 +1186,7 @@ Token exp_sem_return(element *e, bool in_func) {
         callError(ERR_SEM_FUNC);
       }*/
     }
-    printf("%s\n", t.info);
+    //printf("%s\n", t.info);
   return t;
 }
 
