@@ -15,6 +15,8 @@ typedef struct{
     bool canBeNull;
 } RetType;
 
+int counter;
+
 /*
  * ADD (var) (symb1) (symb2)
  * SUB (var) (symb1) (symb2)
@@ -107,5 +109,8 @@ void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
 void func_call_asign(element *e);
 void var_expr_gen(element *e);
 void return_expr(element *e);
+
+//if, while, else
+void gen_if(ht_table_t * t, element *e);
 
 #endif //SCANNER_C_GENERATOR_H
