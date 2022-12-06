@@ -69,7 +69,10 @@ void body() {
     } else if(token.type == NUMBER || token.type == STRING || token.type == DECIMAL_NUMBER || token.type == EXPONENT_NUMBER) {
         expression(&token, true);
         body();
-    } else if (token.type == PHP_END){
+    } else if(token.type == LEFT_BRACKET) {
+        expression(&token, true);
+        body();
+    }else if (token.type == PHP_END){
         return;
     } else if (token.type == EOF_T) {
         return;
@@ -144,6 +147,7 @@ void stmt() {
     } else if (strcmp(getTypeName(token), "|VAR_ID|") == 0) {
         token = getTokenFromList();
         if (token.type != ASSIGN) {
+            expression(&token, true);
             if(token.type != SEMICOLON) {
                 callError(ERR_SYN);
             }
@@ -153,6 +157,11 @@ void stmt() {
             token = getTokenFromList();
             expression(&token, true);
             //printf("var ok\n");
+        }
+    } else if(token.type == NUMBER || token.type == STRING || token.type == DECIMAL_NUMBER || token.type == EXPONENT_NUMBER) {
+        expression(&token, true);
+        if(token.type != SEMICOLON) {
+            callError(ERR_SYN);
         }
     } else {
         emptyTokenList();
