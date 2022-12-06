@@ -107,7 +107,7 @@ AutomatStates nextState(AutomatStates input, char c, bool *php_comment){
             if(c == '/') return Start;
             return S_Comment_ML;
         case S_Dollar:
-            if(isalnum(c)) return S_Var;
+            if(isalnum(c) || c == '_') return S_Var;
             return ERROR;
         case S_Var:
             if(isalnum(c) || c == '_') return S_Var;
@@ -294,7 +294,7 @@ Token returnTokenCreator(AutomatStates final_state, string* str) {
             return *tmp_token;
         case S_Identifier_Q:
             if(strcmp(tmp_token->info, "?string") != 0 && strcmp(tmp_token->info, "?int") != 0 && strcmp(tmp_token->info, "?float") != 0){
-                exit(ERR_LEX);
+                callError(ERR_LEX);
             }
             tmp_token->type = IDENTIFIER;
             return *tmp_token;
