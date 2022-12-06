@@ -2,6 +2,7 @@
 // Created by Marek Spirka on 27. 11. 2022.
 //
 #include "generator.h"
+int func_counter;
 /**
  *@brief functions that print commands in the IFJcode22 language
  *@param name -> command name
@@ -28,7 +29,7 @@ void PRINT_LANE_ZERO_ARG(char* name) {
  *@param no_build_in_func -> ID of element in Table
  */
 void gen_program(ht_table_t *table, int no_build_in_func){
-    counter = 0;
+    func_counter = 0;
     start_program();
     gen_built_in_functions(table, no_build_in_func);
     function_gen(table);
@@ -213,12 +214,12 @@ void function_gen(ht_table_t *table){
                 inElse = true;
                 char tmp[MAX_HT_SIZE];
                 else_end_label[10] = '\0';
-                sprintf(tmp, "%d", counter-1);
+                sprintf(tmp, "%d", func_counter-1);
                 strcat(else_end_label, tmp);
                 PRINT_LANE_ONE_ARG("JUMP", else_end_label);
 
                 char else_label[20] = "$else_";
-                sprintf(tmp, "%d", counter-1);
+                sprintf(tmp, "%d", func_counter-1);
                 else_label[7] = '\0';
                 strcat(else_label, tmp);
                 PRINT_LANE_ONE_ARG("LABEL", else_label);
@@ -284,24 +285,24 @@ void func_arg_print(element* e){
  */
 void func_return(element* e, RetType ret_type){
     if(ret_type.return_type == 0){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nil@nil");
-        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LF@return", "nil@nil");
+        PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 1){
             return_expr(e);
-            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+            PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+            PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 2){
             return_expr(e);
-            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+            PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+            PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }else if(ret_type.return_type == 3){
             return_expr(e);
-            PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
-            PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
+            PRINT_LANE_ONE_ARG("DEFVAR", "LF@return");
+            PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+            PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }
 }
 /**
@@ -321,6 +322,10 @@ void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key){
     } else if(e->name.type == IDENTIFIER){
         gen_func_call(table, *e); //ak sa z funkcie vola druha funkcia
     }
+    //printf("%s\n", e->name.info);
+    gen_main(table, *key);
+    gen_func_call(table, *e); //ak sa z funkcie vola druha funkcia
+    func_return(e, ret_type);
 }
 /**
  *@brief A function that declares the arguments to be passed to the function
@@ -415,12 +420,12 @@ void gen_main(ht_table_t *table, int key){
                 } else if(e->name.kwt == ELSE_K){
                     char tmp[MAX_HT_SIZE];
                     else_end_label[10] = '\0';
-                    sprintf(tmp, "%d", counter-1);
+                    sprintf(tmp, "%d", func_counter-1);
                     strcat(else_end_label, tmp);
                     PRINT_LANE_ONE_ARG("JUMP", else_end_label);
 
                     char else_label[20] = "$else_";
-                    sprintf(tmp, "%d", counter-1);
+                    sprintf(tmp, "%d", func_counter-1);
                     else_label[7] = '\0';
                     strcat(else_label, tmp);
                     PRINT_LANE_ONE_ARG("LABEL", else_label);
@@ -1171,7 +1176,7 @@ void gen_if(ht_table_t *t, element *e){
     char* print = NULL, var[20] = "LF@IF_STMT_0", if_main[11] = "LF@IF_STMT\0";
     element compare;
     Token operator;
-    int newLF = counter;
+    int newLF = func_counter;
     char tmp[MAX_HT_SIZE];
     bool allFloat = false, printFloat = false;
 
@@ -1193,7 +1198,7 @@ void gen_if(ht_table_t *t, element *e){
     compare.argslist->list = malloc(sizeof(arg));
 
     print = retype_string(e->argslist->list[0].arg);
-    sprintf(tmp, "%d", counter++);
+    sprintf(tmp, "%d", func_counter++);
     var[11] = '\0';
     strcat(var, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", var);
@@ -1237,7 +1242,7 @@ void gen_if(ht_table_t *t, element *e){
             } else if(operator.type == DOT){
                 PRINT_LANE_THREE_ARG("CONCAT", var, var, print);
             } else {
-                sprintf(tmp, "%d", counter++);
+                sprintf(tmp, "%d", func_counter++);
                 var[11] = '\0';
                 strcat(var, tmp);
                 PRINT_LANE_ONE_ARG("DEFVAR", var);
@@ -1282,12 +1287,12 @@ void gen_if(ht_table_t *t, element *e){
     }
 
     char valid_if_label[20] = "$if_valid_";
-    sprintf(tmp, "%d", counter++);
+    sprintf(tmp, "%d", func_counter++);
     valid_if_label[10] = '\0';
     strcat(valid_if_label, tmp);
 
     char else_label[20] = "$else_";
-    sprintf(tmp, "%d", counter++);
+    sprintf(tmp, "%d", func_counter++);
     else_label[7] = '\0';
     strcat(else_label, tmp);
 
