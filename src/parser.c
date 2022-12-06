@@ -540,6 +540,11 @@ element sem_func(){
         e.ret_type = (Token){.info="void", .type=IDENTIFIER, .isKeyword=true, .kwt=VOID_K};
         previousTokenListIndex();
     }
+    if(e.argslist->len == 0){
+        free(e.argslist->list);
+        free(e.argslist);
+        e.argslist = NULL;
+    }
     exp_sem_func(&e);
     check_args_name(e);
     return e;
@@ -768,7 +773,9 @@ void semControl(ht_table_t *table, int key){
                 callError(ERR_INTERNAL);
             }
             if(e->argslist != NULL && e->argslist->list[1].arg.type == IDENTIFIER){
-                check_var_calls(table, *e, i);
+                if(strcmp(e->argslist->list[1].arg.info, "null") != 0){
+                    check_var_calls(table, *e, i);
+                }
             }
             strcat(data.definedVars, e->name.info);
             strcat(data.definedVars, ";");
@@ -805,14 +812,19 @@ void semControl(ht_table_t *table, int key){
 
         } else if(e->name.type == IDENTIFIER){ // if it's function call
             if(strcmp(e->name.info, "if") == 0){
+                lc = realloc(lc, sizeof(lastCalled) * (lcIndex+2));
                 lc[lcIndex++] = IF;
                 data.inIF++;
             } else if(strcmp(e->name.info, "while") == 0){
+                lc = realloc(lc, sizeof(lastCalled) * (lcIndex+2));
                 lc[lcIndex++] = WHILE;
                 data.inWhile++;
             } else if(strcmp(e->name.info, "else") == 0){
+                lc = realloc(lc, sizeof(lastCalled) * (lcIndex+2));
                 lc[lcIndex++] = ELSE;
                 data.inElse++;
+            } else if(strcmp(e->name.info, "null") == 0){
+                continue;
             } else { // function calls
                 see_call_defined(table, *e, i);
             }
@@ -835,7 +847,7 @@ void semControl(ht_table_t *table, int key){
                         data.returned = false;
                         data.inFunction = false;
                     } else if((*ht_get(table, lastFuncIndex)).ret_type.kwt != VOID_K){
-                        callError(ERR_SEM_RETURN);
+                        callError(ERR_SEM_ARGS);
                     } else {
                         data.inFunction = false;
                     }
@@ -858,7 +870,9 @@ void semControl(ht_table_t *table, int key){
     }
     free(data.definedFunctions);
     free(data.definedVars);
-    free(lc);
+    if(lc != NULL){
+        free(lc);
+    }
 }
 
 void check_var_calls(ht_table_t *table, element e, int key){
@@ -1001,6 +1015,14 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
     }
     free(one_func);
 
+    if(call.argslist == NULL){
+        if(func.argslist == NULL){
+            return;
+        } else {
+            callError(ERR_SEM_ARGS);
+        }
+    }
+
     if(new == true){ // defined in program
         if(func.argslist->len != call.argslist->len){
             callError(ERR_SEM_ARGS);
@@ -1094,24 +1116,24 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
                 }
                 first = true;
             }
-            if(call.argslist->list[1].arg.type == VAR_ID){
-                Token var = get_variable(table, &call, call.argslist->list[1].arg, key);
-                if(var.isKeyword == false || var.kwt != INT_K){
-                    callError(ERR_SEM_ARGS);
-                }
-                second = true;
-            }
             if(call.argslist->list[2].arg.type == VAR_ID){
                 Token var = get_variable(table, &call, call.argslist->list[2].arg, key);
                 if(var.isKeyword == false || var.kwt != INT_K){
                     callError(ERR_SEM_ARGS);
                 }
+                second = true;
+            }
+            if(call.argslist->list[4].arg.type == VAR_ID){
+                Token var = get_variable(table, &call, call.argslist->list[4].arg, key);
+                if(var.isKeyword == false || var.kwt != INT_K){
+                    callError(ERR_SEM_ARGS);
+                }
                 third = true;
             }
-            if(call.argslist->len != 3 ||
+            if(call.argslist->len != 5 ||
                      ((call.argslist->list[0].arg.type != STRING  && first == false) ||
-                     (call.argslist->list[1].arg.type != NUMBER && second == false ) ||
-                     (call.argslist->list[2].arg.type != NUMBER && third == false))){
+                     (call.argslist->list[2].arg.type != NUMBER && second == false ) ||
+                     (call.argslist->list[4].arg.type != NUMBER && third == false))){
                 callError(ERR_SEM_ARGS);
             }
         } else if(strcmp(call.name.info, "chr") == 0){
@@ -1147,6 +1169,13 @@ Token get_variable(ht_table_t *table, element* e, Token var, int key){
 
         if (compare_e->ret_type.type != ERROR_T){
             inFunction = true;
+            if(compare_e->argslist != NULL){
+                for(int j = 0; j < compare_e->argslist->len; j++){
+                    if(strcmp(compare_e->argslist->list[j].arg.info, var.info) == 0){
+                        func = compare_e->argslist->list[j].type;
+                    }
+                }
+            }
         } else if (compare_e->name.type == VAR_ID){
             if(strcmp(compare_e->name.info, var.info) == 0){
                 if(inFunction) {

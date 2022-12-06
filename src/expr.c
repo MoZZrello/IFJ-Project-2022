@@ -1185,12 +1185,14 @@ void exp_sem_func(element *e) {
   }
   
   insert_first("start", D_NON);
-  for(int i = 0; i < e->argslist->len; i++) {
-    //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
-    if(e->argslist->list[i].type.isKeyword) {
-      fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
-    }
-    insert_first(e->argslist->list[i].arg.info, fce_param_type);
+  if(e->argslist != NULL) {
+      for (int i = 0; i < e->argslist->len; i++) {
+          //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
+          if (e->argslist->list[i].type.isKeyword) {
+              fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
+          }
+          insert_first(e->argslist->list[i].arg.info, fce_param_type);
+      }
   }
   //printList();
 }
