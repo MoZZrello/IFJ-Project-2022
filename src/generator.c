@@ -1280,10 +1280,36 @@ void gen_if(ht_table_t *t, element *e){
                 PRINT_LANE_THREE_ARG("LT", if_main, if_main, print);
             } else if(operator.type == GREATER){
                 PRINT_LANE_THREE_ARG("GT", if_main, if_main, print);
-            } else if(operator.type == LESS_EQUAL){ ///todo
-                printf("<=\n");
-            } else if(operator.type == GREATER_EQUAL){ ///todo
-                printf(">=\n");
+            } else if(operator.type == LESS_EQUAL){
+                char lt_var[35] = "LF@ONLY_FOR_LESS_EQUAL_";
+                sprintf(tmp, "%d", counter++);
+                lt_var[26] = '\0';
+                strcat(lt_var, tmp);
+                PRINT_LANE_ONE_ARG("DEFVAR", lt_var);
+                PRINT_LANE_THREE_ARG("LT", lt_var, if_main, print);
+                char lt_jump_label[25] = "$lt_successful_";
+                sprintf(tmp, "%d", counter++);
+                lt_jump_label[15] = '\0';
+                strcat(lt_jump_label, tmp);
+                PRINT_LANE_THREE_ARG("JUMPIFEQ", lt_jump_label, lt_var, "bool@true");
+                PRINT_LANE_THREE_ARG("EQ", lt_var, if_main, print);
+                PRINT_LANE_ONE_ARG("LABEL", lt_jump_label);
+                PRINT_LANE_TWO_ARG("MOVE", if_main, lt_var);
+            } else if(operator.type == GREATER_EQUAL){
+                char gt_var[35] = "LF@ONLY_FOR_GREATER_EQUAL_";
+                sprintf(tmp, "%d", counter++);
+                gt_var[26] = '\0';
+                strcat(gt_var, tmp);
+                PRINT_LANE_ONE_ARG("DEFVAR", gt_var);
+                PRINT_LANE_THREE_ARG("GT", gt_var, if_main, print);
+                char gt_jump_label[25] = "$gt_successful_";
+                sprintf(tmp, "%d", counter++);
+                gt_jump_label[15] = '\0';
+                strcat(gt_jump_label, tmp);
+                PRINT_LANE_THREE_ARG("JUMPIFEQ", gt_jump_label, gt_var, "bool@true");
+                PRINT_LANE_THREE_ARG("EQ", gt_var, if_main, print);
+                PRINT_LANE_ONE_ARG("LABEL", gt_jump_label);
+                PRINT_LANE_TWO_ARG("MOVE", if_main, gt_var);
             } else {
                 sprintf(tmp, "%d", newLF++);
                 var[11] = '\0';
