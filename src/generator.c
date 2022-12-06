@@ -175,7 +175,7 @@ void function_gen(ht_table_t *table){
     char func[MAX_HT_SIZE];
     char else_end_label[20] = "$else_end_";
     RetType ret_type;
-    int i = 0, elseCurly = 0;
+    int i = 0, elseCurly = 0, curly = 0;
     while(!0){
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
@@ -187,21 +187,16 @@ void function_gen(ht_table_t *table){
             is_function = true;
             is_end = false;
             continue;
-        }
-        //telo funkcie zacina { --preskocim
-        if (e->name.type == LEFT_CURLY_BRACKET){
+        } else if (e->name.type == LEFT_CURLY_BRACKET){
+            if(is_function){
+                curly++;
+            }
             if(inElse){
                 elseCurly++;
             }
             continue;
             //telo funkcie skoncilo }
-        }else if (e->name.type == RIGHT_CURLY_BRACKET){
-            if(is_end == false){
-                is_end = true;
-                PRINT_LANE_ZERO_ARG("POPFRAME");
-                PRINT_LANE_ZERO_ARG("RETURN");
-                printf("\n");
-            }
+        } else if (e->name.type == RIGHT_CURLY_BRACKET){
             if(inElse) {
                 elseCurly--;
                 if (elseCurly == 0) {
@@ -209,27 +204,33 @@ void function_gen(ht_table_t *table){
                     inElse = false;
                 }
             }
+            if(is_function){
+                curly--;
+                if(curly == 0){
+                    is_end = true;
+                    is_function = false;
+                }
+            }
+
+        } else if(e->name.kwt == ELSE_K && is_function){
+            inElse = true;
+            char tmp[MAX_HT_SIZE];
+            else_end_label[10] = '\0';
+            sprintf(tmp, "%d", counter-1);
+            strcat(else_end_label, tmp);
+            PRINT_LANE_ONE_ARG("JUMP", else_end_label);
+
+            char else_label[20] = "$else_";
+            sprintf(tmp, "%d", counter-1);
+            else_label[7] = '\0';
+            strcat(else_label, tmp);
+            PRINT_LANE_ONE_ARG("LABEL", else_label);
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
-            if(e->name.kwt == ELSE_K){
-                inElse = true;
-                char tmp[MAX_HT_SIZE];
-                else_end_label[10] = '\0';
-                sprintf(tmp, "%d", counter-1);
-                strcat(else_end_label, tmp);
-                PRINT_LANE_ONE_ARG("JUMP", else_end_label);
-
-                char else_label[20] = "$else_";
-                sprintf(tmp, "%d", counter-1);
-                else_label[7] = '\0';
-                strcat(else_label, tmp);
-                PRINT_LANE_ONE_ARG("LABEL", else_label);
-            }
             func_main_print(table, e, ret_type, &i);
         }
     }
-    printf("\n");
 }
 /**
  *@brief A function that prints an user-defined function
@@ -306,6 +307,9 @@ void func_return(element* e, RetType ret_type){
         PRINT_LANE_TWO_ARG("MOVE", "LF@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
         PRINT_LANE_ONE_ARG("PUSHS", "LF@return");
     }
+    PRINT_LANE_ZERO_ARG("POPFRAME");
+    PRINT_LANE_ZERO_ARG("RETURN");
+    printf("\n");
 }
 /**
  *@brief A function that prints the function body
@@ -412,7 +416,7 @@ void gen_main(ht_table_t *table, int key){
         if(e->name.type == IDENTIFIER){
             if (e->name.isKeyword && e->name.kwt == RETURN_K && inFunction == false){
                 PRINT_LANE_ONE_ARG("JUMP", "$main_end");
-            } else if(e->ret_type.type == ERROR_T) {
+            } else if(e->ret_type.type == ERROR_T && inFunction == false) {
                 if(e->name.kwt == IF_K){
                     gen_if(table, e);
                 } else if(e->name.kwt == ELSE_K){
@@ -452,7 +456,7 @@ void gen_main(ht_table_t *table, int key){
                     inElse = false;
                 }
             }
-        } else if (e->name.type == VAR_ID){
+        } else if (e->name.type == VAR_ID && inFunction == false){
             if(inFunction == false && e->argslist != NULL){
                 if(e->argslist->list[1].arg.type == IDENTIFIER){
                     func_call_asign(e);
