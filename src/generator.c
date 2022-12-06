@@ -173,7 +173,7 @@ void function_gen(ht_table_t *table){
     char func[MAX_HT_SIZE];
     char else_end_label[20] = "$else_end_";
     RetType ret_type;
-    int i = 0, elseCurly = 0;
+    int i = 0, elseCurly = 0, curly = 0;
     while(!0){
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
@@ -188,17 +188,24 @@ void function_gen(ht_table_t *table){
         }
         //telo funkcie zacina { --preskocim
         if (e->name.type == LEFT_CURLY_BRACKET){
+            if(is_function){
+                curly++;
+            }
             if(inElse){
                 elseCurly++;
             }
             continue;
         //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
-            if(is_end == false){
-                is_end = true;
-                PRINT_LANE_ZERO_ARG("POPFRAME");
-                PRINT_LANE_ZERO_ARG("RETURN");
-                printf("\n");
+            if(is_function){
+                curly--;
+                if(curly == 0){
+                    is_end = true;
+                    is_function = false;
+                    PRINT_LANE_ZERO_ARG("POPFRAME");
+                    PRINT_LANE_ZERO_ARG("RETURN");
+                    printf("\n");
+                }
             }
             if(inElse) {
                 elseCurly--;
@@ -1031,7 +1038,7 @@ void func_call_asign(element *e){
     func_call(e->argslist->list[1].arg.info);
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
-    PRINT_LANE_ONE_ARG("DEFVAR", print);
+    //PRINT_LANE_ONE_ARG("DEFVAR", print);   todo NEVIEME CI JE DEFINOVANA VAR
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
 }
 
