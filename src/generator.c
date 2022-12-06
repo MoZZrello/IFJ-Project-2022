@@ -1023,6 +1023,7 @@ void func_chr(){
 
 //---------------------------------------EXPR---------------------------------------//
 void func_call_asign(element *e){
+    char tmp[MAX_HT_SIZE];
     char* print = NULL;
     for(int i = 3; i < e->argslist->len; i++){
         if(e->argslist->list[i].arg.type != COMMA){
@@ -1033,6 +1034,9 @@ void func_call_asign(element *e){
     func_call(e->argslist->list[1].arg.info);
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
+    print = realloc(print, sizeof(char) * (strlen(print) + strlen(tmp) + 2));
+    sprintf(tmp, "%d", counter++);
+    strcat(print, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", print);
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
 }
@@ -1053,7 +1057,11 @@ void var_expr_gen(element *e){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
+    char tmp[MAX_HT_SIZE];
     var = retype_string(e->name);
+    var = realloc(var, sizeof(char) * (strlen(var) + strlen(tmp) + 2));
+    sprintf(tmp, "%d", counter++);
+    strcat(var, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
     PRINT_LANE_TWO_ARG("MOVE", var, arg);
@@ -1111,7 +1119,7 @@ void return_expr(element *e){
 
     PRINT_LANE_ONE_ARG("DEFVAR", var);
 
-    if(e->argslist == NULL){
+    if(e->argslist == NULL || e->argslist->list == NULL){
         return;
     }
 
