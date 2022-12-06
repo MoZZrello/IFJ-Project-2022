@@ -188,14 +188,15 @@ void function_gen(ht_table_t *table){
         //telo funkcie skoncilo }
         }else if (e->name.type == RIGHT_CURLY_BRACKET){
             is_end = true;
+            PRINT_LANE_ZERO_ARG("POPFRAME");
+            PRINT_LANE_ZERO_ARG("RETURN");
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
+            printf("|%s|\n",e->name.info);
             func_main_print(table, e, ret_type, &i);
         }
     }
-    PRINT_LANE_ZERO_ARG("POPFRAME");
-    PRINT_LANE_ZERO_ARG("RETURN");
     printf("\n");
 }
 /**
@@ -253,30 +254,24 @@ void func_arg_print(element* e){
  */
 void func_return(element* e, RetType ret_type){
     if(ret_type.return_type == 0){
-        if(e->name.kwt == RETURN_K) {
-            printf("|%s|\n", e->argslist->list[0].arg.info);
-        }
+        PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
+        PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nil@nil");
+        PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
     }else if(ret_type.return_type == 1){
-        if(e->name.kwt == RETURN_K){
-            printf("|%s|\n",e->argslist->list[0].arg.info);
+            return_expr(e);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
-        }
     }else if(ret_type.return_type == 2){
-        if(e->name.kwt == RETURN_K){
-            printf("|%s|\n",e->argslist->list[0].arg.info);
+            return_expr(e);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
-        }
     }else if(ret_type.return_type == 3){
-        if(e->name.kwt == RETURN_K){
-            printf("|%s|\n",e->argslist->list[0].arg.info);
+            return_expr(e);
             PRINT_LANE_ONE_ARG("DEFVAR", "LT@return");
-            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "nieco!!!");
+            PRINT_LANE_TWO_ARG("MOVE", "LT@return", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
             PRINT_LANE_ONE_ARG("PUSHS", "LT@return");
-        }
     }
 }
 /**
@@ -285,21 +280,31 @@ void func_return(element* e, RetType ret_type){
  * TODO - make it :D tlacit by mala vsetko okrem volania inej funkcii
  */
 void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key){
-    gen_func_body(table, *e, key); //ak sa z funkcie vola druha funkcia
-    func_return(e, ret_type);
+    if(e->name.isKeyword && e->name.kwt == RETURN_K){
+        func_return(e, ret_type);
+    } else if(e->name.isKeyword && e->name.kwt == IF_K){
+
+    } else if(e->name.isKeyword && e->name.kwt == ELSE_K){
+
+    } else if(e->name.isKeyword && e->name.kwt == WHILE_K){
+
+    } else if(e->name.type == IDENTIFIER){
+        gen_func_call(table, *e); //ak sa z funkcie vola druha funkcia
+    }
 }
 /**
  *@brief A function that declares the arguments to be passed to the function
  *@param element call -> the arguments we want to push for the called function
  *@param ht_table_t *table -> pointer to place where the entire code from input is stored
  */
-void gen_func_body(ht_table_t *table, element call, int *key){
+void gen_func_call(ht_table_t *table, element call){
     char index[MAX_HT_SIZE];
     element* compare_e = NULL;
     char* print = NULL;
 
+    int i = 0;
     while (!0){
-        sprintf(index, "%d", *key++);
+        sprintf(index, "%d", i++);
         compare_e = ht_get(table, index);
         if(compare_e == NULL) break;
 
@@ -371,10 +376,10 @@ void gen_main(ht_table_t *table, int key){
         if(e == NULL){break;}
         if(e->name.type == IDENTIFIER){
             if (e->name.isKeyword && e->name.kwt == RETURN_K && inFunction == false){
-                printf("RETURN V MAINE\n");
+                PRINT_LANE_ONE_ARG("JUMP", "$main_end");
             } else if(e->ret_type.type == ERROR_T) {
                 if(inFunction == false) {
-                    gen_func_body(table, *e, &i);
+                    gen_func_call(table, *e);
                 }
             } else {
                 inFunction = true;
@@ -388,7 +393,6 @@ void gen_main(ht_table_t *table, int key){
             }
         } else if (e->name.type == VAR_ID){
             if(inFunction == false && e->argslist != NULL){
-                //printf("%s\n", e->name.info);
                 if(e->argslist->list[1].arg.type == IDENTIFIER){
                     func_call_asign(e);
                 } else {
@@ -397,6 +401,7 @@ void gen_main(ht_table_t *table, int key){
             }
         }
     }
+    PRINT_LANE_ONE_ARG("LABEL", "$main_end");
 }
 
 /**
@@ -1036,4 +1041,8 @@ void var_expr_gen(element *e){
             }
         }
     }
+}
+
+void return_expr(element *e){
+
 }

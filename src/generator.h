@@ -79,7 +79,7 @@ void func_return(element* e, RetType ret_type);
 RetType def_func_start(element* e );
 
 //Functions to call the function
-void gen_func_body(ht_table_t *table, element call, int *key);
+void gen_func_call(ht_table_t *table, element call);
 void func_call(char* call );
 
 //Main
@@ -106,5 +106,6 @@ void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
 //assign a expr do vars
 void func_call_asign(element *e);
 void var_expr_gen(element *e);
+void return_expr(element *e);
 
 #endif //SCANNER_C_GENERATOR_H
