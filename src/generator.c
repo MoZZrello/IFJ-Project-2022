@@ -881,7 +881,7 @@ void func_reads(){
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@read_string");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_string");
 
-    PRINT_LANE_TWO_ARG("READ", "LF@read_int", "string");
+    PRINT_LANE_TWO_ARG("READ", "LF@read_string", "string");
     PRINT_LANE_TWO_ARG("TYPE", "LF@error", "LF@read_string");
     PRINT_LANE_THREE_ARG("JUMPIFNEQ", "$error_read", "string@string", "LF@error");
     PRINT_LANE_TWO_ARG("MOVE", "LF@return_string", "LF@read_string");
