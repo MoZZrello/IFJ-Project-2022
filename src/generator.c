@@ -133,38 +133,60 @@ void gen_built_in_functions(ht_table_t *table, int key){
             }
         } else if(e->name.type == VAR_ID && e->argslist != NULL){
             if(strcmp(e->argslist->list[1].arg.info, "readi") == 0){
-                func_readi();
-                readi = false;
+                if(readi) {
+                    func_readi();
+                    readi = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "reads") == 0){
-                func_reads();
-                reads = false;
+                if(reads) {
+                    func_reads();
+                    reads = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "readf") == 0){
+                if(readf){
                 func_readf();
                 readf = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "write") == 0){
-                func_write();
-                write = false;
+                if(write) {
+                    func_write();
+                    write = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "floatval") == 0){
-                func_floatval();
-                floatval = false;
+                if(floatval) {
+                    func_floatval();
+                    floatval = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "intval") == 0){
-                func_intval();
-                intval = false;
+                if(intval) {
+                    func_intval();
+                    intval = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "strval") == 0){
-                func_strval();
-                strval = false;
+                if(strval) {
+                    func_strval();
+                    strval = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "strlen") == 0){
-                func_strlen();
-                strlen = false;
+                if(strlen) {
+                    func_strlen();
+                    strlen = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "substring") == 0){
-                func_substring();
-                substring = false;
+                if(substring) {
+                    func_substring();
+                    substring = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "ord") == 0){
-                func_ord();
-                ord = false;
+                if(ord) {
+                    func_ord();
+                    ord = false;
+                }
             } else if(strcmp(e->argslist->list[1].arg.info, "chr") == 0){
-                func_chr();
-                chr = false;
+                if(chr) {
+                    func_chr();
+                    chr = false;
+                }
             }
         }
     }
@@ -1090,7 +1112,6 @@ void var_expr_gen(element *e){
     if(allFloat == true){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
-
     var = retype_string(e->name);
     PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
@@ -1299,6 +1320,7 @@ void gen_if(ht_table_t *t, element *e){
         if(i%2 != 0){
             operator = e->argslist->list[i].arg;
         } else {
+
 
             if(allFloat && e->argslist->list[i].arg.type == NUMBER){
                 PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", print);
