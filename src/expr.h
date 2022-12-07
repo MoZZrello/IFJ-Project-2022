@@ -23,16 +23,18 @@ typedef enum{
 	BRACE_L, // ( 12
 	BRACE_R, // ) 13		
 	KONK, // konkatenacia . 14
-	END, // $ 15
+	FUNC, // 15
+	END, // $ 16
+	
 
 	// nonterminal
-	NONTERM, // pravidlo r 16
-	G, // 17
-	L, // 18
-	E, // 19
-	X, // 20
-	ENDSTACK, // 21
-	ERR // 22
+	NONTERM, // pravidlo r 17
+	G, // 18
+	L, // 19
+	E, // 20
+	X, // 21
+	ENDSTACK, // 22
+	ERR // 23
 } expr_symb;
 
 typedef enum{
