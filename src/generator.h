@@ -112,4 +112,7 @@ void return_expr(element *e);
 void gen_if(ht_table_t * t, element *e);
 void gen_while(ht_table_t *t, element *e);
 
+// help function to see if var is defined already
+bool is_var_new(char* var_list, char* var);
+
 #endif //SCANNER_C_GENERATOR_H

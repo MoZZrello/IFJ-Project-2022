@@ -78,12 +78,14 @@ DEFVAR LF@WHILE_LEFT_EXPR
 DEFVAR LF@WHILE_RIGHT_EXPR
 DEFVAR LF@INT2FLOATVAR
 DEFVAR LF@tmp
+DEFVAR LF@tmp2
+DEFVAR LF@var
+DEFVAR LF@year
 MOVE LF@tmp string@ab
 CONCAT LF@tmp LF@tmp string@c
 PUSHS string@truee
 CALL $strlen
 POPS LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC
-DEFVAR LF@tmp2
 MOVE LF@tmp2 LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC
 MOVE LF@IF_LEFT_EXPR int@1
 ADD LF@IF_LEFT_EXPR LF@IF_LEFT_EXPR int@0
@@ -95,7 +97,6 @@ JUMPIFNEQ $else_0 LF@IF_STMT bool@true
 PUSHS string@true
 CALL $strlen
 POPS LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC
-DEFVAR LF@var
 MOVE LF@var LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC
 JUMP $else_end_1
 LABEL $else_0
@@ -103,7 +104,6 @@ PUSHS string@false
 PUSHS int@1
 CALL $write
 LABEL $else_end_1
-DEFVAR LF@year
 MOVE LF@year int@19
 LABEL $while_cycle_2
 MOVE LF@WHILE_LEFT_EXPR LF@year
@@ -115,6 +115,7 @@ JUMPIFNEQ $while_end_3 LF@WHILE_STMT bool@true
 PUSHS string@while|
 PUSHS int@1
 CALL $write
+MOVE LF@year LF@year
 ADD LF@year LF@year int@1
 JUMP $while_cycle_2
 LABEL $while_end_3

@@ -451,6 +451,9 @@ void gen_main(ht_table_t *table, int key){
     int curly = 0, elseCurly = 0, whileCurly = 0;
     char index[MAX_HT_SIZE];
     char else_end_label[20] = "$else_end_";
+    char *vars = malloc(sizeof(char));
+    char *print = NULL;
+    strcpy(vars, "\0");
 
     PRINT_LANE_ONE_ARG("LABEL", "$main");
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
@@ -463,7 +466,44 @@ void gen_main(ht_table_t *table, int key){
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_LEFT_EXPR");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_RIGHT_EXPR");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
-    for (int i = 0; i < key ; ++i) {
+
+    for(int i = 0; i < key; i++){
+        element* e = NULL;
+        sprintf(index, "%d", i);
+        e = ht_get(table, index);
+        if(e->name.type == IDENTIFIER && e->ret_type.type != ERROR_T){
+            inFunction = true;
+        } else if(e->name.type == LEFT_CURLY_BRACKET){
+            curly++;
+        } else if(e->name.type == RIGHT_CURLY_BRACKET){
+            curly--;
+            if(curly == 0){
+                inFunction = false;
+            }
+        } else if(e->name.type == VAR_ID && inFunction == false){
+            if(is_var_new(vars, e->name.info)){
+                vars = realloc(vars, sizeof(char) * (strlen(vars) + strlen(e->name.info) + 2));
+                strcat(vars, e->name.info);
+                strcat(vars, ";");
+                print = retype_string(e->name);
+                PRINT_LANE_ONE_ARG("DEFVAR", print);
+            }
+        }
+    }
+
+    if(vars != NULL){
+        free(vars);
+    }
+    if(print != NULL){
+        free(print);
+    }
+
+    inFunction = false;
+    inWhile = false;
+    inElse = false;
+    curly = 0;
+
+    for (int i = 0; i < key ; i++) {
         element* e = NULL;
         sprintf(index, "%d", i);
         e = ht_get(table, index);
@@ -530,6 +570,7 @@ void gen_main(ht_table_t *table, int key){
             }
         }
     }
+
     PRINT_LANE_ONE_ARG("LABEL", "$main_end");
 }
 
@@ -650,7 +691,9 @@ char *retype_string(Token arg){
             callError(ERR_INTERNAL);
         }
         strcpy(final_arg, "LF@");
-        memmove(arg.info, arg.info+1, strlen(arg.info));
+        if(arg.info[0] == '$'){
+            memmove(arg.info, arg.info+1, strlen(arg.info));
+        }
         strcat(final_arg, arg.info);
     }
     return final_arg;
@@ -1102,8 +1145,11 @@ void func_call_asign(element *e){
     func_call(e->argslist->list[1].arg.info);
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
-    PRINT_LANE_ONE_ARG("DEFVAR", print);
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
+
+    if(print != NULL){
+        free(print);
+    }
 }
 
 void var_expr_gen(element *e){
@@ -1120,7 +1166,6 @@ void var_expr_gen(element *e){
     }
 
     var = retype_string(e->name);
-    PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
     PRINT_LANE_TWO_ARG("MOVE", var, arg);
     if(e->argslist->list[1].arg.type == NUMBER && allFloat){
@@ -1166,6 +1211,14 @@ void var_expr_gen(element *e){
                 PRINT_LANE_THREE_ARG("CONCAT", var, var, arg);
             }
         }
+    }
+
+    if(var != NULL){
+        free(var);
+    }
+
+    if(arg != NULL){
+        free(arg);
     }
 }
 
@@ -1233,6 +1286,10 @@ void return_expr(element *e){
                 }
             }
         }
+    }
+
+    if(print != NULL){
+        free(print);
     }
 }
 
@@ -1374,6 +1431,10 @@ void gen_if(ht_table_t *t, element *e){
     strcat(else_label, tmp);
 
     PRINT_LANE_THREE_ARG("JUMPIFNEQ", else_label,if_main, "bool@true");
+
+    if(print != NULL){
+        free(print);
+    }
 }
 
 void gen_while(ht_table_t *t, element *e){
@@ -1511,4 +1572,29 @@ void gen_while(ht_table_t *t, element *e){
 
     PRINT_LANE_THREE_ARG("JUMPIFNEQ", cycle_end, while_main, "bool@true");
 
+    if(print != NULL){
+        free(print);
+    }
+}
+
+//----------------------------------------HELP--------------------------------------//
+bool is_var_new(char* var_list, char* var){
+    if(var_list == NULL){
+        return true;
+    }
+    char* one_func = malloc(sizeof(char) * (int) strlen(var_list));
+    for(int i = 0; i < strlen(var_list); i++){
+        int one_func_index = 0;
+        while(var_list[i] != ';'){
+            one_func[one_func_index++] = var_list[i];
+            i++;
+        }
+        one_func[one_func_index] = '\0';
+        if(strcmp(one_func, var) == 0){
+            free(one_func);
+            return false;
+        }
+    }
+    free(one_func);
+    return true;
 }
