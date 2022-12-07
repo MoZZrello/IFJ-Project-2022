@@ -579,7 +579,7 @@ Token exp_sem_var(element *e, bool in_func) {
   struct functions* curr_fce;
   struct variables* tmp_var;
   d_list_types arg_type = D_NON;
-  int brc_count;
+  int brc_count = 0;
   bool fce_call = false;
   int start_index = 0;
   int key_index = 0;
