@@ -1000,18 +1000,22 @@ void func_floatval(){
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@type");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_float");
+
+    PRINT_LANE_TWO_ARG("TYPE","LF@type", "LF@number");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end_is_float", "LF@type", "string@float");
 
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@number", "nil@nil");
-    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@return_float", "LF@number");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_float");
+    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@number", "LF@number");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@number");
     PRINT_LANE_ONE_ARG("JUMP", "$end_float");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end");
-    PRINT_LANE_TWO_ARG("MOVE", "LF@number", "int@0");
-    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@return_float", "LF@number");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_float");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@number", "float@0x0p+0");
+    PRINT_LANE_TWO_ARG("INT2FLOAT","LF@number", "LF@number");
+    PRINT_LANE_ONE_ARG("LABEL", "$end_is_float");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@number");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end_float");
 
@@ -1028,18 +1032,22 @@ void func_intval(){
     PRINT_LANE_ZERO_ARG("CREATEFRAME");
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@number");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@type");
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
-    PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
+
+    PRINT_LANE_TWO_ARG("TYPE","LF@type", "LF@number");
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end_is_int", "LF@type", "string@int");
 
     PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@number", "nil@nil");
-    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
+    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@number", "LF@number");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@number");
     PRINT_LANE_ONE_ARG("JUMP", "$end_int");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end");
-    PRINT_LANE_TWO_ARG("MOVE", "LF@number", "float@0x0p+0");
-    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
-    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@number", "int@0");
+    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@number", "LF@number");
+    PRINT_LANE_ONE_ARG("LABEL", "$end_is_int");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@number");
 
     PRINT_LANE_ONE_ARG("LABEL", "$end_int");
 
