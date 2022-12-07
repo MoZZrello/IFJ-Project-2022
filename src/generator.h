@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "symtable.h"
+#include "list.h"
 
 typedef struct{
     int return_type;

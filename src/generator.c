@@ -200,6 +200,7 @@ RetType def_func_start(element* e, ht_table_t* table ){
     } else {
         rt.canBeNull = false;
     }
+
     return rt;
 }
 
@@ -299,6 +300,10 @@ void gen_func_call(ht_table_t *table, element call){
         func_call(call.name.info);
     }else if (strcmp(call.name.info, "readf") == 0){
         func_call(call.name.info);
+    }
+
+    if(print != NULL){
+        free(print);
     }
 }
 
@@ -1406,6 +1411,13 @@ void gen_if(ht_table_t *t, element *e){
     if(print != NULL){
         free(print);
     }
+
+    if(compare.argslist != NULL){
+        if(compare.argslist->list != NULL){
+            free(compare.argslist->list);
+        }
+        free(compare.argslist);
+    }
 }
 
 void gen_while(ht_table_t *t, element *e){
@@ -1414,7 +1426,7 @@ void gen_while(ht_table_t *t, element *e){
     char while_var[25] = "LF@WHILE_RIGHT_EXPR";
     char while_var_1[25] = "LF@WHILE_LEFT_EXPR";
     char while_var_2[25] = "LF@WHILE_RIGHT_EXPR";
-    Token operator;
+    Token operator = getEmptyToken();
 
     if(e->argslist == NULL){
         return;
