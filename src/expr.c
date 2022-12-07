@@ -172,7 +172,7 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        printf("b je %d a je %d\n", symb_b, symb_a);
+        //printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
@@ -181,7 +181,7 @@ void expression(Token *token, bool var) {
         }
 
         //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
-        printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
+        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
         //switch (table[symb_b][symb_a]) {
         switch (table[symb_a][symb_b]) {  
           case E:
@@ -220,7 +220,7 @@ void expression(Token *token, bool var) {
       while (token->type != RIGHT_BRACKET /*|| brac_count == 0)*/) {
         symb_a = token_to_index(token->type);
         symb_b = top(&stack);
-        printf(" top je %d\n", symb_b);
+        //printf(" top je %d\n", symb_b);
 
         if(symb_b == NONTERM) {
           expr_symb symb;
@@ -242,7 +242,7 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        printf("b je %d a je %d\n", symb_b, symb_a);
+        //printf("b je %d a je %d\n", symb_b, symb_a);
         
 
         if(symb_b > END) {
@@ -250,7 +250,7 @@ void expression(Token *token, bool var) {
           //printf("error in main fca\n");
           callError(ERR_SYN);
         }
-        printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
+        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
         switch (table[symb_a][symb_b]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -403,7 +403,7 @@ void greater(struct stack_t *stack) {
   struct stack_t tmp_stack;
   newStack(&tmp_stack);
 
-  printf("vrchol stacku je %d\n", stack->head->symbol);
+  //printf("vrchol stacku je %d\n", stack->head->symbol);
   while(top(stack) != ENDSTACK) {
     if(top(curr_ptr) != L) {
       push(&tmp_stack,top(curr_ptr), curr_ptr->head->token);
@@ -411,7 +411,7 @@ void greater(struct stack_t *stack) {
     }
     else {
       curr_ptr->head = curr_ptr->head->next;
-      printf("%d top tmp\n", top(&tmp_stack));
+      //printf("%d top tmp\n", top(&tmp_stack));
       switch (top(&tmp_stack)) {
         //EXPR → literal 
 
@@ -599,7 +599,7 @@ void printstack(struct stack_t *stack){
 		pop(stack);
 		temp = top(stack);
 	}
-	printf("$\n");
+	//printf("$\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -720,7 +720,7 @@ struct functions* find_fce(char *key) {
 void printList() {
    struct variables *ptr = head_var;
    while(ptr != NULL) {
-      printf("v liste je %s %d\n", ptr->data, ptr->type);
+      //printf("v liste je %s %d\n", ptr->data, ptr->type);
       ptr = ptr->next;
    }
 }
@@ -728,7 +728,7 @@ void printList() {
 void print_list_fce() {
   struct functions *ptr = head_var_fce;
    while(ptr != NULL) {
-      printf("v liste fce je %s %d\n", ptr->fce_name, ptr->return_type);
+      //printf("v liste fce je %s %d\n", ptr->fce_name, ptr->return_type);
       ptr = ptr->next;
    }
 }

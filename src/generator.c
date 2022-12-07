@@ -6,12 +6,9 @@
 int counter = 0;
 char cycle_name[30] = "$while_cycle_";
 char cycle_end[30] = "$while_end_";
-char while_var[30] = "LF@WHILE_STMT_0";
 char while_main[20] = "LF@WHILE_STMT\0";
-char if_var[20] = "LF@IF_STMT_0";
 char if_main[11] = "LF@IF_STMT\0";
 char else_label[20] = "$else_";
-char valid_if_label[20] = "$if_valid_";
 
 /**
  *@brief functions that print commands in the IFJcode22 language
@@ -203,7 +200,7 @@ void function_gen(ht_table_t *table){
     bool inElse = false, inWhile = false;
     element* e = NULL;
     char func[MAX_HT_SIZE];
-    char else_end_label[20] = "$else_end_";
+    char else_end_label[20] = "$else_end_\0";
     RetType ret_type;
     int i = 0, elseCurly = 0, curly = 0, whileCurly = 0;
     while(!0){
@@ -256,6 +253,10 @@ void function_gen(ht_table_t *table){
 
         } else if(e->name.kwt == ELSE_K && is_function){
             inElse = true;
+            char tmp[HT_SIZE];
+            sprintf(tmp, "%d", counter++);
+            else_end_label[10] = '\0';
+            strcat(else_end_label, tmp);
             PRINT_LANE_ONE_ARG("JUMP", else_end_label);
             PRINT_LANE_ONE_ARG("LABEL", else_label);
         } else if(e->name.kwt == WHILE_K && is_function){
@@ -285,6 +286,12 @@ RetType def_func_start(element* e ){
         PRINT_LANE_ZERO_ARG("CREATEFRAME");
         PRINT_LANE_ZERO_ARG("PUSHFRAME");
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_STMT");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_LEFT_EXPR");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_RIGHT_EXPR");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_STMT");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_LEFT_EXPR");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_RIGHT_EXPR");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     }
 
     if(e->ret_type.kwt == STRING_K){
@@ -1109,9 +1116,6 @@ void var_expr_gen(element *e){
         }
     }
 
-    if(allFloat == true){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
-    }
     var = retype_string(e->name);
     PRINT_LANE_ONE_ARG("DEFVAR", var);
     arg = retype_string(e->argslist->list[1].arg);
@@ -1180,10 +1184,6 @@ void return_expr(element *e){
         }
     }
 
-    if(allFloat == true){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
-    }
-
     if(e->argslist->list[0].arg.type != SEMICOLON){
         print = retype_string(e->argslist->list[0].arg);
         PRINT_LANE_TWO_ARG("MOVE", var, print);
@@ -1239,6 +1239,9 @@ void gen_if(ht_table_t *t, element *e){
     Token operator;
     int newLF = counter;
     char tmp[MAX_HT_SIZE];
+    char if_var[25] = "LF@IF_LEFT_EXPR";
+    char if_var_1[25] = "LF@IF_LEFT_EXPR";
+    char if_var_2[25] = "LF@IF_RIGHT_EXPR";
     bool allFloat = false, printFloat = false;
 
     if(e->argslist == NULL){
@@ -1251,18 +1254,10 @@ void gen_if(ht_table_t *t, element *e){
         }
     }
 
-    if(allFloat){
-        PRINT_LANE_ONE_ARG("DEFVAR", if_var);
-    }
-
     compare.argslist = malloc(sizeof(argList));
     compare.argslist->list = malloc(sizeof(arg));
 
     print = retype_string(e->argslist->list[0].arg);
-    sprintf(tmp, "%d", counter++);
-    if_var[11] = '\0';
-    strcat(if_var, tmp);
-    PRINT_LANE_ONE_ARG("DEFVAR", if_var);
     PRINT_LANE_TWO_ARG("MOVE", if_var, print);
 
     for(int i = 1; i < e->argslist->len+1; i++){
@@ -1303,19 +1298,20 @@ void gen_if(ht_table_t *t, element *e){
             } else if(operator.type == DOT){
                 PRINT_LANE_THREE_ARG("CONCAT", if_var, if_var, print);
             } else {
-                sprintf(tmp, "%d", counter++);
-                if_var[11] = '\0';
-                strcat(if_var, tmp);
-                PRINT_LANE_ONE_ARG("DEFVAR", if_var);
+                if(strcmp(if_var, if_var_1) == 0){
+                    strcpy(if_var, if_var_2);
+                } else {
+                    strcpy(if_var, if_var_1);
+                }
                 PRINT_LANE_TWO_ARG("MOVE", if_var, print);
             }
         }
     }
 
-    sprintf(tmp, "%d", newLF++);
-    if_var[11] = '\0';
-    strcat(if_var, tmp);
+    strcpy(if_var, if_var_1);
     PRINT_LANE_TWO_ARG("MOVE", if_main, if_var);
+    strcpy(if_var, if_var_2);
+
     for(int i = 1; i < e->argslist->len+1; i++){
         if(i%2 != 0){
             operator = e->argslist->list[i].arg;
@@ -1323,19 +1319,19 @@ void gen_if(ht_table_t *t, element *e){
 
 
             if(allFloat && e->argslist->list[i].arg.type == NUMBER){
-                PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", print);
+                PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", if_var);
                 printFloat = true;
             }
 
             if(operator.type == EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", if_main, if_main, print);
+                PRINT_LANE_THREE_ARG("EQ", if_main, if_main, if_var);
             } else if(operator.type == NOT_EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", if_main, if_main, print);
+                PRINT_LANE_THREE_ARG("EQ", if_main, if_main, if_var);
                 PRINT_LANE_TWO_ARG("NOT", if_main, if_main);
             } else if(operator.type == LESS){
-                PRINT_LANE_THREE_ARG("LT", if_main, if_main, print);
+                PRINT_LANE_THREE_ARG("LT", if_main, if_main, if_var);
             } else if(operator.type == GREATER){
-                PRINT_LANE_THREE_ARG("GT", if_main, if_main, print);
+                PRINT_LANE_THREE_ARG("GT", if_main, if_main, if_var);
             } else if(operator.type == LESS_EQUAL){
                 char lt_var[35] = "LF@ONLY_FOR_LESS_EQUAL_";
                 sprintf(tmp, "%d", counter++);
@@ -1366,30 +1362,23 @@ void gen_if(ht_table_t *t, element *e){
                 PRINT_LANE_THREE_ARG("EQ", gt_var, if_main, print);
                 PRINT_LANE_ONE_ARG("LABEL", gt_jump_label);
                 PRINT_LANE_TWO_ARG("MOVE", if_main, gt_var);
-            } else {
-                sprintf(tmp, "%d", newLF++);
-                if_var[11] = '\0';
-                strcat(if_var, tmp);
             }
         }
     }
 
     sprintf(tmp, "%d", counter++);
-    valid_if_label[10] = '\0';
-    strcat(valid_if_label, tmp);
-
-    sprintf(tmp, "%d", counter++);
     else_label[7] = '\0';
     strcat(else_label, tmp);
 
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", valid_if_label,if_main, "bool@true");
     PRINT_LANE_THREE_ARG("JUMPIFNEQ", else_label,if_main, "bool@true");
-    PRINT_LANE_ONE_ARG("LABEL", valid_if_label);
 }
 
 void gen_while(ht_table_t *t, element *e){
     char tmp[MAX_HT_SIZE], *print = NULL;
     bool allFloat = false, printFloat = false;
+    char while_var[25] = "LF@WHILE_RIGHT_EXPR";
+    char while_var_1[25] = "LF@WHILE_LEFT_EXPR";
+    char while_var_2[25] = "LF@WHILE_RIGHT_EXPR";
     Token operator;
 
     if(e->argslist == NULL){
@@ -1401,29 +1390,7 @@ void gen_while(ht_table_t *t, element *e){
         }
     }
 
-    if(allFloat == true){
-        PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
-    }
-
     int newLF = counter, newLF2 = counter;
-
-    for(int i = 0; i < e->argslist->len+1; i++){
-        if(i%2==0){
-            print = retype_string(e->argslist->list[i].arg);
-            if(operator.type != PLUS &&
-            operator.type != MINUS &&
-            operator.type != DIVIDE &&
-            operator.type != MULTIPLY &&
-            operator.type != DOT){
-                sprintf(tmp, "%d", counter++);
-                while_var[14] = '\0';
-                strcat(while_var, tmp);
-                PRINT_LANE_ONE_ARG("DEFVAR", while_var);
-            }
-        } else {
-            operator = e->argslist->list[i].arg;
-        }
-    }
 
     sprintf(tmp, "%d", counter++);
     cycle_name[13] = '\0';
@@ -1472,18 +1439,19 @@ void gen_while(ht_table_t *t, element *e){
             } else if(operator.type == DOT){
                 PRINT_LANE_THREE_ARG("CONCAT", while_var, while_var, print);
             } else {
-                sprintf(tmp, "%d", newLF++);
-                while_var[14] = '\0';
-                strcat(while_var, tmp);
+                if(strcmp(while_var, while_var_1) == 0){
+                    strcpy(while_var, while_var_2);
+                } else {
+                    strcpy(while_var, while_var_1);
+                }
                 PRINT_LANE_TWO_ARG("MOVE", while_var, print);
             }
         }
     }
 
-    sprintf(tmp, "%d", newLF2++);
-    while_var[14] = '\0';
-    strcat(while_var, tmp);
+    strcpy(while_var, while_var_1);
     PRINT_LANE_TWO_ARG("MOVE", while_main, while_var);
+    strcpy(while_var, while_var_2);
 
     for(int i = 1; i < e->argslist->len+1; i++){
         if(i%2 != 0){
@@ -1491,32 +1459,32 @@ void gen_while(ht_table_t *t, element *e){
         } else {
 
             if(allFloat && e->argslist->list[i].arg.type == NUMBER){
-                PRINT_LANE_TWO_ARG("INT2FLOAT", "LF@INT2FLOATVAR", print);
+                PRINT_LANE_TWO_ARG("INT2FLOAT", while_var_2, while_var_2);
                 printFloat = true;
             }
 
             if(operator.type == EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", while_main, while_main, print);
+                PRINT_LANE_THREE_ARG("EQ", while_main, while_main, while_var_2);
             } else if(operator.type == NOT_EQUAL){
-                PRINT_LANE_THREE_ARG("EQ", while_main, while_main, print);
+                PRINT_LANE_THREE_ARG("EQ", while_main, while_main, while_var_2);
                 PRINT_LANE_TWO_ARG("NOT", while_main, while_main);
             } else if(operator.type == LESS){
-                PRINT_LANE_THREE_ARG("LT", while_main, while_main, print);
+                PRINT_LANE_THREE_ARG("LT", while_main, while_main, while_var_2);
             } else if(operator.type == GREATER){
-                PRINT_LANE_THREE_ARG("GT", while_main, while_main, print);
+                PRINT_LANE_THREE_ARG("GT", while_main, while_main, while_var_2);
             } else if(operator.type == LESS_EQUAL){
                 char lt_var[35] = "LF@ONLY_FOR_LESS_EQUAL_";
                 sprintf(tmp, "%d", counter++);
                 lt_var[26] = '\0';
                 strcat(lt_var, tmp);
                 PRINT_LANE_ONE_ARG("DEFVAR", lt_var);
-                PRINT_LANE_THREE_ARG("LT", lt_var, while_main, print);
+                PRINT_LANE_THREE_ARG("LT", lt_var, while_main, while_var_2);
                 char lt_jump_label[25] = "$lt_successful_";
                 sprintf(tmp, "%d", counter++);
                 lt_jump_label[15] = '\0';
                 strcat(lt_jump_label, tmp);
                 PRINT_LANE_THREE_ARG("JUMPIFEQ", lt_jump_label, lt_var, "bool@true");
-                PRINT_LANE_THREE_ARG("EQ", lt_var, while_main, print);
+                PRINT_LANE_THREE_ARG("EQ", lt_var, while_main, while_var_2);
                 PRINT_LANE_ONE_ARG("LABEL", lt_jump_label);
                 PRINT_LANE_TWO_ARG("MOVE", while_main, lt_var);
             } else if(operator.type == GREATER_EQUAL){
@@ -1525,19 +1493,15 @@ void gen_while(ht_table_t *t, element *e){
                 gt_var[26] = '\0';
                 strcat(gt_var, tmp);
                 PRINT_LANE_ONE_ARG("DEFVAR", gt_var);
-                PRINT_LANE_THREE_ARG("GT", gt_var, while_main, print);
+                PRINT_LANE_THREE_ARG("GT", gt_var, while_main, while_var_2);
                 char gt_jump_label[25] = "$gt_successful_";
                 sprintf(tmp, "%d", counter++);
                 gt_jump_label[15] = '\0';
                 strcat(gt_jump_label, tmp);
                 PRINT_LANE_THREE_ARG("JUMPIFEQ", gt_jump_label, gt_var, "bool@true");
-                PRINT_LANE_THREE_ARG("EQ", gt_var, while_main, print);
+                PRINT_LANE_THREE_ARG("EQ", gt_var, while_main, while_var_2);
                 PRINT_LANE_ONE_ARG("LABEL", gt_jump_label);
                 PRINT_LANE_TWO_ARG("MOVE", while_main, gt_var);
-            } else {
-                sprintf(tmp, "%d", newLF2++);
-                while_var[14] = '\0';
-                strcat(while_var, tmp);
             }
         }
     }

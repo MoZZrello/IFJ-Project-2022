@@ -1,0 +1,50 @@
+# Ukazka iterace pomoci podminenych skoku
+.IFJcode22
+JUMP $main
+
+LABEL $if_program
+CREATEFRAME 
+PUSHFRAME 
+DEFVAR LF@input_from_main  # pride mi sem 50
+POPS LF@input_from_main # pride mi sem string@a
+DEFVAR LF@input_string
+POPS LF@input_string 
+DEFVAR LF@left_if_1
+DEFVAR LF@right_if_1
+DEFVAR LF@else
+DEFVAR LF@left_while_1
+DEFVAR LF@right_while_1
+
+MOVE LF@left_while_1 LF@input_string #do left_while ide a 
+MOVE LF@right_while_1 string@aaaaaaaaa #do left_while ide aaaaaaaaaa
+LABEL while
+JUMPIFEQ end LF@left_while_1 LF@right_while_1 #porovnam ci sa rovnaju
+WRITE LF@left_while_1 #nemas potom ako zistit ci to je toto co chce
+WRITE string@\010
+CONCAT LF@left_while_1 LF@left_while_1 string@a  #do left_while_1 sa prida a
+JUMP while #skocim na zaciatok while
+LABEL end #ak sa rovnaju stringy koncim while
+
+LABEL if #zacinam if
+MOVE LF@left_if_1 LF@input_from_main # do left_if sa mi da cislo 50
+MOVE LF@right_if_1 int@10 # do praveho sa mi da 10
+LT LF@else LF@left_if_1 LF@right_if_1 #porovnam ci je mensi  left < right nie su...
+JUMPIFEQ $else LF@else bool@false # ak nie idem na else
+WRITE string@mam_mensi_kkt_nez_10cm_:kekik # nedostanem sa tu 50 > 10
+WRITE string@\010
+JUMP $end_if
+
+LABEL $else
+WRITE string@mam_mensi_kkt_nez_10cm_:kekik #50 > 10
+LABEL $end_if
+POPFRAME #idem do piťe domov nebaví ma to
+RETURN 
+
+LABEL $main
+CREATEFRAME 
+PUSHFRAME 
+PUSHS string@a
+DEFVAR LF@counter 
+MOVE LF@counter int@50
+PUSHS LF@counter
+CALL $if_program

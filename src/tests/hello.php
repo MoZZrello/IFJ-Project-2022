@@ -5,17 +5,13 @@ declare(strict_types=1);
 
 function hlavni_program(?int $year) : float {
   write("Hello from IFJ", $year, "\n");
-  while($year < 25){
+
+  while($year < 25 - 5){
     write("while|");
     $year = $year + 1;
   }
-  return 1.1 + 1;
-}
 
-function pohlavni_program(string $month, int $year) : void {
-  $var = $month;
-  write("Hello from IFJ", $var, "\n");
-  return;
+  return 1.1 + 1;
 }
 
 $tmp = "ab" . "c";
@@ -26,6 +22,12 @@ if(1 < 2){
 } else {
     write("false");
 }
+
+$year = 1;
+while($year < 25){
+   write("while|");
+   $year = $year + 1;
+ }
 
 hlavni_program($tmp2);
 $tmp = hlavni_program(23); // pozdrav z budoucnosti

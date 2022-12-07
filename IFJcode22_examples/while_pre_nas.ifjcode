@@ -1,0 +1,33 @@
+# Ukazka iterace pomoci podminenych skoku
+.IFJcode22
+
+JUMP $main 
+
+LABEL $while_program
+CREATEFRAME 
+PUSHFRAME 
+
+DEFVAR LF@input_from_main
+POPS LF@input_from_main
+DEFVAR LF@left_while_1
+DEFVAR LF@right_while_1
+
+LABEL while
+MOVE LF@left_while_1 LF@input_from_main
+MOVE LF@right_while_1 string@aaaaaaaaa
+JUMPIFEQ end LF@left_while_1 LF@right_while_1
+WRITE LF@left_while_1 #nemas potom ako zistit ci to je toto co chce
+WRITE string@\010
+CONCAT LF@input_from_main LF@left_while_1 string@a  #ked to premenujeme zase nebudes vediet ze do tohto do mas ulozit
+JUMP while
+LABEL end
+POPFRAME
+RETURN 
+
+LABEL $main
+CREATEFRAME 
+PUSHFRAME 
+DEFVAR LF@counter 
+MOVE LF@counter string@a
+PUSHS LF@counter
+CALL $while_program
