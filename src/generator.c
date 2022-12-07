@@ -1031,9 +1031,18 @@ void func_intval(){
     PRINT_LANE_ONE_ARG("POPS", "LF@number");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@return_int");
 
+    PRINT_LANE_THREE_ARG("JUMPIFEQ", "$end", "LF@number", "nil@nil");
     PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
-
     PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
+    PRINT_LANE_ONE_ARG("JUMP", "$end_int");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$end");
+    PRINT_LANE_TWO_ARG("MOVE", "LF@number", "float@0x0p+0");
+    PRINT_LANE_TWO_ARG("FLOAT2INT","LF@return_int", "LF@number");
+    PRINT_LANE_ONE_ARG("PUSHS", "LF@return_int");
+
+    PRINT_LANE_ONE_ARG("LABEL", "$end_int");
+
     PRINT_LANE_ZERO_ARG("POPFRAME");
     PRINT_LANE_ZERO_ARG("RETURN");
 }
