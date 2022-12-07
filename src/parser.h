@@ -1,6 +1,6 @@
-//
-// Created by Richard Harman, Terézia Hundáková and Jasmína Csalová on 16. 11. 2022.
-//
+/*
+ * Created by Terezia Hundakova, Jasmína Csalova and Richard Harman on 16. 11. 2022
+ */
 
 #ifndef IFJ_PROJECT_2022_PARSER_H
 #define IFJ_PROJECT_2022_PARSER_H

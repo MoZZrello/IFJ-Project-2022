@@ -1,6 +1,7 @@
-//
-// Created by Terézia Hundáková, Jasmína Csalová on 1. 12. 2022
-//
+/*
+ * Created by Terezia Hundakova, Jasmína Csalova on 01.12.2022
+ */
+
 #include "strings.h"
 #include "errors.h"
 #include "expr.h"

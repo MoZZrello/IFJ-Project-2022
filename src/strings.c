@@ -1,6 +1,6 @@
-//
-// Created by Richard Harman on 17. 10. 2022.
-//
+/*
+ * Created by Richard Harman on 17.10.2022
+ */
 
 #include "stdio.h"
 #include "stdlib.h"

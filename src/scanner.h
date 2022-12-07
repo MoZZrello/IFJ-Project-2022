@@ -1,6 +1,6 @@
-//
-// Created by Richard Harman on 2. 10. 2022.
-//
+/*
+ * Created by Richard Harman on 02.10.2022
+ */
 
 #ifndef IFJ_PROJECT_2022_SCANNER_H
 #define IFJ_PROJECT_2022_SCANNER_H

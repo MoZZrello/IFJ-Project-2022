@@ -1,6 +1,7 @@
-//
-// Created by Richard Harman on 16. 11. 2022.
-//
+/*
+ * Created by Richard Harman on 16. 11. 2022
+ */
+
 #include "errors.h"
 
 void callError(int err_num){

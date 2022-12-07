@@ -1,6 +1,7 @@
-//
-// Created by Terézia Hundáková, Jasmína Csalová on 16. 11. 2022 and Richard Harman on 25.11.2022
-//
+/*
+ * Created by Terezia Hundakova, Jasmína Csalova and Richard Harman on 16. 11. 2022
+ */
+
 #include "parser.h"
 
 Token token;

@@ -1,6 +1,6 @@
-//
-// Created by Richard Harman on 17. 11. 2022.
-//
+/*
+ * Created by Richard Harman on 17.11.2022
+*/
 
 #ifndef IFJ_PROJECT_2022_LIST_H
 #define IFJ_PROJECT_2022_LIST_H

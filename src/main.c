@@ -1,6 +1,6 @@
-//
-// Created by Richard Harman on 4. 10. 2022.
-//
+/*
+ * Created by Richard Harman on 04.10.2022
+ */
 
 #include "parser.h"
 #include "generator.h"
