@@ -11,13 +11,34 @@ struct functions *head_var_fce = NULL;
 struct functions *current_fce = NULL;
 
 // TODO ZVRATENA TABUKA
+//int table [SIZE][SIZE] = {
+				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
+	/* VALUE*/	  //{X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L},
+	/* PLUS*/		  //{G, E, L, G, L, G, G, G, G, G, G, X, L, G, G, L},
+	/* MINUS*/	  //{G, G, E, G, G, G, G, L, L, L, L, X, L, G, G, L},
+	/* MULTI*/	  //{G, G, G, E, G, G, G, G, G, G, G, X, L, G, G, L},
+	/* DIV */		  //{G, L, G, G, E, G, G, G, G, G, G, X, L, L, G, L},
+	/* EQ */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* NEQ */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* GTHE */	  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* LTHE */	  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* GTH */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* LTH */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
+	/* COM */		  //{G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, L},
+	/* BRACE_L */	//{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, L},
+	/* BRACE_R */	//{G, G, G, G, L, G, G, G, G, G, G, L, L, G, G, L},
+	/* KONK */		//{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, L},
+	/* END */   	//{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
+//};
+
+// TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
 				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
 	/* VALUE*/	  {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L},
-	/* PLUS*/		  {G, E, L, G, L, G, G, G, G, G, G, X, L, G, G, L},
-	/* MINUS*/	  {G, G, E, G, G, G, G, L, L, L, L, X, L, G, G, L},
-	/* MULTI*/	  {G, G, G, E, G, G, G, G, G, G, G, X, L, G, G, L},
-	/* DIV */		  {G, L, G, G, E, G, G, G, G, G, G, X, L, L, G, L},
+	/* PLUS*/		  {G, E, L, L, L, L, L, L, L, L, L, X, L, L, G, L},
+	/* MINUS*/	  {G, L, E, L, L, L, L, L, L, L, L, X, L, L, G, L},
+	/* MULTI*/	  {G, L, L, E, L, L, L, L, L, L, L, X, L, L, G, L},
+	/* DIV */		  {G, L, L, L, E, L, L, L, L, L, L, X, L, L, G, L},
 	/* EQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
 	/* NEQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
 	/* GTHE */	  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
@@ -26,10 +47,12 @@ int table [SIZE][SIZE] = {
 	/* LTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
 	/* COM */		  {G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, L},
 	/* BRACE_L */	{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, L},
-	/* BRACE_R */	{G, G, G, G, L, G, G, G, G, G, G, L, L, G, G, L},
+	/* BRACE_R */	{G, L, G, G, L, L, L, L, L, L, L, L, L, G, G, L},
 	/* KONK */		{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, L},
 	/* END */   	{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
 };
+
+
 
 //struct stack_t stack;
 
@@ -104,6 +127,7 @@ void destroyStack(struct stack_t **theStack) {
 }
 
 void expression(Token *token, bool var) {
+    int brac_count = 0;
     struct stack_t stack;
     newStack(&stack);
 
@@ -116,10 +140,17 @@ void expression(Token *token, bool var) {
     struct stack_t tmp_stack;
     newStack(&tmp_stack);
     if(var == true) {
-      while (token->type != SEMICOLON) {
+      while (token->type != SEMICOLON /*|| brac_count == 0)*/) {
         //printf("token nam chodi %d\n", token->type);
         symb_a = token_to_index(token->type);
         symb_b = top(&stack);
+
+        /*if(token->type == LEFT_BRACKET) {
+          brac_count++;
+        }
+        else if(token->type == RIGHT_BRACKET) {
+          brac_count--;
+        }*/
 
         if(symb_b == NONTERM) {
           expr_symb symb;
@@ -141,7 +172,7 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        //printf("b je %d a je %d\n", symb_b, symb_a);
+        printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
@@ -150,7 +181,7 @@ void expression(Token *token, bool var) {
         }
 
         //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
-        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
+        printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
         //switch (table[symb_b][symb_a]) {
         switch (table[symb_a][symb_b]) {  
           case E:
@@ -186,15 +217,16 @@ void expression(Token *token, bool var) {
       } 
     }
     else if(var == false) {
-      while (token->type != RIGHT_BRACKET) {
+      while (token->type != RIGHT_BRACKET /*|| brac_count == 0)*/) {
         symb_a = token_to_index(token->type);
         symb_b = top(&stack);
+        printf(" top je %d\n", symb_b);
 
         if(symb_b == NONTERM) {
           expr_symb symb;
           while (1) {
             symb = top(&stack);
-                    //printf(" top je %d\n", symb);
+                    //printf(" symb je %d\n", symb);
             if(symb < NONTERM) {
               while(empty(&tmp_stack)) {
                 push(&stack, top(&tmp_stack), tmp_stack.head->token);
@@ -210,7 +242,7 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        //printf("b je %d a je %d\n", symb_b, symb_a);
+        printf("b je %d a je %d\n", symb_b, symb_a);
         
 
         if(symb_b > END) {
@@ -218,7 +250,7 @@ void expression(Token *token, bool var) {
           //printf("error in main fca\n");
           callError(ERR_SYN);
         }
-        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
+        printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
         switch (table[symb_a][symb_b]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -244,6 +276,13 @@ void expression(Token *token, bool var) {
               callError(ERR_SYN);
               break;
         }
+
+        /*if(token->type == LEFT_BRACKET) {
+          brac_count++;
+        }
+        else if(token->type == RIGHT_BRACKET && rdc == false) {
+          brac_count--;
+        }*/
 
         if(!rdc) {
           *token = getTokenFromList();
@@ -364,7 +403,7 @@ void greater(struct stack_t *stack) {
   struct stack_t tmp_stack;
   newStack(&tmp_stack);
 
-  //printf("vrchol stacku je %d\n", stack->head->symbol);
+  printf("vrchol stacku je %d\n", stack->head->symbol);
   while(top(stack) != ENDSTACK) {
     if(top(curr_ptr) != L) {
       push(&tmp_stack,top(curr_ptr), curr_ptr->head->token);
@@ -372,9 +411,10 @@ void greater(struct stack_t *stack) {
     }
     else {
       curr_ptr->head = curr_ptr->head->next;
-      //printf("%d top tmp\n", top(&tmp_stack));
+      printf("%d top tmp\n", top(&tmp_stack));
       switch (top(&tmp_stack)) {
         //EXPR → literal 
+
         case VALUE: {
             Token tmp_token = tmp_stack.head->token;
             pop(&tmp_stack);
@@ -435,6 +475,7 @@ void greater(struct stack_t *stack) {
               callError(ERR_SYN);
             }
             Token token = tmp_stack.head->token;
+            //printf("%d token je\n", token.type);
             pop(&tmp_stack);
             if(top(&tmp_stack) > COM) {
               if(top(&tmp_stack) != KONK) {
@@ -520,7 +561,6 @@ void greater(struct stack_t *stack) {
       }
       return;
     }
-
   }
    clear(&tmp_stack);
    clear(stack);
