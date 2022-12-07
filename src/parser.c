@@ -1,3 +1,6 @@
+//
+// Created by Terézia Hundáková, Jasmína Csalová on 16. 11. 2022 and Richard Harman on 25.11.2022
+//
 #include "parser.h"
 
 Token token;
@@ -60,7 +63,6 @@ void prolog() {
 
 void body() {
     token = getTokenFromList();
-    //printf("%d %s\n", token.type, token.info);
 
     if(token.type == IDENTIFIER){
         stmt();
@@ -98,15 +100,12 @@ void stmt() {
                     brac_count--;
                     else_stmt();
                 } else {
-                    //printf("error if }\n");
                     callError(ERR_SYN);
                 }
             } else {
-                //printf("error if {\n");
                 callError(ERR_SYN);
             }
         } else{
-            //printf("error if\n");
             callError(ERR_SYN);
         }
 
@@ -119,18 +118,12 @@ void stmt() {
                 brac_count++;
                 stmt_list();
                 if (token.type != RIGHT_CURLY_BRACKET) {
-                    //printf("error while }\n");
                     callError(ERR_SYN);
-                } else {
-                    //brac_find--;
-                    //printf("presli sme cez while\n");
                 }
             } else {
-                //printf("error while {\n");
                 callError(ERR_SYN);
             }
         } else {
-            //printf("error while\n");
             callError(ERR_SYN);
         }  
     } else if(token.type == IDENTIFIER) {
@@ -138,7 +131,6 @@ void stmt() {
             token = getTokenFromList();
             expression(&token, true);
         } else {
-            //printf("mame volanie funkcie\n");
             token = getTokenFromList();
             if(token.type == LEFT_BRACKET) {
                 expression(&token, true);
@@ -151,12 +143,9 @@ void stmt() {
             if(token.type != SEMICOLON) {
                 callError(ERR_SYN);
             }
-            //printf("error =\n");
-            //callError(ERR_SYN);
         } else {
             token = getTokenFromList();
             expression(&token, true);
-            //printf("var ok\n");
         }
     } else if(token.type == NUMBER || token.type == STRING || token.type == DECIMAL_NUMBER || token.type == EXPONENT_NUMBER) {
         expression(&token, true);
@@ -165,22 +154,16 @@ void stmt() {
         }
     } else {
         emptyTokenList();
-        //printf("error stmt %s\n", getTypeName(token));
         callError(ERR_SYN);
     }
 }
 
 void stmt_list() {
-    //printf("%s %s v stmt\n", token.info, getTypeName(token));
     token = getTokenFromList();
     if(token.type != RIGHT_CURLY_BRACKET) {
         stmt();
         stmt_list();
-    } else {
-        //brac_find--;
     }
-    
-
 }
 
 void else_stmt() {
@@ -191,14 +174,11 @@ void else_stmt() {
         if(token.type == LEFT_CURLY_BRACKET) {
             brac_count++;
             stmt_list();
-            //token = getToken(str);
             if (token.type != RIGHT_CURLY_BRACKET) {
-                //printf("error else }\n");
                 callError(ERR_SYN);
             }
             else {
                 brac_count--;
-                //printf("else okej\n");   
             }
         }
     }
@@ -207,12 +187,10 @@ void else_stmt() {
 void func() {
     token = getTokenFromList();
     if(token.type != IDENTIFIER || token.isKeyword == true) {
-        //printf("chyba func id\n");
         callError(ERR_SYN);
     } else {
         token = getTokenFromList();
         if(token.type != LEFT_BRACKET) {
-            //printf("funkcia ( error\n");
             callError(ERR_SYN);
         } else {
             args();
@@ -221,19 +199,15 @@ void func() {
                token = getTokenFromList();
             }
             if(token.type != LEFT_CURLY_BRACKET) {
-                //printf("error v fun {\n");
                 callError(ERR_SYN);
             } else {
                 brac_count++;
                 stmt_list();
-                //printf("%s %s v func\n", token.info, getTypeName(token));
                 if(token.type != RIGHT_CURLY_BRACKET) {
-                    //printf("error func }\n");
                     callError(ERR_SYN);
                 }
                 else {
                     brac_count--;
-                    //printf("func je okej\n");
                 }
             }
 
@@ -245,7 +219,6 @@ void func() {
 void args() {
     token = getTokenFromList();
     if (token.type == RIGHT_BRACKET){
-       // printf("dalej nic nie je\n");
     } else if (token.type == IDENTIFIER) {
         data_type();
         token = getTokenFromList();
@@ -270,11 +243,9 @@ void arg_def() {
         } else if (token.type == NUMBER) {
             return;
         } else {
-            //printf("eror arg def\n");
             callError(ERR_SYN);
         }
     }
-    //printf("%s %s\n",token.info ,getTypeName(token));
 }
 
 void arg_list() {
@@ -287,9 +258,8 @@ void arg_list() {
             arg_list();
         }
     } else if(token.type == RIGHT_BRACKET) {
-        //printf("dalej nic nie je\n");
+        return;
     } else {
-        //printf("error arg list\n");
         callError(ERR_SYN);
     }
 }
@@ -305,25 +275,22 @@ void ret_type() {
     }
 }
 
-//moze byt navratovy typ funkcie null? todo ano moze
 void data_type() {
-    //printf("data type je %s %s\n", getTypeName(token), token.info);
     if(strcmp(token.info, "void") == 0) {
-        //printf("mame void\n");
+        return;
     } else if(strcmp(token.info, "int") == 0) {
-        //printf("mame int\n");
+        return;
     } else if(strcmp(token.info, "float") == 0) {
-        //printf("mame float\n");
+        return;
     } else if(strcmp(token.info, "string") == 0) {
-        //printf("mame string\n");
+        return;
     } else if(strcmp(token.info, "?int") == 0) {
-        //printf("mame int\n");
+        return;
     } else if(strcmp(token.info, "?float") == 0) {
-        //printf("mame float\n");
+        return;
     } else if(strcmp(token.info, "?string") == 0) {
-        //printf("mame string\n");
+        return;
     } else {
-        //printf("Datovy typ error\n");
         callError(ERR_SYN);
     }
 }
@@ -714,7 +681,6 @@ element sem_identif(){
             }
         }
     }
-    //e.expr = expr_sem_identif(&e);
     return e;
 }
 
@@ -1215,7 +1181,6 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
             }
         }
     }
-    //printf("%s|%s\n", func.name.info, call.name.info);
 }
 
 Token get_variable(ht_table_t *table, element* e, Token var, int key){
