@@ -141,8 +141,8 @@ void gen_built_in_functions(ht_table_t *table, int key){
                 }
             } else if(strcmp(e->argslist->list[1].arg.info, "readf") == 0){
                 if(readf) {
-                func_readf();
-                readf = false;
+                    func_readf();
+                    readf = false;
                 }
             } else if(strcmp(e->argslist->list[1].arg.info, "write") == 0){
                 if(write) {
@@ -263,11 +263,11 @@ void function_gen(ht_table_t *table){
             inWhile = true;
             gen_while(table, e);
         } else if(e->name.type == VAR_ID && is_function){
-             if(e->argslist->list[1].arg.type == IDENTIFIER){
-                    func_call_asign(e);
-                }else{
-                    var_expr_gen(e);
-                }
+            if(e->argslist->list[1].arg.type == IDENTIFIER){
+                func_call_asign(e);
+            }else{
+                var_expr_gen(e);
+            }
         }
         //printujem telo funkcie
         if(is_function && is_end == false){
@@ -695,6 +695,13 @@ char *retype_string(Token arg){
             memmove(arg.info, arg.info+1, strlen(arg.info));
         }
         strcat(final_arg, arg.info);
+    }else if(arg.kwt == NULL_K){
+        final_arg = malloc(sizeof (char) * (3 + (int)strlen(arg.info) + 1));
+        if(final_arg == NULL){
+            callError(ERR_INTERNAL);
+        }
+        strcpy(final_arg, "nil@nil");
+
     }
     return final_arg;
 }
