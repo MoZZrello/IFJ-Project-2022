@@ -367,8 +367,10 @@ void func_arg_print(element* e){
         char final_var [500];
 
         for (int i = 0; i < e->argslist->len; ++i) {
-            memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,
-                    strlen(e->argslist->list[i].arg.info));
+            if(e->argslist->list->arg.info[0] == '$') {
+                memmove(e->argslist->list[i].arg.info, e->argslist->list[i].arg.info + 1,
+                        strlen(e->argslist->list[i].arg.info));
+            }
             snprintf(final_var, sizeof final_var, "LF@%s", e->argslist->list[i].arg.info);
             PRINT_LANE_ONE_ARG("DEFVAR", final_var);
             PRINT_LANE_ONE_ARG("POPS", final_var);
