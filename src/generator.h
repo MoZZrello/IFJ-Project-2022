@@ -11,6 +11,9 @@
 #include "symtable.h"
 #include "list.h"
 
+/**
+ *@brief Structre to save return types of functions
+ */
 typedef struct{
     int return_type;
     bool canBeNull;
@@ -152,16 +155,43 @@ void func_ord();
  */
 void func_chr();
 
-//assign a expr do vars
+/**
+ *@brief A function that assignes function call to a variable
+ *@param element* e -> pointer on element from table
+ */
 void func_call_asign(element *e);
+
+/**
+ *@brief A function to print and assign an expression to a variable
+ *@param element* e -> pointer on element from table
+ */
 void var_expr_gen(element *e);
+
+/**
+ *@brief A function that prints the return expression
+ *@param element* e -> pointer on element from table
+ */
 void return_expr(element *e);
 
-//if, while, else
+/**
+ *@brief A function that generates IF
+ *@param ht_table_t* t -> pointer to hashtable
+ *@param element* e -> pointer on element from table
+ */
 void gen_if(ht_table_t * t, element *e);
+
+/**
+ *@brief A function that generates WHILE
+ *@param ht_table_t* t -> pointer to hashtable
+ *@param element* e -> pointer on element from table
+ */
 void gen_while(ht_table_t *t, element *e);
 
-// help function to see if var is defined already
+/**
+ *@brief Checks if a variable has already been defined in code
+ *@param char* var_list -> string of all variables already defined
+ *@param char* var -> name of variable found
+ */
 bool is_var_new(char* var_list, char* var);
 
 #endif //SCANNER_C_GENERATOR_H

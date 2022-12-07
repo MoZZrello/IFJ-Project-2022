@@ -13,6 +13,9 @@
 #include "strings.h"
 #include "errors.h"
 
+/**
+ *@brief Enum types of automat
+ */
 typedef enum {
     Start,
     S_EOF,
@@ -72,6 +75,9 @@ typedef enum {
     ERROR
 } AutomatStates;
 
+/**
+ *@brief Structre to save tokens and their information
+ */
 typedef struct {
     enum {
         VAR_ID,
@@ -113,16 +119,42 @@ typedef struct {
     bool canBeNull;
 } Token;
 
+/**
+ *@brief A function that specifies next step of automat
+ *@param AutomatStates input -> last step of automat
+ *@param char c -> new character from STDIN
+ *@param bool *php_comment ->
+ */
 AutomatStates nextState(AutomatStates input, char c, bool *php_comment);
 
+/**
+ *@brief A function to create a whole token from data
+ *@param AutomatStates final_state -> last step of automat
+ *@param string *str -> string for easier work with characters
+ */
 Token returnTokenCreator(AutomatStates final_state, string* str);
 
+/**
+ *@brief A function to pass created token to token list
+ *@param string str -> string for easier work with characters
+ */
 Token getToken(string str);
 
+/**
+ *@brief A function to get name of token type as a string
+ *@param Token t -> token
+ */
 char* getTypeName(Token t);
 
+/**
+ *@brief A function to get name of token keyword type as a string
+ *@param Token t -> token
+ */
 char* getKeywordTypeName(Token t);
 
+/**
+ *@brief A function to free all tokens
+ */
 void tokenFree();
 
 #endif //IFJ_PROJECT_2022_SCANNER_H
