@@ -1506,6 +1506,6 @@ void gen_while(ht_table_t *t, element *e){
         }
     }
 
-    PRINT_LANE_THREE_ARG("JUMPIFEQ", cycle_end, while_main, "bool@true");
+    PRINT_LANE_THREE_ARG("JUMPIFNEQ", cycle_end, while_main, "bool@true");
 
 }
