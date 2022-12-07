@@ -15,93 +15,137 @@ typedef struct{
     bool canBeNull;
 } RetType;
 
-/*
- * ADD (var) (symb1) (symb2)
- * SUB (var) (symb1) (symb2)
- * MUL (var) (symb1) (symb2)
- * DIV (var) (symb1) (symb2)
- * IDIV (var) (symb1) (symb2)
- * LT/GT/EQ (var) (symb1) (symb2)
- * STRI2INT (var) (symb1) (symb2)
- * CONCAT (var) (symb1) (symb2)
- * GETCHAR (var) (symb1) (symb2)
- * SETCHAR (var) (symb1) (symb2)
- * JUMPIFEQ (label) (symb1) (symb2)
- * JUMPIFNEQ (label) (symb1) (symb2)
+/**
+ *@brief functions that print commands in the IFJcode22 language
+ *@param name -> command name
+ *@param arg1 -> first arg of command
+ *@param arg2 -> first arg of command
+ *@param arg3 -> first arg of command
  */
 void PRINT_LANE_THREE_ARG(char* name, char* arg1, char* arg2, char* arg3);
-/*
- * MOVE (var) (symb)
- * INT2FLOAT (var) (symb)
- * FLOAT2INT (var) (symb)
- * INT2CHAR  (var) (symb)
- * READ (var) (type)
- * STRLEN (var) (symb)
- * TYPE (var) (symb)
- */
 void PRINT_LANE_TWO_ARG(char* name, char* arg1, char* arg2);
-/*
- * DEFVAR (var)
- * CALL (label)
- * PUSH (symb)
- * POPS (var)
- * WRITE (symb)
- * LABEL (label)
- * JUMP (label)
- * EXIT (symb)
- * DPRINT (symb)
- */
 void PRINT_LANE_ONE_ARG(char* name, char* arg1);
-/*
- * CREATEFRAME
- * PUSHFRAME
- * POPFRAME
- * RETURN
- * CLEARS
- * LTS/GTS/EQS
- * ANDS/ORS/NOTS
- * INT2FLOATS/FLOAT2INTS/INT2CHARS/STRI2INTS
- * BREAK
- */
 void PRINT_LANE_ZERO_ARG(char* name);
 
-//Main func for generate program
+/**
+ *@brief The function calls the functions that compose the entire IFJcode22 code
+ *@param table -> place where the entire code from input is stored
+ *@param no_build_in_func -> ID of element in Table
+ */
 void gen_program(ht_table_t *table, int no_build_in_func);
-
-//Header of IFJcode22
+/**
+ *@brief The function prints the program header and a reference to main
+ */
 void start_program();
-
-//Define functions
+/**
+ *@brief A function that prints an user-defined function
+ *@param ht_table_t *table -> pointer to place where the entire code from input is stored
+ */
 void function_gen(ht_table_t *table);
-void func_arg_print(element* e);
-void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key);
-void func_return(element* e, RetType ret_type);
+/**
+ *@brief A function that prints an user-defined function
+ *@param element* e -> pointer on element from table
+ *@param ht_table_t *table -> pointer to table
+ */
 RetType def_func_start(element* e, ht_table_t *table);
+/**
+ *@brief A function defines and assigns values to the variable arguments that are passed to the function
+ *@param element* e -> pointer on element from table
+ */
+void func_arg_print(element* e);
 
-//Functions to call the function
+void func_return(element* e, RetType ret_type);
+/**
+ *@brief A function that prints the function body
+ *@param element* e -> pointer on element from table
+ */
+void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key);
+/**
+ *@brief A function that declares the arguments to be passed to the function
+ *@param element call -> the arguments we want to push for the called function
+ *@param ht_table_t *table -> pointer to place where the entire code from input is stored
+ */
 void gen_func_call(ht_table_t *table, element call);
+/**
+ *@brief A function that calls a function
+ *@param element call -> name of the function
+ */
 void func_call(char* call );
-
-//Main
+/**
+ *@brief A function that generates main
+ *@param ht_table_t *table -> place where the entire code from input is stored
+ *@param key -> ID of element in Table
+ */
 void gen_main(ht_table_t *table, int key);
-
-//Retypes functions
+/**
+ *@brief A function that retypes argument to the required form LF@ / int@ / float@ / string@
+ *@param Token arg - the input argument that we cast
+ */
 char *retype_string(Token arg);
+/**
+ *@brief A function that converts hexadecimal notation to octal notation
+ *@param const char hex[] - Input argument in hexa form
+ */
 long long hexa_to_octal(const char hex[]);
-
-//Built-in functions
+/**
+ *@brief When a built-in function is called, the function is printed at the beginning of the program,
+ *each function is called only once
+ *@param table -> place where the entire code from input is stored
+ *@param no_build_in_func -> ID of element in Table
+ */
 void gen_built_in_functions(ht_table_t *table, int key);
-void func_reads();      //done I guess
-void func_readi();      //done I guess
-void func_readf();      //done I guess
-void func_write();      //funguje- skontrolovane (este skontrolovat)
-void func_floatval();   //funguje--- skontrolovane
-void func_intval();     //funguje--- skontrolovane
-void func_strval();     //funguje--- skontrolovane (ide len string->string a null->string@)
-void func_strlen();     //funguje--- skontrolovane
-void func_substring();  //funguje--- skontrolovane
-void func_ord();        //funguje--- skontrolovane
-void func_chr();        //funguje--- dorobit chybovy stav 58!!!!
+/**
+ * @brief A built-in function that reads strings from standard input
+ * -string pushes on the stack
+ */
+void func_reads();
+/**
+ * @brief A built-in function that reads int from standard input
+ * -int pushes on the stack
+ */
+void func_readi();
+/**
+ * @brief A built-in function that reads float from standard input
+ * -float pushes on the stack
+ */
+void func_readf();
+/**
+ * @brief Built-in function for printing
+ * The number of arguments must be pushed on the stack, and given arguments
+ */
+void func_write();
+/**
+ * @brief Built-in function to change INT to FLOAT
+ * It is necessary to push INT number to the function via stack
+ */
+void func_floatval();
+/**
+ * @brief Built-in function to change FLOAT to INT
+ * It is necessary to push FLOAT number to the function via stack
+ */
+void func_intval();
+/**
+ * @brief In our case, the function just returns a string or nill
+ */
+void func_strval();
+/**
+ * @brief Built-in function returns the length of the argument that was pushed on stack
+ */
+void func_strlen();
+/**
+ * @brief Built-in function returns the substring of the string that was pushed on stack
+ */
+void func_substring();
+/**
+ * @brief Built-in function to change first CHAR of STRINF to INT
+ * It is necessary to push STRING to the function via stack
+ */
+void func_ord();
+/**
+ * @brief Built-in function to change INT to CHAR
+ * It is necessary to push INT to the function via stack
+ */
+void func_chr();
 
 //assign a expr do vars
 void func_call_asign(element *e);
