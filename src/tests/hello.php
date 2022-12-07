@@ -5,21 +5,20 @@ declare(strict_types=1);
 
 function hlavni_program(?int $year) : float {
   write("Hello from IFJ", $year, "\n");
+  if(1+0 < 21){
+      $var = strlen("true");
+  } else {
+      write("false");
+  }
   return 1.1 + 1;
 }
 
 $tmp = "ab" . "c";
-$tmp2 = strlen("truee");
-
-if(1+0 < 2-1){
-    $var = strlen("true");
-} else {
-    write("false");
-}
+$tmp2 = strlen("true");
 
 $year = 19;
 while($year + 1 < 25){
-   write("while|");
+   write("a\010");
    $year = $year + 1;
  }
 

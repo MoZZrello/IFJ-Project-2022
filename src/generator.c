@@ -203,13 +203,14 @@ void function_gen(ht_table_t *table){
     char else_end_label[20] = "$else_end_\0";
     RetType ret_type;
     int i = 0, elseCurly = 0, curly = 0, whileCurly = 0;
+
     while(!0){
         sprintf(func, "%d", i++);
         e = ht_get(table, func);
         if(e == NULL)break;
 
         if(e->ret_type.type != ERROR_T){
-            ret_type = def_func_start(e);
+            ret_type = def_func_start(e, table);
             func_arg_print(e);//print arg of functions
             is_function = true;
             is_end = false;
@@ -279,7 +280,7 @@ void function_gen(ht_table_t *table){
  *@brief A function that prints an user-defined function
  *@param element* e -> pointer on element from table
  */
-RetType def_func_start(element* e ){
+RetType def_func_start(element* e, ht_table_t* table ){
     RetType rt;
     if(e->argslist != NULL) {
         printf("\n");
@@ -296,6 +297,48 @@ RetType def_func_start(element* e ){
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_LEFT_EXPR");
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_RIGHT_EXPR");
         PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");;
+        PRINT_LANE_ONE_ARG("DEFVAR", "LF@IM_FUNCTION_AND_I_RETURN_THIS");
+
+        char *vars = malloc(sizeof(char));
+        char *print = NULL;
+        int curly = 0, i = 0;
+        bool inFunction = false;
+        char func[MAX_HT_SIZE];
+        element *search;
+        strcpy(vars, "\0");
+
+        while(!0){
+            sprintf(func, "%d", i++);
+            search = ht_get(table, func);
+            if(search == NULL)break;
+
+            if(search->name.type == IDENTIFIER && search->ret_type.type != ERROR_T){
+                inFunction = true;
+            } else if(search->name.type == LEFT_CURLY_BRACKET){
+                curly++;
+            } else if(search->name.type == RIGHT_CURLY_BRACKET){
+                curly--;
+                if(curly == 0){
+                    inFunction = false;
+                }
+            } else if(search->name.type == VAR_ID && inFunction){
+                if(is_var_new(vars, search->name.info)){
+                    vars = realloc(vars, sizeof(char) * (strlen(vars) + strlen(search->name.info) + 2));
+                    strcat(vars, search->name.info);
+                    strcat(vars, ";");
+                    print = retype_string(search->name);
+                    PRINT_LANE_ONE_ARG("DEFVAR", print);
+                }
+            }
+        }
+
+        if(vars != NULL){
+            free(vars);
+        }
+        if(print != NULL){
+            free(print);
+        }
     }
 
     if(e->ret_type.kwt == STRING_K){
@@ -1227,8 +1270,6 @@ void return_expr(element *e){
     Token operator;
     bool allFloat = false, printFloat = false;
     char var[35] = "LF@IM_FUNCTION_AND_I_RETURN_THIS";
-
-    PRINT_LANE_ONE_ARG("DEFVAR", var);
 
     if(e->argslist == NULL || e->argslist->list == NULL){
         return;

@@ -76,7 +76,7 @@ void function_gen(ht_table_t *table);
 void func_arg_print(element* e);
 void func_main_print(ht_table_t *table, element* e, RetType ret_type, int *key);
 void func_return(element* e, RetType ret_type);
-RetType def_func_start(element* e );
+RetType def_func_start(element* e, ht_table_t *table);
 
 //Functions to call the function
 void gen_func_call(ht_table_t *table, element call);
