@@ -453,6 +453,12 @@ void gen_main(ht_table_t *table, int key){
     PRINT_LANE_ZERO_ARG("PUSHFRAME");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_STMT");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_LEFT_EXPR");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@IF_RIGHT_EXPR");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_STMT");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_LEFT_EXPR");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@WHILE_RIGHT_EXPR");
+    PRINT_LANE_ONE_ARG("DEFVAR", "LF@INT2FLOATVAR");
     for (int i = 0; i < key ; ++i) {
         element* e = NULL;
         sprintf(index, "%d", i);
@@ -465,19 +471,16 @@ void gen_main(ht_table_t *table, int key){
                 if(e->name.kwt == IF_K){
                     gen_if(table, e);
                 } else if(e->name.kwt == ELSE_K){
-                    char tmp[MAX_HT_SIZE];
+                    char tmp[HT_SIZE];
+                    sprintf(tmp, "%d", counter++);
                     else_end_label[10] = '\0';
-                    sprintf(tmp, "%d", counter-1);
                     strcat(else_end_label, tmp);
                     PRINT_LANE_ONE_ARG("JUMP", else_end_label);
-
-                    sprintf(tmp, "%d", counter-1);
-                    else_label[7] = '\0';
-                    strcat(else_label, tmp);
                     PRINT_LANE_ONE_ARG("LABEL", else_label);
                     inElse = true;
                 } else if(e->name.kwt == WHILE_K){
                     gen_while(table, e);
+                    inWhile = true;
                 }
                 if(inFunction == false) {
                     gen_func_call(table, *e);
@@ -498,20 +501,19 @@ void gen_main(ht_table_t *table, int key){
             if(curly == 0){
                 inFunction = false;
             }
+            if(inElse){
+                elseCurly--;
+                if(elseCurly == 0){
+                    inElse = false;
+                    PRINT_LANE_ONE_ARG("LABEL", else_end_label);
+                }
+            }
             if(inWhile){
                 whileCurly--;
                 if(whileCurly == 0){
                     inWhile = false;
-                    char tmp[MAX_HT_SIZE];
                     PRINT_LANE_ONE_ARG("JUMP", cycle_name);
                     PRINT_LANE_ONE_ARG("LABEL", cycle_end);
-                }
-            }
-            if(inElse){
-                elseCurly--;
-                if(elseCurly == 0){
-                    PRINT_LANE_ONE_ARG("LABEL", else_end_label);
-                    inElse = false;
                 }
             }
         } else if (e->name.type == VAR_ID && inFunction == false){
