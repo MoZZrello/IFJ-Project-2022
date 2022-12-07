@@ -1,3 +1,6 @@
+//
+// Created by Terézia Hundáková, Jasmína Csalová on 1. 12. 2022
+//
 #include "strings.h"
 #include "errors.h"
 #include "expr.h"
@@ -11,7 +14,6 @@ struct variables *current = NULL;
 struct functions *head_var_fce = NULL;
 struct functions *current_fce = NULL;
 
-// TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
 				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|FUNC|END*/
 	/* VALUE*/	  {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, X, L},
@@ -26,8 +28,8 @@ int table [SIZE][SIZE] = {
 	/* GTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
 	/* LTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
 	/* COM */		  {G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, G, L},
-	/* BRACE_L */	{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, G, L},
-	/* BRACE_R */	{G, L, L, L, L, L, L, L, L, L, L, L, L, G, G, G, L},
+	/* BRACE_L */	{G, L, L, L, L, L, L, L, L, L, L, X, E, X, L, G, L},
+	/* BRACE_R */	{G, L, L, L, L, L, L, L, L, L, L, L, L, E, G, G, L},
 	/* KONK */		{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, G, L},
   /* FUNC */    {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, X, L},
 	/* END */   	{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
@@ -118,8 +120,10 @@ void expression(Token *token, bool var) {
     struct stack_t tmp_stack;
     newStack(&tmp_stack);
     if(var == true) {
-      while (token->type != SEMICOLON /*|| brac_count == 0)*/) {
-        //printf("token nam chodi %d\n", token->type);
+      while (token->type != SEMICOLON || brac_count != 0) {
+        if(token->type == GREATER || token->type == GREATER_EQUAL || token->type == LESS || token->type == LESS_EQUAL || token->type == ASSIGN || token->type == EQUAL || token->type == NOT_EQUAL) {
+          callError(ERR_SYN);
+        }
         if(token->isKeyword  && token->kwt == NULL_K) {
           symb_a = VALUE;
         }
@@ -128,28 +132,15 @@ void expression(Token *token, bool var) {
         }
         symb_b = top(&stack);
 
-        //printf("%d symb a %d\n", symb_a, symb_b);
-
-        /*if(token->type == LEFT_BRACKET) {
-          brac_count++;
-        }
-        else if(token->type == RIGHT_BRACKET) {
-          brac_count--;
-        }*/
-
-        //printf(" top je %d\n", symb_b);
         if(sign == true && (symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV)) {
           if(symb_a != VALUE) {
-            //printf("chyba za znamienkom\n");
             callError(ERR_SYN);
           }
         }
         else if(symb_b == BRACE_R && (symb_a == VALUE || symb_a == BRACE_L)) {
-          //printf("error zatvorka ynamnienko\n");
           callError(ERR_SYN);
         }
         else if(symb_b == VALUE && symb_a == BRACE_L) {
-          //printf("error zatvorka ynamnienko\n");
           callError(ERR_SYN);
         }
         else if(symb_b == COMMA && symb_a != VALUE) {
@@ -178,17 +169,12 @@ void expression(Token *token, bool var) {
           symb_b = symb;
         }
 
-        //printf("b je %d a je %d\n", symb_b, symb_a);
 
         if(symb_b > END) {
           pop(&stack);
-          //printf("error symb_b > end");
           callError(ERR_SYN);
         }
 
-        //printf("vrateny znk z tabulkky je %d\n", table[symb_b][symb_a]);
-        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
-        //switch (table[symb_b][symb_a]) {
         switch (table[symb_a][symb_b]) {  
           case E:
               equal(&stack, symb_a, &(*token));
@@ -197,28 +183,30 @@ void expression(Token *token, bool var) {
               less(&stack, symb_a, &(*token));
               break;
           case G:
-              //printf("top zasobnika je %d\n", top(&stack));
               greater(&stack);
               rdc = true;
               break;
           case X:
               clear(&stack);
-              //todo error prazdne miesto z tabulky
-              //printf("error prazdna tabulka\n");
               callError(ERR_SYN);
               break;
           default:
               clear(&stack);
-              //printf("error neexistujuca hodnota\n");
               callError(ERR_SYN);
               break;
+        }
+
+        if(token->type == LEFT_BRACKET && rdc == false) {
+          brac_count++;
+        }
+        else if(token->type == RIGHT_BRACKET && rdc == false) {
+          brac_count--;
         }
 
         if(!rdc) {
           *token = getTokenFromList();
           if(token->type == SEMICOLON && sign == true) {
             if(symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV) {
-              //printf("error not rdc");
               callError(ERR_SYN);
             }
           }
@@ -231,7 +219,6 @@ void expression(Token *token, bool var) {
     }
     else if(var == false) {
       while (token->type != RIGHT_BRACKET || brac_count != 1) {
-        //printf("token je %s %d\n", token->info, token->type);
         if(token->isKeyword  && token->kwt == NULL_K) {
           symb_a = VALUE;
         }
@@ -239,21 +226,16 @@ void expression(Token *token, bool var) {
           symb_a = token_to_index(token->type);
         }
         symb_b = top(&stack);
-        //printf(" top je %d\n", token->type);
 
         if(sign == true && (symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV)) {
           if(symb_a != VALUE) {
-            //printf("chyba za znamienkom\n");
             callError(ERR_SYN);
           }
-          //sign = false;
         }
         else if(symb_b == BRACE_R && (symb_a == VALUE || symb_a == BRACE_L)) {
-          //printf("error zatvorka ynamnienko\n");
           callError(ERR_SYN);
         }
         else if(symb_b == VALUE && symb_a == BRACE_L) {
-          //printf("error zatvorka ynamnienko\n");
           callError(ERR_SYN);
         }
         else if(symb_b == COMMA && symb_a != VALUE) {
@@ -264,7 +246,6 @@ void expression(Token *token, bool var) {
           expr_symb symb;
           while (1) {
             symb = top(&stack);
-                    //printf(" symb je %d\n", symb);
             if(symb < NONTERM) {
               while(empty(&tmp_stack)) {
                 push(&stack, top(&tmp_stack), tmp_stack.head->token);
@@ -278,17 +259,12 @@ void expression(Token *token, bool var) {
             }
           }
           symb_b = symb;
-        }
-
-        //printf("b je %d a je %d\n", symb_b, symb_a);
-        
+        }        
 
         if(symb_b > END) {
           pop(&stack);
-          //printf("error in main fca\n");
           callError(ERR_SYN);
         }
-        //printf("znak z tabulky je %d\n", table[symb_a][symb_b]);
         switch (table[symb_a][symb_b]) {
           case E:
               equal(&stack, symb_a, &(*token));
@@ -297,20 +273,15 @@ void expression(Token *token, bool var) {
               less(&stack, symb_a, &(*token));
               break;
           case G:
-              //printf("top zasobnika je %d\n", top(&stack));
               greater(&stack);
               rdc = true;
               break;
           case X:
               clear(&stack);
-              //todo error prazdne miesto z tabulky
-              //printf("error prazdna tabulka\n");
               callError(ERR_SYN);
               break;
           default:
               clear(&stack);
-              //todo error
-              //printf("error neexistujuca hodnota\n");
               callError(ERR_SYN);
               break;
         }
@@ -322,13 +293,10 @@ void expression(Token *token, bool var) {
           brac_count--;
         }
 
-        //printf("brac count je %d\n", brac_count);
-
         if(!rdc) {
           *token = getTokenFromList();
           if(token->type == RIGHT_BRACKET && sign == true) {
             if(symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV) {
-              //("errooooor\n");
               callError(ERR_SYN);
             }
           }
@@ -339,11 +307,8 @@ void expression(Token *token, bool var) {
         sign = false;
       } 
     }
-  //printstack(&stack); 
   clear(&stack);
   clear(&tmp_stack);  
-  //destroyStack(*(*stack));
-  //destroyStack(*(&tmp_stack));
   
 }
 
@@ -395,7 +360,6 @@ expr_symb token_to_index(int token) {
 }
 
 void equal(struct stack_t *stack, expr_symb symb, Token *token) {
-  //*token = getTokenFromList(); //??? ma tu byt
   push(stack, symb, *token);
 }
 
@@ -403,24 +367,20 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
   struct stack_t *curr_ptr = stack;
   stack_item_t *prev_ptr = NULL;
   Token token;
-  //printf("%d token je\n", t->type);
   switch(t->type) {
     case NUMBER:
     case DECIMAL_NUMBER:
     case EXPONENT_NUMBER:
-      //todo pridat do hash 
       break;
     case VAR_ID:
     case IDENTIFIER:
       token = *t;
       break;  
     case  STRING:
-      //todo pridat do hash 
       break;
     default:
       break;
   }
-  //printf("idem pushnut %d\n", symb);
   if (top(curr_ptr) <= ENDSTACK) {
     push(stack, L, token);
     push(stack, symb, token);
@@ -432,8 +392,6 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
     tmp_item = malloc(sizeof(struct stack_t));
     if(tmp_item == NULL) {
       clear(stack);
-      //todo error
-      //printf("chyba pri alokacii\n");
       callError(ERR_INTERNAL);
     }
 
@@ -445,8 +403,6 @@ void less(struct stack_t *stack, expr_symb symb, Token *t) {
   }
 
   clear(stack);
-  //todo error
-  //printf("chyba pri less\n");
   callError(ERR_SYN);
 }
 
@@ -455,7 +411,6 @@ void greater(struct stack_t *stack) {
   struct stack_t tmp_stack;
   newStack(&tmp_stack);
 
-  //printf("vrchol stacku je %d\n", stack->head->symbol);
   while(top(stack) != ENDSTACK) {
     if(top(curr_ptr) != L) {
       push(&tmp_stack,top(curr_ptr), curr_ptr->head->token);
@@ -463,9 +418,7 @@ void greater(struct stack_t *stack) {
     }
     else {
       curr_ptr->head = curr_ptr->head->next;
-      //printf("%d top tmp\n", top(&tmp_stack));
       switch (top(&tmp_stack)) {
-        //EXPR → literal 
         case FUNC:
         case VALUE: {
             Token tmp_token = tmp_stack.head->token;
@@ -473,141 +426,14 @@ void greater(struct stack_t *stack) {
             if(empty(&tmp_stack)) {
               clear(&tmp_stack);
               clear(stack);
-              //todo error
-              //printf("error rule EXPR → literal\n");
               callError(ERR_SYN);
             }
             push(curr_ptr, NONTERM, tmp_token);
             break;
           }
-        //EXPR → ( EXPR ) 
-        case BRACE_L:
-            if(top(&tmp_stack) != BRACE_L) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("error v E -> (E)\n");
-              callError(ERR_SYN);
-            }
-            pop(&tmp_stack);
-            if(top(&tmp_stack) != NONTERM) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("error v E -> (E)\n");
-              callError(ERR_SYN);
-            }
-            Token tmp_token = tmp_stack.head->token;
-            pop(&tmp_stack);
-            if(top(&tmp_stack) != BRACE_L) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("error v E -> (E)\n");
-              callError(ERR_SYN);
-            }
-            pop(&tmp_stack);
-            if(empty(&tmp_stack)) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("error v E -> (E)\n");
-              callError(ERR_SYN);
-            }
-            push(curr_ptr, NONTERM, tmp_token);
-            break;
-          //// E-> E op E
-        case NONTERM: 
-            //printf("tu som v grt\n");
-            if(top(&tmp_stack) != NONTERM) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("error v operandoch\n");
-              callError(ERR_SYN);
-            }
-            Token token = tmp_stack.head->token;
-            //printf("%d token je\n", token.type);
-            pop(&tmp_stack);
-            if(top(&tmp_stack) > COM) {
-              if(top(&tmp_stack) != KONK) {
-                clear(&tmp_stack);
-                clear(stack);
-                //todo error
-                //printf("error v operandoch\n");
-                callError(ERR_SYN);
-              }
-            }
-            rules op;
-            switch (top(&tmp_stack)) {
-              case PLS:
-                op = R_ADD;
-                break;
-              case MNS:
-                op = R_SUB;
-                break;
-              case MUL:
-                op = R_MUL;
-                break;
-              case DIV:
-                op = R_DIV;
-              case EQ:
-                op = R_EQ;
-                break;
-              case NEQ:
-                op = R_NEQ;
-                break;
-              case GTHE:
-                op = R_GE;
-                break;
-              case LTHE:
-                op = R_LE;
-                break;
-              case GTH:
-                op = R_G;
-                break;
-              case LTH:
-                op = R_L;
-                break;
-              case KONK:
-                op = R_KONK;
-                break;
-              default:
-                //printf("error switch v greater\n");
-                callError(ERR_SYN);
-                break;
-            }
-
-            pop(&tmp_stack);
-            if(top(&tmp_stack) != NONTERM) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo erooor
-              //printf("error v operandoch\n");
-              callError(ERR_SYN);
-            }
-
-            Token token2 = tmp_stack.head->token;
-            pop(&tmp_stack);
-          
-            if(empty(&tmp_stack)) {
-              clear(&tmp_stack);
-              clear(stack);
-              //todo error
-              //printf("stack error\n");
-              callError(ERR_SYN);
-            }
-
-            //???
-            //printf("tu v E op E je %d %d\n", token.type, token2.type);
-            push(curr_ptr, NONTERM, token2);
-            //printf("som aj tu?\n");
-            break;
         default:
           clear(&tmp_stack);
           clear(stack);
-          //todo error
-          //printf("error v rules\n");
           callError(ERR_SYN);
           break;
       }
@@ -616,42 +442,7 @@ void greater(struct stack_t *stack) {
   }
    clear(&tmp_stack);
    clear(stack);
-   //printf("error koniec grt\n");
    callError(ERR_SYN);
-}
-
-void printstack(struct stack_t *stack){
-	expr_symb temp = top(stack);
-	while(temp != ENDSTACK){
-		switch(temp){
-			case NONTERM:
-				printf("E\n");
-				break;
-			case BRACE_L:
-				printf("(\n");
-				break;
-			case L:
-				printf("<\n");
-				break;
-			case MUL:
-				printf("*\n");
-				break;
-			case BRACE_R:
-				printf(")\n");
-				break;
-			case VALUE:
-				printf("i\n");
-				break;
-			default:
-				break;
-			// case FUNC:
-			// 	printf("FUNC\n");
-			// 	break;
-		}
-		pop(stack);
-		temp = top(stack);
-	}
-	//printf("$\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -670,7 +461,7 @@ void insert_first(char *data, d_list_types d_type) {
 void deleteFirst() {
    struct variables *tmp;
    if(head_var == NULL) {
-    callError(ERR_INTERNAL); //???
+    callError(ERR_INTERNAL);
     return;
    }
 
@@ -769,22 +560,6 @@ struct functions* find_fce(char *key) {
    return current_fce;
 }
 
-void printList() {
-   struct variables *ptr = head_var;
-   while(ptr != NULL) {
-      //printf("v liste je %s %d\n", ptr->data, ptr->type);
-      ptr = ptr->next;
-   }
-}
-
-void print_list_fce() {
-  struct functions *ptr = head_var_fce;
-   while(ptr != NULL) {
-      //printf("v liste fce je %s %d\n", ptr->fce_name, ptr->return_type);
-      ptr = ptr->next;
-   }
-}
-
 d_list_types token_to_d_type(int d_type) {
   switch (d_type) {
   case STRING:
@@ -830,64 +605,11 @@ Token exp_sem_var(element *e, bool in_func) {
     deleteFirst();
     fce = false;
   }
-  
-  //ak je premenna neexistuje, a dlzka arg listu je 1, ulozim a typ je priradeny prva hodnota
-  /*if((find(e->name.info)) == NULL && e->argslist->len == 1) {
-    if(e->argslist->list[1].arg.type == VAR_ID) {
-      if(find(e->argslist->list[1].arg.info) == NULL) {
-        //printf("error, nedeklarovana premenna\n");
-        callError(ERR_SEM_VAR);
-      }
-      else {
-        if(in_func == true) {
-          start_index = get_position("start");
-          key_index = get_position(e->argslist->list[1].arg.info);
-          if(start_index < key_index) {
-            //printf("error nedeklarovana premenna vo fce\n");
-            callError(ERR_SEM_VAR);
-          }
-        }
-        tmp_var = find(e->argslist->list[1].arg.info);
-        arg_type = tmp_var->type;
-      }
-    }
-    else if(e->argslist->list[1].arg.type == IDENTIFIER && e->argslist->list[1].arg.kwt == NULL_K) {
-      arg_type = kw_to_d_type(e->argslist->list[1].arg.kwt);
-    }
-    else {
-      arg_type = token_to_d_type(e->argslist->list[1].arg.type);
-    }
-  }
-  else {
-    //skontrolovat ci nie je premennej priradeny iny typ nez predtym, ak ano, ulozim novy
-    curr = find(e->name.info);
-    //arglist vacsi ako 1 -> vtedy nic nemenim lebo vacsi vyraz -> kontrolujem vtedy dalej a az potom ulozim typ
-    if(e->argslist->len == 1) {
-      if(e->argslist->list[1].arg.type == VAR_ID) {
-        if(find(e->argslist->list[1].arg.info) == NULL) {
-          //printf("error, nedeklarovana premenna\n");
-          callError(ERR_SEM_VAR);
-        }
-        else {
-          tmp_var = find(e->argslist->list[1].arg.info);
-          arg_type = tmp_var->type;
-        }
-      }
-      else if(e->argslist->list[1].arg.type == IDENTIFIER && e->argslist->list[1].arg.kwt == NULL_K) {
-        arg_type = kw_to_d_type(e->argslist->list[1].arg.kwt);
-      }
-      else {
-        arg_type = token_to_d_type(e->argslist->list[1].arg.type);
-      }
-    }
-  }*/
 
   for(int i = 1; i < e->argslist->len + 1; i++) {
-    //printf("%s %d %d\n", e->name.info, e->argslist->list[i].arg.type, e->argslist->len);
     curr = find(e->name.info);
     if((e->argslist->list[i].arg.type == VAR_ID) && (fce_call == false)) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
-        //printf("error, nedeklarovana premenna\n");
         callError(ERR_SEM_VAR);
       }
       else {
@@ -895,7 +617,6 @@ Token exp_sem_var(element *e, bool in_func) {
           start_index = get_position("start");
           key_index = get_position(e->argslist->list[i].arg.info);
           if(start_index < key_index) {
-            //printf("error nedeklarovana premenna vo fce\n");
             callError(ERR_SEM_VAR);
           }
         }
@@ -906,8 +627,6 @@ Token exp_sem_var(element *e, bool in_func) {
         else {
           if(arg_type == D_STRING && arg_type != tmp_var->type) {
             if(tmp_var->type != D_NULL) {
-              //printList();
-              //printf("error nekompatibilne datove typy pri cmp\n");
               callError(ERR_SEM_COMPAT);
             }
             
@@ -927,7 +646,6 @@ Token exp_sem_var(element *e, bool in_func) {
         }
         else {
           if(arg_type != token_to_d_type(e->argslist->list[i].arg.type) ) {
-            //printf("error nekompatibilne datove typy pri cmp\n");
             callError(ERR_SEM_COMPAT);
           }
         }
@@ -942,11 +660,9 @@ Token exp_sem_var(element *e, bool in_func) {
         
     }
     else if((e->argslist->list[i].arg.type == DOT) && (arg_type == D_NUM || arg_type == D_EXP_NUMB || arg_type == D_DECM_NUM)) {
-      //printf("error, zle pouzitie operatora konk\n");
       callError(ERR_SEM_COMPAT);
     }
     else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS || e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (arg_type == D_STRING)) {
-      //printf("error, zle pouzitie operatora plus, minus, krat, delene\n");
       callError(ERR_SEM_COMPAT);
     }
     else if(e->argslist->list[i].arg.type == IDENTIFIER) {
@@ -1004,11 +720,9 @@ Token exp_sem_var(element *e, bool in_func) {
         else {
           int index = getListIndex();
           arg_type = find_in_list(&(*e->argslist->list[i].arg.info));
-          //printf("do arg type pride %d\n", arg_type);
           changeTokenListIndex(index);
 
           if(arg_type == D_NON) {
-            //printf("Error, neexistujuca funkcia\n");
             callError(ERR_SEM_FUNC);
           }
           fce_call = true;
@@ -1024,13 +738,6 @@ Token exp_sem_var(element *e, bool in_func) {
     else if(e->argslist->list[i].arg.type == LEFT_BRACKET) {
       brc_count++;
     }
-    //todo
-    //ak je < ==! == > atd =>error
-    /*else {
-      printf("Error\n");
-    }*/
-    
-
   }
 
   if(find(e->name.info) != NULL && in_func == false) {
@@ -1047,8 +754,6 @@ Token exp_sem_var(element *e, bool in_func) {
   t.info = d_type_to_info(arg_type);
   
   arg_type = D_NON;
-  //printList();
-  //printf("koniec iteracie\n");
 
   return t;
 }
@@ -1059,18 +764,31 @@ Token exp_sem_ifwhile(element *e, bool in_func) {
 
   struct variables* tmp_var;
   d_list_types arg_type = D_NON;
+
+  Token t;
+
+  if(e->argslist == NULL) {
+    if(find(e->name.info) == NULL) {
+      callError(ERR_SEM_VAR);
+    }
+    else {
+      t.isKeyword = true;
+      t.type = IDENTIFIER;
+      t.kwt = NULL_K;
+      t.info = "null";
+      return t;
+    }
+    
+  }
   
   for(int i = 0; i < e->argslist->len + 1; i++) {
-    //printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
-        printf("error, nedeklarovana premenna\n");
         callError(ERR_SEM_VAR);
       }
     }
   }
 
-  Token t;
   t.isKeyword = true;
   t.type = IDENTIFIER;
   t.kwt = INT_K;
@@ -1084,9 +802,22 @@ Token exp_sem_return(element *e, bool in_func) {
   struct variables* tmp_var;
   d_list_types ret_t; 
   d_list_types arg_type = D_NON;
+  Token t;
 
+  if(e->argslist == NULL) {
+    if(find(e->name.info) == NULL) {
+      callError(ERR_SEM_VAR);
+    }
+    else {
+      t.isKeyword = true;
+      t.type = IDENTIFIER;
+      t.kwt = NULL_K;
+      t.info = "null";
+      return t;
+    }
+    
+  }
 
-  //printf("%d dlzka je\n", e->argslist->list[0].arg.type);
   if(in_func == true) {
     if(head_var_fce->return_type == D_NULL && e->argslist->list[0].arg.type != SEMICOLON) {
       callError(ERR_SEM_RETURN );
@@ -1097,7 +828,6 @@ Token exp_sem_return(element *e, bool in_func) {
     if(in_func == true) {
       if(e->argslist->list[i].arg.type == VAR_ID) {
         if(find(e->argslist->list[i].arg.info) == NULL) {
-          //printf("error, nedeklarovana premenna pri return\n");
           callError(ERR_SEM_VAR);
         }
         else {
@@ -1112,12 +842,10 @@ Token exp_sem_return(element *e, bool in_func) {
                 break;
               case D_NULL:
                 if(head_var_fce->can_be_null == false) {
-                  //printf("error null ako navratovy typ");
                   callError(ERR_SEM_ARGS);
                 }
                 break;
               case D_STRING:
-                //printf("error, zly navratovy typ\n");
                   callError(ERR_SEM_ARGS);
               break;
             }
@@ -1128,12 +856,10 @@ Token exp_sem_return(element *e, bool in_func) {
                 break;
               case D_NULL:
                 if(head_var_fce->can_be_null == false) {
-                  //printf("error null ako navratovy typ\n");
                   callError(ERR_SEM_ARGS);
                 }
                 break;
               default:
-                  //printf("error, zly navratovy typ\n");
                   callError(ERR_SEM_ARGS);
               break;
             }
@@ -1152,7 +878,6 @@ Token exp_sem_return(element *e, bool in_func) {
             case D_EXP_NUMB:
               break;
             case D_STRING:
-              //printf("error nekompatibilna hodnota s datovym typom v return\n");
               callError(ERR_SEM_ARGS);
               break;
           }
@@ -1163,29 +888,24 @@ Token exp_sem_return(element *e, bool in_func) {
                 break;
               case D_NULL:
                 if(head_var_fce->can_be_null == false) {
-                  //printf("error null ako navratovy typ\n");
                   callError(ERR_SEM_ARGS);
                 }
                 break;
               default:
-                //printf("error, zly navratovy typ\n");
                   callError(ERR_SEM_ARGS);
               break;
             }
         }
       }
       else if((e->argslist->list[i].arg.type == DOT) && (head_var_fce->return_type == D_NUM || head_var_fce->return_type == D_EXP_NUMB || head_var_fce->return_type == D_DECM_NUM)) {
-        //printf("error, zle pouzitie operatora konk v return\n");
         callError(ERR_SEM_COMPAT);
       }
       else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS || e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (head_var_fce->return_type == D_STRING)) {
-        //printf("error, zle pouzitie operatora plus, minus, krat, delene v return\n");
         callError(ERR_SEM_COMPAT);
       }
       else if(e->argslist->list[i].arg.type == IDENTIFIER && e->argslist->len == 1) {
         ret_t = kw_to_d_type(e->argslist->list[i].arg.kwt);
         if(ret_t == D_NULL && head_var_fce->can_be_null != true) {
-          //printf("error null nemoze byt ako navratovy typ\n");
           callError(ERR_SEM_ARGS);
         }
       } 
@@ -1194,7 +914,6 @@ Token exp_sem_return(element *e, bool in_func) {
     else {
       if((e->argslist->list[i].arg.type == VAR_ID)) {
         if(find(e->argslist->list[i].arg.info) == NULL) {
-          //printf("error, nedeklarovana premenna\n");
           callError(ERR_SEM_VAR);
         }
         else {
@@ -1204,7 +923,6 @@ Token exp_sem_return(element *e, bool in_func) {
           }
           else {
             if(arg_type == D_STRING && (arg_type != tmp_var->type)) {
-              //printf("error nekompatibilne datove typy pri cmp\n");
               callError(ERR_SEM_COMPAT);
             }
             else if(tmp_var->type == D_NUM || tmp_var->type == D_EXP_NUMB ||  tmp_var->type == D_DECM_NUM) {
@@ -1222,7 +940,6 @@ Token exp_sem_return(element *e, bool in_func) {
           }
           else {
             if(arg_type != token_to_d_type(e->argslist->list[i].arg.type) ) {
-              //printf("error nekompatibilne datove typy pri cmp\n");
               callError(ERR_SEM_COMPAT);
             }
           }
@@ -1237,11 +954,9 @@ Token exp_sem_return(element *e, bool in_func) {
           
       }
       else if((e->argslist->list[i].arg.type == DOT) && (arg_type == D_NUM || arg_type == D_EXP_NUMB || arg_type == D_DECM_NUM)) {
-        //printf("error, zle pouzitie operatora konk\n");
         callError(ERR_SEM_COMPAT);
       }
       else if((e->argslist->list[i].arg.type == PLUS || e->argslist->list[i].arg.type == MINUS || e->argslist->list[i].arg.type == MULTIPLY || e->argslist->list[i].arg.type == DIVIDE) && (arg_type == D_STRING)) {
-        //printf("error, zle pouzitie operatora plus, minus, krat, delene\n");
         callError(ERR_SEM_COMPAT);
       }
       else if(e->argslist->list[i].arg.type == IDENTIFIER) {
@@ -1254,7 +969,6 @@ Token exp_sem_return(element *e, bool in_func) {
     }
   }
 
-  Token t;
   if(in_func == true) {
      if(e->argslist->list[0].arg.type == SEMICOLON) {
       t.isKeyword = true;
@@ -1283,16 +997,8 @@ Token exp_sem_return(element *e, bool in_func) {
       t.kwt = INT_K;
       t.info = "int";
     }
-    /*int index = getListIndex();
-    arg_type = find_in_list(e->name.info);
-    changeTokenListIndex(index);
+  }
 
-      if(arg_type == D_NON) {
-        //printf("Error, neexistujuca funkcia\n");
-        callError(ERR_SEM_FUNC);
-      }*/
-    }
-    //printf("%s\n", t.info);
   return t;
 }
 
@@ -1309,14 +1015,12 @@ void exp_sem_func(element *e) {
   insert_first("start", D_NON);
   if(e->argslist != NULL) {
       for (int i = 0; i < e->argslist->len; i++) {
-          //printf("%d %d\n", e->argslist->list[i].arg.type, e->argslist->list[i].type.type);
           if (e->argslist->list[i].type.isKeyword) {
               fce_param_type = kw_to_d_type(e->argslist->list[i].type.kwt);
           }
           insert_first(e->argslist->list[i].arg.info, fce_param_type);
       }
   }
-  //print_list_fce();
 }
 
 d_list_types kw_to_d_type(int kw_type) {
