@@ -2,9 +2,10 @@
 #include "errors.h"
 #include "expr.h"
 
-#define SIZE 17
+#define SIZE 18
 bool rdc = false;
 bool fce = false;
+bool sign = false;
 struct variables *head_var = NULL;
 struct variables *current = NULL;
 struct functions *head_var_fce = NULL;
@@ -33,23 +34,25 @@ struct functions *current_fce = NULL;
 
 // TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
-				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
-	/* VALUE*/	  {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L},
-	/* PLUS*/		  {G, E, L, L, L, L, L, L, L, L, L, X, L, L, G, L},
-	/* MINUS*/	  {G, L, E, L, L, L, L, L, L, L, L, X, L, L, G, L},
-	/* MULTI*/	  {G, L, L, E, L, L, L, L, L, L, L, X, L, L, G, L},
-	/* DIV */		  {G, L, L, L, E, L, L, L, L, L, L, X, L, L, G, L},
-	/* EQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* NEQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* GTHE */	  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* LTHE */	  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* GTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* LTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* COM */		  {G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, L},
-	/* BRACE_L */	{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, L},
-	/* BRACE_R */	{G, L, G, G, L, L, L, L, L, L, L, L, L, G, G, L},
-	/* KONK */		{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, L},
-	/* END */   	{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
+				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|FUNC|END*/
+	/* VALUE*/	  {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, X, L},
+	/* PLUS*/		  {G, E, L, L, L, L, L, L, L, L, L, X, L, L, G, G, L},
+	/* MINUS*/	  {G, L, E, L, L, L, L, L, L, L, L, X, L, L, G, G, L},
+	/* MULTI*/	  {G, L, L, E, L, L, L, L, L, L, L, X, L, L, G, G, L},
+	/* DIV */		  {G, L, L, L, E, L, L, L, L, L, L, X, L, L, G, G, L},
+	/* EQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, G, L},
+	/* NEQ */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, G, L},
+	/* GTHE */	  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
+	/* LTHE */	  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
+	/* GTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
+	/* LTH */		  {G, L, L, L, L, G, G, G, G, G, G, X, L, L, L, G, L},
+	/* COM */		  {G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, G, L},
+	/* BRACE_L */	{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, G, L},
+	/* BRACE_R */	{G, L, L, L, L, L, L, L, L, L, L, L, L, G, G, G, L},
+	/* KONK */		{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, G, L},
+  /* FUNC */    {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, X, L},
+	/* END */   	{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
+  
 };
 
 
@@ -142,8 +145,15 @@ void expression(Token *token, bool var) {
     if(var == true) {
       while (token->type != SEMICOLON /*|| brac_count == 0)*/) {
         //printf("token nam chodi %d\n", token->type);
-        symb_a = token_to_index(token->type);
+        if(token->isKeyword  && token->kwt == NULL_K) {
+          symb_a = VALUE;
+        }
+        else {
+          symb_a = token_to_index(token->type);
+        }
         symb_b = top(&stack);
+
+        //printf("%d symb a %d\n", symb_a, symb_b);
 
         /*if(token->type == LEFT_BRACKET) {
           brac_count++;
@@ -152,11 +162,32 @@ void expression(Token *token, bool var) {
           brac_count--;
         }*/
 
+        //printf(" top je %d\n", symb_b);
+        if(sign == true && (symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV)) {
+          if(symb_a != VALUE) {
+            //printf("chyba za znamienkom\n");
+            callError(ERR_SYN);
+          }
+        }
+        else if(symb_b == BRACE_R && (symb_a == VALUE || symb_a == BRACE_L)) {
+          //printf("error zatvorka ynamnienko\n");
+          callError(ERR_SYN);
+        }
+        else if(symb_b == VALUE && symb_a == BRACE_L) {
+          //printf("error zatvorka ynamnienko\n");
+          callError(ERR_SYN);
+        }
+        else if(symb_b == COMMA && symb_a != VALUE) {
+          callError(ERR_SYN);
+        }
+        else if(symb_b == FUNC && symb_a != BRACE_L) {
+          callError(ERR_SYN);
+        }
+
         if(symb_b == NONTERM) {
           expr_symb symb;
           while (1) {
             symb = top(&stack);
-                    //printf(" top je %d\n", symb);
             if(symb < NONTERM) {
               while(empty(&tmp_stack)) {
                 push(&stack, top(&tmp_stack), tmp_stack.head->token);
@@ -210,17 +241,49 @@ void expression(Token *token, bool var) {
 
         if(!rdc) {
           *token = getTokenFromList();
+          if(token->type == SEMICOLON && sign == true) {
+            if(symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV) {
+              //printf("error not rdc");
+              callError(ERR_SYN);
+            }
+          }
         }
         else {
           rdc = false;
         }
+        sign = false;
       } 
     }
     else if(var == false) {
-      while (token->type != RIGHT_BRACKET /*|| brac_count == 0)*/) {
-        symb_a = token_to_index(token->type);
+      while (token->type != RIGHT_BRACKET || brac_count != 1) {
+        //printf("token je %s %d\n", token->info, token->type);
+        if(token->isKeyword  && token->kwt == NULL_K) {
+          symb_a = VALUE;
+        }
+        else {
+          symb_a = token_to_index(token->type);
+        }
         symb_b = top(&stack);
-        //printf(" top je %d\n", symb_b);
+        //printf(" top je %d\n", token->type);
+
+        if(sign == true && (symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV)) {
+          if(symb_a != VALUE) {
+            //printf("chyba za znamienkom\n");
+            callError(ERR_SYN);
+          }
+          //sign = false;
+        }
+        else if(symb_b == BRACE_R && (symb_a == VALUE || symb_a == BRACE_L)) {
+          //printf("error zatvorka ynamnienko\n");
+          callError(ERR_SYN);
+        }
+        else if(symb_b == VALUE && symb_a == BRACE_L) {
+          //printf("error zatvorka ynamnienko\n");
+          callError(ERR_SYN);
+        }
+        else if(symb_b == COMMA && symb_a != VALUE) {
+          callError(ERR_SYN);
+        }
 
         if(symb_b == NONTERM) {
           expr_symb symb;
@@ -277,19 +340,28 @@ void expression(Token *token, bool var) {
               break;
         }
 
-        /*if(token->type == LEFT_BRACKET) {
+        if(token->type == LEFT_BRACKET) {
           brac_count++;
         }
         else if(token->type == RIGHT_BRACKET && rdc == false) {
           brac_count--;
-        }*/
+        }
+
+        //printf("brac count je %d\n", brac_count);
 
         if(!rdc) {
           *token = getTokenFromList();
+          if(token->type == RIGHT_BRACKET && sign == true) {
+            if(symb_b == PLS || symb_b == MNS || symb_b == MUL || symb_b == DIV) {
+              //("errooooor\n");
+              callError(ERR_SYN);
+            }
+          }
         }
         else {
           rdc = false;
         }
+        sign = false;
       } 
     }
   //printstack(&stack); 
@@ -303,16 +375,20 @@ void expression(Token *token, bool var) {
 expr_symb token_to_index(int token) {
     switch(token) {
       case PLUS:
+          sign = true;
           return  PLS;
       case MINUS:
+          sign = true;
           return MNS;
       case RIGHT_BRACKET:
           return BRACE_R;
       case LEFT_BRACKET:
           return BRACE_L;
       case MULTIPLY:
+          sign = true;
           return MUL;
       case DIVIDE:
+          sign = true;
           return DIV;
       case EQUAL:
           return EQ;
@@ -330,8 +406,9 @@ expr_symb token_to_index(int token) {
           return COM;
       case DOT:
           return KONK;
+      case IDENTIFIER: 
+          return FUNC;   
       case VAR_ID:
-      case IDENTIFIER:
       case STRING:
       case NUMBER:
       case DECIMAL_NUMBER:
@@ -414,7 +491,7 @@ void greater(struct stack_t *stack) {
       //printf("%d top tmp\n", top(&tmp_stack));
       switch (top(&tmp_stack)) {
         //EXPR → literal 
-
+        case FUNC:
         case VALUE: {
             Token tmp_token = tmp_stack.head->token;
             pop(&tmp_stack);
