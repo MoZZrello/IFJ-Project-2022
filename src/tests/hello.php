@@ -9,7 +9,7 @@ function hlavni_program(?int $year) : float {
 }
 
 $tmp = "ab" . "c";
-$tmp2 = 1;
+$tmp2 = strlen("truee");
 
 if(1+0 < 2-1){
     $var = strlen("true");

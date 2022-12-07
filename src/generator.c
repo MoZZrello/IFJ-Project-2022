@@ -1098,9 +1098,6 @@ void func_call_asign(element *e){
     func_call(e->argslist->list[1].arg.info);
     PRINT_LANE_ONE_ARG("POPS", "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
     print = retype_string(e->name);
-    sprintf(tmp, "%d", counter++);
-    print = realloc(print, sizeof(char) * (strlen(print) + strlen(tmp) + 2));
-    strcat(print, tmp);
     PRINT_LANE_ONE_ARG("DEFVAR", print);
     PRINT_LANE_TWO_ARG("MOVE", print, "LF@FUNC_RETURNED_ME_A_VAR_THANK_YOU_FUNC");
 }
