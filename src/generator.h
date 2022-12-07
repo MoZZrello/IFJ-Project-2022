@@ -54,7 +54,11 @@ RetType def_func_start(element* e, ht_table_t *table);
  *@param element* e -> pointer on element from table
  */
 void func_arg_print(element* e);
-
+/**
+ * @brief A function that determines the return value of a function
+ * @param element* e -> pointer on element from table
+ * @param RetType ret_type -> return function type
+ */
 void func_return(element* e, RetType ret_type);
 /**
  *@brief A function that prints the function body
