@@ -12,27 +12,6 @@ struct functions *head_var_fce = NULL;
 struct functions *current_fce = NULL;
 
 // TODO ZVRATENA TABUKA
-//int table [SIZE][SIZE] = {
-				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|END*/
-	/* VALUE*/	  //{X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L},
-	/* PLUS*/		  //{G, E, L, G, L, G, G, G, G, G, G, X, L, G, G, L},
-	/* MINUS*/	  //{G, G, E, G, G, G, G, L, L, L, L, X, L, G, G, L},
-	/* MULTI*/	  //{G, G, G, E, G, G, G, G, G, G, G, X, L, G, G, L},
-	/* DIV */		  //{G, L, G, G, E, G, G, G, G, G, G, X, L, L, G, L},
-	/* EQ */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* NEQ */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* GTHE */	  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* LTHE */	  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* GTH */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* LTH */		  //{G, L, L, L, L, G, G, G, G, G, G, X, L, G, L, L},
-	/* COM */		  //{G, X, X, X, X, X, X, X, X, X, X, E, L, L, L, L},
-	/* BRACE_L */	//{G, L, L, L, L, L, L, L, L, L, L, X, L, X, L, L},
-	/* BRACE_R */	//{G, G, G, G, L, G, G, G, G, G, G, L, L, G, G, L},
-	/* KONK */		//{G, L, L, L, L, G, G, G, G, G, G, G, L, G, E, L},
-	/* END */   	//{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
-//};
-
-// TODO ZVRATENA TABUKA
 int table [SIZE][SIZE] = {
 				/* VALUE|PLUS|MINUS|MULTI|DIV|EQ|NEQ|GTHE|LTHE|GTH|LTH|COM|BRACER_L|BRACE_R|KONK|FUNC|END*/
 	/* VALUE*/	  {X, L, L, L, L, L, L, L, L, L, L, L, L, L, L, X, L},
@@ -54,10 +33,6 @@ int table [SIZE][SIZE] = {
 	/* END */   	{G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, X}
   
 };
-
-
-
-//struct stack_t stack;
 
 void newStack(struct stack_t *theStack) {
     theStack->head = NULL;
@@ -835,11 +810,17 @@ Token exp_sem_var(element *e, bool in_func) {
   Token t;
 
   if(e->argslist == NULL) {
-    t.isKeyword = true;
-    t.type = IDENTIFIER;
-    t.kwt = NULL_K;
-    t.info = "null";
-    return t;
+    if(find(e->name.info) == NULL) {
+      callError(ERR_SEM_VAR);
+    }
+    else {
+      t.isKeyword = true;
+      t.type = IDENTIFIER;
+      t.kwt = NULL_K;
+      t.info = "null";
+      return t;
+    }
+    
   }
 
   if(in_func == false && fce == true) {
@@ -851,7 +832,7 @@ Token exp_sem_var(element *e, bool in_func) {
   }
   
   //ak je premenna neexistuje, a dlzka arg listu je 1, ulozim a typ je priradeny prva hodnota
-  if((find(e->name.info)) == NULL && e->argslist->len == 1) {
+  /*if((find(e->name.info)) == NULL && e->argslist->len == 1) {
     if(e->argslist->list[1].arg.type == VAR_ID) {
       if(find(e->argslist->list[1].arg.info) == NULL) {
         //printf("error, nedeklarovana premenna\n");
@@ -899,7 +880,7 @@ Token exp_sem_var(element *e, bool in_func) {
         arg_type = token_to_d_type(e->argslist->list[1].arg.type);
       }
     }
-  }
+  }*/
 
   for(int i = 1; i < e->argslist->len + 1; i++) {
     //printf("%s %d %d\n", e->name.info, e->argslist->list[i].arg.type, e->argslist->len);
@@ -1083,7 +1064,7 @@ Token exp_sem_ifwhile(element *e, bool in_func) {
     //printf("%s %d\n", e->name.info, e->argslist->list[i].arg.type);
     if(e->argslist->list[i].arg.type == VAR_ID) {
       if(find(e->argslist->list[i].arg.info) == NULL) {
-        //printf("error, nedeklarovana premenna\n");
+        printf("error, nedeklarovana premenna\n");
         callError(ERR_SEM_VAR);
       }
     }
