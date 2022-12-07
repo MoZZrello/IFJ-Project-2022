@@ -197,7 +197,7 @@ void gen_built_in_functions(ht_table_t *table, int key){
 void function_gen(ht_table_t *table){
     bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
     bool is_end = false; //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
-    bool inElse = false, inWhile = false;
+    bool inElse = false, inWhile = false, returned = false;
     element* e = NULL;
     char func[MAX_HT_SIZE];
     char else_end_label[20] = "$else_end_\0";
@@ -216,9 +216,7 @@ void function_gen(ht_table_t *table){
             is_end = false;
             continue;
         } else if (e->name.type == LEFT_CURLY_BRACKET){
-            if(is_function){
-                curly++;
-            }
+            curly++;
             if(inElse){
                 elseCurly++;
             }
@@ -228,6 +226,16 @@ void function_gen(ht_table_t *table){
             continue;
             //telo funkcie skoncilo }
         } else if (e->name.type == RIGHT_CURLY_BRACKET){
+            curly--;
+            if(curly == 0){
+                is_end = true;
+                is_function = false;
+                if(returned == false){
+                    func_return(e,(RetType){.return_type=0,.canBeNull=false});
+                } else {
+                    returned = false;
+                }
+            }
             if(inElse) {
                 elseCurly--;
                 if (elseCurly == 0) {
@@ -242,13 +250,6 @@ void function_gen(ht_table_t *table){
                     char tmp[MAX_HT_SIZE];
                     PRINT_LANE_ONE_ARG("JUMP", cycle_name);
                     PRINT_LANE_ONE_ARG("LABEL", cycle_end);
-                }
-            }
-            if(is_function){
-                curly--;
-                if(curly == 0){
-                    is_end = true;
-                    is_function = false;
                 }
             }
 
@@ -269,6 +270,8 @@ void function_gen(ht_table_t *table){
             }else{
                 var_expr_gen(e);
             }
+        } else if(e->name.isKeyword && e->name.kwt == RETURN_K){
+            returned = true;
         }
         //printujem telo funkcie
         if(is_function && is_end == false){

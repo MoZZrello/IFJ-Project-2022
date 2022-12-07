@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 $x = readi();
-function f(int $x) : void{
+
+function f(int $x) : void {
  if($x >= 2) {
      $y = $x + 1;
      write($y);

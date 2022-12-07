@@ -103,6 +103,12 @@ PUSHS int@1
 CALL $write
 JUMP $while_cycle_3
 LABEL $while_end_4
+DEFVAR LF@return
+MOVE LF@return nil@nil
+PUSHS LF@return
+POPFRAME
+RETURN
+
 LABEL $main
 CREATEFRAME
 PUSHFRAME
