@@ -1048,9 +1048,9 @@ void see_call_arguments(ht_table_t *table, element func, element call, int key){
         }
 
         int i = 0;
+        int commaCount = 0;
         while(i < func.argslist->len){
-            int commaCount = 0;
-            if(call.argslist->list[i].arg.type == COMMA){
+            if(call.argslist->list[i+commaCount].arg.type == COMMA){
                 commaCount++;
             }
             if(call.argslist->list[i+commaCount].arg.type == VAR_ID){
