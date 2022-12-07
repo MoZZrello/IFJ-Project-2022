@@ -1,6 +1,7 @@
-//
-// Created by Marek Spirka on 27. 11. 2022.
-//
+/*
+ * Created by Marek Spirka and Richard Harman on 27.11.2022
+ */
+
 #include "generator.h"
 
 int counter = 0;
@@ -39,8 +40,8 @@ void start_program(){
 
 //---------------------------------------FUNCTIONS-------------------------------------------------//
 void function_gen(ht_table_t *table){
-    bool is_function = false; // zistenie ci mame funkciu ak ano printime ak nie nic sa nestane,
-    bool is_end = false; //is_end ak sa dostaneme na koniec funkcie prestaneme print == }
+    bool is_function = false;
+    bool is_end = false;
     bool inElse = false, inWhile = false, returned = false;
     element* e = NULL;
     char func[MAX_HT_SIZE];
@@ -1536,7 +1537,8 @@ void gen_while(ht_table_t *t, element *e){
     }
 }
 
-//------------------------------------------------HELP------------------------------------------------------//
+//--------------------------------------------HELP-----------------------------------------------//
+
 bool is_var_new(char* var_list, char* var){
     if(var_list == NULL){
         return true;

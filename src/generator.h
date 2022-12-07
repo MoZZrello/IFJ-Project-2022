@@ -1,6 +1,6 @@
-//
-// Created by Marek Spirka on 27. 11. 2022.
-//
+/*
+ * Created by Marek Spirka and Richard Harman on 27.11.2022
+ */
 
 #ifndef SCANNER_C_GENERATOR_H
 #define SCANNER_C_GENERATOR_H
