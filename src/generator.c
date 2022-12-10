@@ -26,7 +26,6 @@ void PRINT_LANE_ZERO_ARG(char* name) {
 }
 
 void gen_program(ht_table_t *table, int no_build_in_func){
-    counter = 0;
     start_program();
     gen_built_in_functions(table, no_build_in_func);
     function_gen(table);
